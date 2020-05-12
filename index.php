@@ -104,7 +104,7 @@ audio/mpeg4-generic" required>
                 ?>
             </select>
             <small id="showNameHelp" class="form-text text-muted">
-                Show missing? <a href="#">Report it.</a>
+                Show missing? Please report it to technical staff.
             </small>
         </div>
         <div class="form-group bootstrap-timepicker timepicker">
