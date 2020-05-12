@@ -215,7 +215,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         // Save the details to save
-
         if (isset($_POST["saveAsDefaults"])) {
             $checkForExistingSavedDetails = $connections["submissions"]->prepare("SELECT * FROM saved_info WHERE `show` = ?");
             $checkForExistingSavedDetails->bind_param("i", $_POST["name"]);
