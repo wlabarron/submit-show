@@ -1,0 +1,5 @@
+{
+    "require": {
+        "flowjs/flow-php-server": "^1.0"
+    }
+}

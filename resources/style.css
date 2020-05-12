@@ -1,0 +1,34 @@
+body {
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.joint-input-top {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.joint-input-middle {
+  border-radius: 0px;
+}
+
+.joint-input-bottom {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+hr {
+  margin: 3rem 0;
+}
+
+.datepicker {
+  text-align: center;
+}
+
+.datepicker td {
+  padding: 3px 6px;
+}
+
+#detailsForm,  #initial-form-invalid, #files-unsupported, #defaultImageDisplay {
+  display: none;
+}

@@ -1,0 +1,31 @@
+<?php
+return array(
+    // Show details database
+    'detailsServer' => 'localhost',
+    'detailsUser' => '',
+    'detailsPassword' => '',
+    'detailsDatabaseName' => '',
+
+    // Query which returns a show's name and presenter in the columns "name" and "presenter" where the ID is ?
+    'oneShowQuery' => 'SELECT name, presenter FROM shows WHERE intID = ?',
+    // Query which returns all show IDs, names, and presenters in columns "id", "name", "presenter"
+    'allShowsQuery' => 'SELECT intID AS id, name, presenter FROM shows ORDER BY name ASC',
+
+    // Show submissions database
+    'submissionsServer' => 'localhost',
+    'submissionsUser' => '',
+    'submissionsPassword' => '',
+    'submissionsDatabaseName' => '',
+
+    // Folder where show files will be stored
+    'uploadFolder' => '',
+    // Folder for temporary storage of uploading chunks
+    'config.php' => '',
+
+    // Text appended to the description of every upload. Use '{n}' for a new line.
+    'fixedDescription' => '',
+
+    // Access token for Mixcloud account - https://www.mixcloud.com/developers/
+    'mixcloudAccessToken' => ''
+);
+?>
