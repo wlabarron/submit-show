@@ -73,23 +73,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "technology",
         "other");
 
-    ////////////////
-    // Validation //
-    ////////////////
+    /////////////////////////
+    // VALIDATION AND PREP//
+    /////////////////////////
 
     $inputValid = true;
 
-    error_log(json_encode($_POST));
-
+    //////////////
+    // Presence //
+    //////////////
     if (is_null($_POST["date"]) ||
         is_null($_POST["endTime"]) ||
-        is_null($_POST["tag1"]) ||
         is_null($_POST["showFileUploadName"]) ||
         is_null($_POST["imageSelection"])) {
         $inputValid = false;
         error_log("Form missing parts");
         // TODO form missing parts
     } else {
+        //////////////
+        // Datetime //
+        //////////////
         // get the datetime the show ended at
         $endDateTime = strtotime($_POST["date"] . " " . $_POST["endTime"]);
 
@@ -104,6 +107,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $endDateTime = date_add($endDateTime, date_interval_create_from_date_string("1d"));
             }
 
+            /////////////////
+            // Description //
+            /////////////////
             // check description length
             if (strlen($_POST["description"]) > (999 - strlen($config["fixedDescription"]))) {
                 $inputValid = false;
@@ -111,6 +117,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 // TODO description too long
             }
 
+            //////////
+            // Tags //
+            //////////
             // check length of each tag
             foreach ($tags as $tag) {
                 if (strlen($tag) > 20) {
@@ -120,13 +129,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 }
             }
 
-            // check if the first tag is one of the options for a primary tag
-            if (!in_array($tags[0], $primaryTagOptions)) {
-                $inputValid = false;
-                error_log("First tag isn't a default tag.");
-                // TODO first tag isn't a default tag
+            // check if the first tag (if it exists) is one of the options for a primary tag
+            if (sizeof($tags) > 0) {
+                if (!in_array($tags[0], $primaryTagOptions)) {
+                    $inputValid = false;
+                    error_log("First tag isn't a default tag.");
+                    // TODO first tag isn't a default tag
+                }
             }
 
+            ///////////////////////////////
+            // File and Publication Name //
+            ///////////////////////////////
             // Get show details
             // prepare a database query for show info
             $showDetailsQuery = $connections["details"]->prepare($config["oneShowQuery"]);
@@ -139,22 +153,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // get the show's date
             $date = date("ymd", strtotime($_POST["date"]));
 
-            // split the show file's name by "."
+            // split the uploaded show file's name by ".", from which we'll take the extension in a moment
             $fileNameSplit = explode(".", $_POST["showFileUploadName"]);
 
             // have a guess at the path of the uploaded file
-            $showFilePath = $config["uploadFolder"] . $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit);
+            $showFilePath = $config["uploadFolder"] . "/" . $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit);
 
+            // If that guess was correct
             if (!file_exists($showFilePath)) {
                 $inputValid = false;
                 error_log("Can't find uploaded show file. " . $showFilePath);
                 // TODO can't find uploaded show file
-            } else if ($_POST["imageSelection"] == "upload") {
+            } else if ($_POST["imageSelection"] == "upload") { // if the user has chosen to upload an image
+                // If they actually have uploaded an image
                 if (!empty($_FILES["image"]["name"])) {
                     // Get image file type
                     $fileType = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
-
-                    error_log($_FILES["image"]["name"]);
 
                     // if the image's type is allowed
                     $allowTypes = array('jpg', 'png', 'jpeg');
@@ -165,36 +179,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $inputValid = false;
                         // TODO image format invalid
                     }
-                } else {
+                } else { // if they've not uploaded an image, use null
                     $imgContent = null;
                 }
-            } else if ($_POST["imageSelection"] == "saved") {
+            } else if ($_POST["imageSelection"] == "saved") { // if they've chosen to use a previously-saved image
+                // get the image from the database and store it in the variable
                 $getSavedImageQuery = $connections["submissions"]->prepare("SELECT image FROM saved_info WHERE `show` = ?");
                 $getSavedImageQuery->bind_param("i", $_POST["name"]);
                 $getSavedImageQuery->execute();
                 $savedImageResults = mysqli_fetch_assoc($getSavedImageQuery->get_result());
                 $imgContent = $savedImageResults["image"];
+            } else { // if they've chosen not to use an image, use null
+                $imgContent = null;
             }
         }
     }
 
-    /////////////////////
-    // Handle the data //
-    /////////////////////
+    /////////////////
+    // HANDLE DATA //
+    /////////////////
 
+    // If the input is valid
     if ($inputValid) {
         $showSubmitted = true;
 
-        // Encode the description and prepare the Mixcloud name
+        // Put the submitted description together with the fixed one
         $description = $_POST["description"] . "\n\n" . str_replace("{n}", "\n", $config["fixedDescription"]);
+        // Prepare the standard name for Mixcloud
         $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . date("jS F o", strtotime($_POST["date"]));
 
+        // Insert the submission into the database
         $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))");
         $null = null;
         $insertSubmissionQuery->bind_param("sssbi", $showFilePath, $mixcloudName, $description, $null, $endDateTime);
-        if (isset($imgContent)) {
-            $insertSubmissionQuery->send_long_data(3, $imgContent);
-        }
+        $insertSubmissionQuery->send_long_data(3, $imgContent);
 
         if (!$insertSubmissionQuery->execute()) {
             // TODO insert failed
@@ -202,8 +220,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             error_log($insertSubmissionQuery->error);
         }
 
+        // Prepare a query to insert a tag into the database
         $insertTagsQuery = $connections["submissions"]->prepare("INSERT INTO tags (tag, submission) VALUES (?, (SELECT id FROM submissions WHERE file = ? LIMIT 1))");
 
+        // iterate through the passed tags, inserting them for each
         foreach ($tags as $tag) {
             $insertTagsQuery->bind_param("ss", $tag, $showFilePath);
 
@@ -216,6 +236,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Save the details to save
         if (isset($_POST["saveAsDefaults"])) {
+            // Find out if there's already any details saved for this show
             $checkForExistingSavedDetails = $connections["submissions"]->prepare("SELECT * FROM saved_info WHERE `show` = ?");
             $checkForExistingSavedDetails->bind_param("i", $_POST["name"]);
             $checkForExistingSavedDetails->execute();
@@ -247,8 +268,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 // TODO report this?
             }
 
+            // Prepare a query for saving tags
             $saveTagsQuery = $connections["submissions"]->prepare("INSERT INTO saved_tags (`show`, tag) VALUES (?, ?)");
 
+            // Iterate through the tags, inserting them into the database
             foreach ($tags as $tag) {
                 $saveTagsQuery->bind_param("ss", $_POST["name"], $tag);
 
@@ -260,11 +283,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         if ($showSubmitted) {
-            // TODO rejoice
+            $showAlertStyling = "#submit-success {display:block}";
         } else {
-            // TODO cry
+            $showAlertStyling = "#submit-fail {display:block}";
         }
+    } else {
+        $showAlertStyling = "#submit-invalid {display:block}";
     }
-} else {
-    // TODO invalid input error
 }

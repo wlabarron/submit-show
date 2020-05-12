@@ -15,7 +15,13 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
           integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
     <link rel="stylesheet" href="/resources/style.css">
-
+    <style>
+        <?php
+            if (isset($showAlertStyling)) {
+                echo $showAlertStyling;
+            }
+        ?>
+    </style>
 </head>
 <body>
 <!-- partial:index.partial.html -->
@@ -26,16 +32,43 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
         }
     </style>
     <div class="container">
-        <div class="alert alert-danger mt-5" role="alert">
+        <div class="alert alert-danger mt-2" role="alert">
             This page needs JavaScript to work.<br>
-            You'll need to <a href="https://www.enable-javascript.com/" target="_blank" class="alert-link">enable JavaScript</a>, then come back and refresh the page.
+            You'll need to <a href="https://www.enable-javascript.com/" target="_blank" class="alert-link">enable
+                JavaScript</a>, then come back and refresh the page.
         </div>
     </div>
 </noscript>
 <div class="container" id="files-unsupported">
+    <div class="alert alert-danger mt-2" role="alert">
+        Your browser doesn't support some of the technologies this uploader needs. Swap to another one, such as an
+        up-to-date version of Firefox, then try there.<br>
+        If you've not got another web browser installed, you can <a href="https://www.mozilla.org/en-GB/firefox/new/"
+                                                                    target="_blank" class="alert-link">download
+            Firefox</a>.
+    </div>
+</div>
+<div class="container" id="submit-success">
+    <div class="alert alert-success mt-2" role="alert">
+        <strong>Your show was submitted successfully.</strong> Thank you. You can upload another below, if you're so
+        inclined.
+    </div>
+</div>
+<div class="container" id="submit-fail">
+    <div class="alert alert-danger mt-2" role="alert">
+        <strong>Something went wrong submitting your show.</strong> Please report this to technical staff, including the
+        date and time you tried to upload your show. If your show is due to broadcast imminently, please submit your
+        show
+        by alternative means. Sorry about that.
+    </div>
+</div>
+<div class="container" id="submit-invalid">
     <div class="alert alert-danger mt-5" role="alert">
-        Your browser doesn't support some of the technologies this uploader needs. Swap to another one, such as an up-to-date version of Firefox, then try there.<br>
-        If you've not got another web browser installed, you can <a href="https://www.mozilla.org/en-GB/firefox/new/" target="_blank" class="alert-link">download Firefox</a>.
+        <strong>Something was wrong with the submitted info, but we're not sure what.</strong> Please try again, and if
+        the problem persists, please report this to technical staff, including the date and time you tried to upload
+        your
+        show. If your show is due to broadcast imminently, please submit your show by alternative means. Sorry about
+        that.
     </div>
 </div>
 <div class="container" id="page-content">
@@ -204,12 +237,14 @@ audio/mpeg4-generic" required>
                 <input type="text" class="form-control joint-input-bottom" aria-label="Tag" aria-describedby="tagsHelp"
                        id="tag5" name="tag5" maxlength="20">
                 <small id="tagsHelp" class="form-text text-muted">
-                    Good tags are things like the genres of music in the show.
+                    Good tags are things like the genres of music in the show. Pick the first from the dropdown, and
+                    type up to four more into the boxes.
                 </small>
             </div>
             <hr>
             <div class="form-group form-check">
-                <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults" name="saveAsDefaults" checked>
+                <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults" name="saveAsDefaults"
+                       checked>
                 <label class="form-check-label" for="saveAsDefaults" aria-describedby="saveHelp">
                     Save these values as the defaults for this show
                 </label>

@@ -1,4 +1,9 @@
 <?php
+
+use Flow\Basic;
+use Flow\Config;
+use Flow\Request;
+
 require_once '../vendor/autoload.php';
 require 'usefulFunctions.php';
 $config = require 'config.php';
@@ -34,10 +39,10 @@ if ( // if show name or broadcast date is missing, stop the upload
     $date = date("ymd", strtotime($broadcastDate));
 }
 
-$flowConfig = new \Flow\Config();
+$flowConfig = new Config();
 $flowConfig->setTempDir($config["tempDirectory"]);
-$request = new \Flow\Request();
-$uploadFolder = $config["uploadFolder"]; // Folder where the file will be stored
+$request = new Request();
+$uploadFolder = $config["uploadFolder"] . "/"; // Folder where the file will be stored
 
 // if the file name doesn't have the expected type of extension
 $fileNameSplit = explode(".", $request->getFileName());
@@ -53,7 +58,7 @@ if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileN
 
 $uploadPath = $uploadFolder.$uploadFileName;
 
-if (\Flow\Basic::save($uploadPath, $flowConfig, $request)) {
+if (Basic::save($uploadPath, $flowConfig, $request)) {
     error_log("Uploaded " . $uploadFileName);
 } else {
     // This is not a final chunk or request is invalid, continue to upload.

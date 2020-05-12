@@ -4,31 +4,37 @@ body {
 }
 
 .joint-input-top {
-  border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .joint-input-middle {
-  border-radius: 0px;
+  border-radius: 0;
 }
 
 .joint-input-bottom {
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-}
-
-hr {
-  margin: 3rem 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .datepicker {
   text-align: center;
 }
 
+hr {
+  margin: 3rem 0;
+}
+
 .datepicker td {
   padding: 3px 6px;
 }
 
-#detailsForm,  #initial-form-invalid, #files-unsupported, #defaultImageDisplay {
+#detailsForm,
+#initial-form-invalid,
+#files-unsupported,
+#defaultImageDisplay,
+#submit-fail,
+#submit-invalid,
+#submit-success {
   display: none;
 }
