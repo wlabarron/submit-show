@@ -109,11 +109,21 @@ function uploadAndContinue() {
             if (data.imageExists) {
                 // show the default image display section and load in the image
                 $("#defaultImageDisplay").slideDown();
+                $("#imageSelection").val("saved");
+                $("#imageFileUploader").slideUp();
                 $("#defaultImage").attr("src", "/processing/getSavedShowImage.php?show=" + $("#showNameInput").val());
             }
         });
     } else {
         // show an error if the form so far is invalid
         $("#initial-form-invalid").slideDown();
+    }
+}
+
+function changeUploadState() {
+    if ($("#imageSelection").val() === "upload") {
+        $("#imageFileUploader").slideDown();
+    } else {
+        $("#imageFileUploader").slideUp();
     }
 }

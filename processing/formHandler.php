@@ -84,7 +84,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (is_null($_POST["date"]) ||
         is_null($_POST["endTime"]) ||
         is_null($_POST["tag1"]) ||
-        is_null($_POST["showFileUploadName"])) {
+        is_null($_POST["showFileUploadName"]) ||
+        is_null($_POST["imageSelection"])) {
         $inputValid = false;
         error_log("Form missing parts");
         // TODO form missing parts
@@ -148,7 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $inputValid = false;
                 error_log("Can't find uploaded show file. " . $showFilePath);
                 // TODO can't find uploaded show file
-            } else {
+            } else if ($_POST["imageSelection"] == "upload") {
                 if (!empty($_FILES["image"]["name"])) {
                     // Get image file type
                     $fileType = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
@@ -167,6 +168,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 } else {
                     $imgContent = null;
                 }
+            } else if ($_POST["imageSelection"] == "saved") {
+                $getSavedImageQuery = $connections["submissions"]->prepare("SELECT image FROM saved_info WHERE `show` = ?");
+                $getSavedImageQuery->bind_param("i", $_POST["name"]);
+                $getSavedImageQuery->execute();
+                $savedImageResults = mysqli_fetch_assoc($getSavedImageQuery->get_result());
+                $imgContent = $savedImageResults["image"];
             }
         }
     }
@@ -185,7 +192,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))");
         $null = null;
         $insertSubmissionQuery->bind_param("sssbi", $showFilePath, $mixcloudName, $description, $null, $endDateTime);
-        $insertSubmissionQuery->send_long_data(3, $imgContent);
+        if (isset($imgContent)) {
+            $insertSubmissionQuery->send_long_data(3, $imgContent);
+        }
 
         if (!$insertSubmissionQuery->execute()) {
             // TODO insert failed
@@ -230,7 +239,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // insert details into the query
             $saveDetailsQuery->bind_param("sbi", $_POST["description"], $null, $_POST["name"]);
-            $saveDetailsQuery->send_long_data(1, $imgContent);
+            if (isset($imgContent)) {
+                $saveDetailsQuery->send_long_data(1, $imgContent);
+            }
             // save the show details to database
             if (!$saveDetailsQuery->execute()) {
                 error_log($saveDetailsQuery->error);

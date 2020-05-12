@@ -29,7 +29,7 @@ if (is_numeric($_GET["show"])) {
     $tags = mysqli_fetch_all(mysqli_stmt_get_result($savedTagsQuery));
 
     // If an image exists, mark as such
-    if (!is_null($showDetails["image"])) {
+    if (!empty($showDetails["image"])) {
         $imageExists = true;
     } else {
         $imageExists = false;

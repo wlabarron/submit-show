@@ -117,13 +117,24 @@ audio/mpeg4-generic" required>
             <div class="form-group">
                 <label for="showImageInput">Show cover image</label>
                 <div id="defaultImageDisplay">
-                    If you don't upload an image, this one will be used:
-                    <div class="col-md-5">
-                        <img src="" alt="Previously uploaded cover image." width="100" id="defaultImage" />
+                    <div class="pl-5">
+                        Saved photo:
+                        <div class="col-md-5">
+                            <img src="" alt="Previously uploaded cover image." width="100" id="defaultImage"/>
+                        </div>
                     </div>
+                    <select class="form-control"
+                            id="imageSelection"
+                            aria-label="Choose how to proceed with the cover image"
+                            name="imageSelection"
+                            onchange="changeUploadState();">
+                        <option value="saved">Use saved photo for this show</option>
+                        <option value="upload" selected>Upload new photo</option>
+                        <option value="none">Don't use a photo</option>
+                    </select>
                 </div>
             </div>
-            <div class="bs-custom-file custom-file">
+            <div class="bs-custom-file custom-file" id="imageFileUploader">
                 <input type="file" class="custom-file-input" id="showImageInput" name="image">
                 <label class="custom-file-label" for="showImageInput" aria-describedby="showImageInputHelp">Choose
                     file</label>
