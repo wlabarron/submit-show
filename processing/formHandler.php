@@ -284,10 +284,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($showSubmitted) {
             $showAlertStyling = "#submit-success {display:block}";
+            error_log("Submission for show " . $_POST["name"] . " recorded.");
         } else {
             $showAlertStyling = "#submit-fail {display:block}";
+            error_log("Submission for show " . $_POST["name"] . " failed.\n" . json_encode($_POST));
         }
     } else {
         $showAlertStyling = "#submit-invalid {display:block}";
+        error_log("Submission for show " . $_POST["name"] . " had invalid input.\n" . json_encode($_POST));
     }
 }
