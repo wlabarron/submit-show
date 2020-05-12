@@ -51,7 +51,7 @@ function uploadAndContinue() {
     ) {
         // create a new uploader, with a query including the current form data
         uploader = new Flow({
-            target: '/processing/showfileupload.php/',
+            target: '/processing/showFileUpload.php/',
             uploadMethod: 'POST',
             singleFile: true,
             chunkSize: 10000000,
