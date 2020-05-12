@@ -79,6 +79,4 @@ if ($showsDueToPublish->num_rows > 0) {
         // delete the temporary image file
         unlink($config["tempDirectory"] . "/img.png");
     }
-} else {
-    error_log("No shows are due to publish to Mixcloud just now.");
 }
