@@ -1,6 +1,6 @@
 {
     "require": {
         "flowjs/flow-php-server": "^1.0",
-        "aws/aws-sdk-php": "^3.137"
+        "aws/aws-sdk-php": "^3.138"
     }
 }

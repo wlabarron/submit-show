@@ -60,6 +60,25 @@ $uploadPath = $uploadFolder . $uploadFileName;
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
     error_log("Uploaded " . $uploadFileName);
+
+    // if an S3 endpoint is set
+    if (!empty($config["s3Endpoint"])) {
+        try {
+            // send the file to S3
+            $result = $connections["s3"]->putObject([
+                'Bucket' => $config["s3Bucket"],
+                'Key' => "shows/" . $uploadFileName,
+                'SourceFile' => $uploadPath
+            ]);
+
+            // remove the uploaded show file from local storage
+            unlink($uploadPath);
+
+            error_log("Sent " . $uploadFileName . " to S3 and removed from local storage.");
+        } catch (S3Exception $e) {
+            error_log("Couldn't move " . $uploadFileName . " to S3. Error:\n" . $e->getMessage());
+        }
+    }
 } else {
     // This is not a final chunk or request is invalid, continue to upload.
 }

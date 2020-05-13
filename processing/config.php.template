@@ -20,7 +20,13 @@ return array(
     // Folder where show files will be stored
     'uploadFolder' => '',
     // Folder for temporary storage of uploading chunks
-    'config.php' => '',
+    'tempDirectory' => '',
+
+    // S3 storage details (if using local storage, leave as empty strings)
+    's3Endpoint' => '',
+    's3Region' => '',
+    's3Bucket' => '',
+    's3Profile' => '',
 
     // Text appended to the description of every upload. Use '{n}' for a new line.
     'fixedDescription' => '',

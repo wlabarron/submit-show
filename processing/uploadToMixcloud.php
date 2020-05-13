@@ -12,18 +12,37 @@ $removePublishedShows = $connections["submissions"]->prepare("DELETE FROM submis
 // if there are any, for each show
 if ($showsDueToPublish->num_rows > 0) {
     while ($show = $showsDueToPublish->fetch_assoc()) {
-        $showFile = new CURLFile($show["file"]);
+        $storageLocation = explode(":", $show["file"])[0];
+        $storageName = explode(":", $show["file"])[1];
+
+        if ($storageLocation == "local") { // if file is in local storage, load it
+            $showFile = new CURLFile($config["uploadFolder"] . "/" . $storageName);
+        } else if ($storageLocation == "s3") { // if file is in S3
+            try {
+                // Save object to a file
+                $result = $connections["s3"]->getObject(array(
+                    'Bucket' => $config["s3Bucket"],
+                    'Key' => "shows/" . $storageName,
+                    'SaveAs' => $config["tempDirectory"] . "/" . $storageName
+                ));
+            } catch (S3Exception $e) {
+                error_log("Couldn't get " . $storageName . " from S3. Error:\n" . $e->getMessage());
+            }
+
+            // open the file from S3 as a CURLFile
+            $showFile = new CURLFile($config["tempDirectory"] . "/" . $storageName);
+        }
 
         // basic data
         $postData = array(
-           'mp3' => $showFile,
-           'name' => $show["title"],
-           'description' => $show["description"]
+            'mp3' => $showFile,
+            'name' => $show["title"],
+            'description' => $show["description"]
         );
 
         // TODO images don't send
         // if there's an image
-        if (isset($show["image"])) {
+        if (!empty($show["image"])) {
             // turn the blob into a PNG
             $image = imagecreatefromstring($show["image"]);
             if ($image !== false) {
@@ -45,14 +64,9 @@ if ($showsDueToPublish->num_rows > 0) {
         }
         $tags = mysqli_fetch_all(mysqli_stmt_get_result($showTagsQuery));
 
-        error_log(json_encode($tags));
-        error_log(json_encode($tags[0]));
-        error_log(json_encode($tags[0][0]));
-        error_log(json_encode($tags[0][1]));
-
         // add each tag to the POST data
-        for ($i = 0; $i < sizeof($tags[0]); $i++) {
-            $postData["tags-" . $i . "-tag"] = $tags[0][$i];
+        for ($i = 0; $i < sizeof($tags); $i++) {
+            $postData["tags-" . $i . "-tag"] = $tags[$i][0];
         }
 
         // set up cURL
@@ -76,7 +90,14 @@ if ($showsDueToPublish->num_rows > 0) {
             error_log("Failed to publish submission " . $show["id"] . " to Mixcloud. Response:\n" . json_encode($response));
         }
 
-        // delete the temporary image file
-        unlink($config["tempDirectory"] . "/img.png");
+        // delete the temporary image file, if there was an image
+        if (!empty($show["image"])) {
+            unlink($config["tempDirectory"] . "/img.png");
+        }
+
+        if (explode($show["file"], ":")[0] == "s3") { // if show file was from S3
+            // delete the temporarily-stored file from S3
+            unlink($config["tempDirectory"] . "/" . explode($show["file"], ":")[1]);
+        }
     }
 }

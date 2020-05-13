@@ -1,4 +1,13 @@
 <?php
+
+use Aws\S3\S3Client;
+
+// TODO this the proper way
+if (file_exists('../vendor/autoload.php')) {
+    require_once '../vendor/autoload.php';
+} else {
+    require_once 'vendor/autoload.php';
+}
 $config = require "config.php";
 
 // Connect to database, set charset and return error if connection failed.
@@ -17,8 +26,24 @@ if ($submissionsConnection->connect_error) {
     die("Something's gone wrong. Please try again in a few minutes.");
 }
 
-return array (
+// if S3 is configured
+if (!empty($config["s3Endpoint"])) {
+    try {
+        // create S3 client
+        $s3Client = new S3Client([
+            'endpoint' => $config["s3Endpoint"],
+            'region' => $config["s3Region"],
+            'profile' => $config["s3Profile"],
+            'version' => 'latest'
+        ]);
+    } catch (S3Exception $e) {
+        error_log("Couldn't create S3 client. Error:\n" . $e->getMessage());
+    }
+}
+
+return array(
     "details" => $detailsConnection,
-    "submissions" => $submissionsConnection
+    "submissions" => $submissionsConnection,
+    "s3" => $s3Client
 );
 ?>

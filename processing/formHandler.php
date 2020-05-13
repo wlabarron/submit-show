@@ -157,14 +157,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $fileNameSplit = explode(".", $_POST["showFileUploadName"]);
 
             // have a guess at the path of the uploaded file
-            $showFilePath = $config["uploadFolder"] . "/" . $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit);
+            $showFileName = $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit);
 
-            // If that guess was correct
-            if (!file_exists($showFilePath)) {
+            // if S3 is configured
+            if (!empty($config["s3Endpoint"])) {
+                $s3FileMetadata = $connections["s3"]->headObject(array(
+                    'Bucket' => $config["s3Bucket"],
+                    'Key' => "shows/" . $showFileName
+                ));
+
+                if (is_null($s3FileMetadata)) {
+                    $inputValid = false;
+                    error_log("Can't find uploaded show file " . $showFileName . " in S3.");
+                } else {
+                    $showFilePath = "s3:" . $showFileName;
+                }
+            } else if (file_exists($config["uploadFolder"] . "/" . $showFileName)) { // if we can find the file locally
+                $showFilePath = "local:" . $showFileName;
+            } else {
                 $inputValid = false;
-                error_log("Can't find uploaded show file. " . $showFilePath);
+                error_log("Can't find uploaded show file " . $showFileName . " in local storage.");
                 // TODO can't find uploaded show file
-            } else if ($_POST["imageSelection"] == "upload") { // if the user has chosen to upload an image
+            }
+
+            ////////////
+            // Images //
+            ////////////
+            if ($_POST["imageSelection"] == "upload") { // if the user has chosen to upload an image
                 // If they actually have uploaded an image
                 if (!empty($_FILES["image"]["name"])) {
                     // Get image file type
