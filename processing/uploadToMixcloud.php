@@ -1,4 +1,7 @@
 <?php
+
+use Aws\S3\Exception\S3Exception;
+
 $config = require 'config.php';
 $connections = require 'databaseConnections.php';
 

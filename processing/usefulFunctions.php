@@ -12,4 +12,3 @@ function clearUpInput($data) {
     // Send the data back to the program
     return $data;
 }
-?>

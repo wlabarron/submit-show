@@ -1,5 +1,6 @@
 <?php
 
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 
 // TODO this the proper way
@@ -39,6 +40,8 @@ if (!empty($config["s3Endpoint"])) {
     } catch (S3Exception $e) {
         error_log("Couldn't create S3 client. Error:\n" . $e->getMessage());
     }
+} else {
+    $s3Client = null;
 }
 
 return array(
@@ -46,4 +49,3 @@ return array(
     "submissions" => $submissionsConnection,
     "s3" => $s3Client
 );
-?>

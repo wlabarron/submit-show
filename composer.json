@@ -1,6 +1,10 @@
 {
     "require": {
-        "flowjs/flow-php-server": "^1.0",
-        "aws/aws-sdk-php": "^3.138"
+      "flowjs/flow-php-server": "^1.0",
+      "aws/aws-sdk-php": "^3.138",
+      "ext-mysqli": "*",
+      "ext-json": "*",
+      "ext-gd": "*",
+      "ext-curl": "*"
     }
 }

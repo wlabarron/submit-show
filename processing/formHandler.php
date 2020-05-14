@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "other");
 
     /////////////////////////
-    // VALIDATION AND PREP//
+    // VALIDATION AND PREP //
     /////////////////////////
 
     $inputValid = true;
@@ -301,9 +301,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
+
+        // If the show was submitted successfully, log, report to user, send email, otherwise, log and report to user
         if ($showSubmitted) {
             $showAlertStyling = "#submit-success {display:block}";
             error_log("Submission for show " . $_POST["name"] . " recorded.");
+
+            if (isset($config["notificationEmail"])) {
+                mail($config["notificationEmail"],
+                    $showDetails["name"] . " submitted",
+                    wordwrap("A new show has been submitted:\n\n" .
+                        $showDetails["name"] . " for " . $_POST["date"] . ".", 70));
+            }
         } else {
             $showAlertStyling = "#submit-fail {display:block}";
             error_log("Submission for show " . $_POST["name"] . " failed.\n" . json_encode($_POST));

@@ -17,6 +17,9 @@ return array(
     'submissionsPassword' => '',
     'submissionsDatabaseName' => '',
 
+    // Where email notifications for new show submissions should be sent (leave as empty string to not send email)
+    'notificationEmail' => '',
+
     // Folder where show files will be stored
     'uploadFolder' => '',
     // Folder for temporary storage of uploading chunks

@@ -1,5 +1,6 @@
 <?php
 
+use Aws\S3\Exception\S3Exception;
 use Flow\Basic;
 use Flow\Config;
 use Flow\Request;
@@ -82,4 +83,4 @@ if (Basic::save($uploadPath, $flowConfig, $request)) {
 } else {
     // This is not a final chunk or request is invalid, continue to upload.
 }
-?>
+
