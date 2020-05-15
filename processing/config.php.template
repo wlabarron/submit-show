@@ -45,6 +45,7 @@ return array(
 
     // SimpleSAMLphp details
     'simpleSAMLphpAutoloadPath' => '',
-    'simpleSAMLphpAuthSource' => ''
+    'simpleSAMLphpAuthSource' => '',
+    'baseURL' => ''
 );
 ?>

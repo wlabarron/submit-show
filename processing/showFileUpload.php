@@ -5,7 +5,9 @@ $config = require 'config.php';
 if (!empty($config["simpleSAMLphpAutoloadPath"])) {
     require_once($config["simpleSAMLphpAutoloadPath"]);
     $as = new Simple($config["simpleSAMLphpAuthSource"]);
-    $as->requireAuth();
+    $as->requireAuth(array(
+        'ReturnTo' => $config["baseURL"],
+    ));
     $attributes = $as->getAttributes();
 }
 
