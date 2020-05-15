@@ -8,9 +8,9 @@ $config = require './processing/config.php';
 if (!empty($config["simpleSAMLphpAutoloadPath"])) {
     require_once($config["simpleSAMLphpAutoloadPath"]);
     $as = new Simple($config["simpleSAMLphpAuthSource"]);
-    $as->requireAuth(array(
-        'ReturnTo' => $config["baseURL"],
-    ));
+    $as->requireAuth([
+        'ReturnTo' => $config["baseURL"]
+    ]);
     $attributes = $as->getAttributes();
 }
 
