@@ -1,4 +1,5 @@
 <?php
+require_once 'requireAuth.php';
 
 use Aws\S3\Exception\S3Exception;
 

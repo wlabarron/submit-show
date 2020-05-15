@@ -1,4 +1,6 @@
 <?php
+require_once 'requireAuth.php';
+
 $config = require 'config.php';
 
 use Flow\Basic;
