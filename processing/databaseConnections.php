@@ -34,8 +34,11 @@ if (!empty($config["s3Endpoint"])) {
         $s3Client = new S3Client([
             'endpoint' => $config["s3Endpoint"],
             'region' => $config["s3Region"],
-            'profile' => $config["s3Profile"],
-            'version' => 'latest'
+            'version' => 'latest',
+            'credentials' => [
+                'key' => $config["s3AccessKey"],
+                'secret' => $config["s3Secret"],
+            ],
         ]);
     } catch (S3Exception $e) {
         error_log("Couldn't create S3 client. Error:\n" . $e->getMessage());

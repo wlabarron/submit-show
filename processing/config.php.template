@@ -29,7 +29,8 @@ return array(
     's3Endpoint' => '',
     's3Region' => '',
     's3Bucket' => '',
-    's3Profile' => '',
+    's3AccessKey' => '',
+    's3Secret' => '',
     // Files are stored here while they are waiting to be transferred to S3
     'waitingUploadsFolder' => '',
 
