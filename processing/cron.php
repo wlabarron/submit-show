@@ -125,9 +125,14 @@ if ($showsDueToPublish->num_rows > 0) {
 // if there are any shows to delete, for each show
 if ($showsDueForDeletion->num_rows > 0) {
     while ($show = $showsDueForDeletion->fetch_assoc()) {
+        $fileDeleted = false;
+
         if ($show["file_location"] == "local") { // if file is in local storage, delete it
             if (!unlink($config["uploadFolder"] . "/" . $show["file"])) {
                 error_log("Couldn't delete " . $show["file"] . " from local storage.");
+            } else {
+                error_log("Deleted " . $show["file"] . " from local storage.");
+                $fileDeleted = true;
             }
         } else if ($show["file_location"] == "s3") { // if file is in S3
             try {
@@ -137,15 +142,22 @@ if ($showsDueForDeletion->num_rows > 0) {
                     'Key' => "shows/" . $show["file"],
                     'SaveAs' => $config["tempDirectory"] . "/" . $show["file"]
                 ));
+
+                error_log("Deleted " . $show["file"] . " from S3.");
+                $fileDeleted = true;
             } catch (S3Exception $e) {
                 error_log("Couldn't delete " . $show["file"] . " from S3. Error:\n" . $e->getMessage());
             }
 
+        } else {
+            error_log("Invalid storage location for " . $show["file"] . ".");
+        }
+
+        if ($fileDeleted) {
+            // remove show from database
             // TODO error handling for queries
             $removeShowSubmission->bind_param("i", $show["id"]);
             $removeShowSubmission->execute();
-        } else {
-            error_log("Invalid storage location for " . $show["file"] . ".");
         }
     }
 }
