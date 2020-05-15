@@ -1,5 +1,8 @@
 <?php
 return array(
+    // Name of group, to use in titles etc
+    'organisationName' => '',
+
     // Show details database
     'detailsServer' => 'localhost',
     'detailsUser' => '',

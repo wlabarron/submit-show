@@ -11,7 +11,8 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Submit Show</title>
+    <title>Submit Show - <? echo $config["organisationName"]; ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
