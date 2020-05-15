@@ -312,6 +312,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $showAlertStyling = "#submit-success {display:block}";
             error_log("Submission for show " . $_POST["name"] . " recorded.");
 
+            // run the cron job now
+            shell_exec("php cron.php");
+
             if (isset($config["notificationEmail"])) {
                 mail($config["notificationEmail"],
                     $showDetails["name"] . " submitted",
