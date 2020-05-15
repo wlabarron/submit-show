@@ -9,5 +9,7 @@ if (!empty($config["simpleSAMLphpAutoloadPath"])) {
     require_once($config["simpleSAMLphpAutoloadPath"]);
     $as = new Simple($config["simpleSAMLphpAuthSource"]);
     $as->requireAuth();
-    $attributes = $as->getAttributes();
+    return $as->getAttributes();
+} else {
+    return null;
 }
