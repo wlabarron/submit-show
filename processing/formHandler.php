@@ -104,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             // if the show ended the day after it started, add 1 day onto the time (so the date is the following day)
             if (isset($_POST["endedOnFollowingDay"])) {
-                $endDateTime = date_add($endDateTime, date_interval_create_from_date_string("1d"));
+                $endDateTime = date_add($endDateTime, date_interval_create_from_date_string("1 day"));
             }
 
             /////////////////
@@ -161,19 +161,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // if S3 is configured
             if (!empty($config["s3Endpoint"])) {
-                $s3FileMetadata = $connections["s3"]->headObject(array(
-                    'Bucket' => $config["s3Bucket"],
-                    'Key' => "shows/" . $showFileName
-                ));
+                // check if the file is in the folder of things waiting to go to S3
+                if (file_exists($config["waitingUploadsFolder"] . "/" . $showFileName)) {
+                    $showFileLocation = "waiting";
+                } else { // if it isn't, check if it's miraculously already in S3 (it shouldn't be)
+                    $s3FileMetadata = $connections["s3"]->headObject(array(
+                        'Bucket' => $config["s3Bucket"],
+                        'Key' => "shows/" . $showFileName
+                    ));
 
-                if (is_null($s3FileMetadata)) {
-                    $inputValid = false;
-                    error_log("Can't find uploaded show file " . $showFileName . " in S3.");
-                } else {
-                    $showFilePath = "s3:" . $showFileName;
+                    if (is_null($s3FileMetadata)) {
+                        $inputValid = false;
+                        error_log("Can't find uploaded show file " . $showFileName . " in S3.");
+                    } else {
+                        $showFileLocation = "s3";
+                    }
                 }
             } else if (file_exists($config["uploadFolder"] . "/" . $showFileName)) { // if we can find the file locally
-                $showFilePath = "local:" . $showFileName;
+                $showFileLocation = "local";
             } else {
                 $inputValid = false;
                 error_log("Can't find uploaded show file " . $showFileName . " in local storage.");
@@ -228,9 +233,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . date("jS F o", strtotime($_POST["date"]));
 
         // Insert the submission into the database
-        $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))");
+        $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))");
         $null = null;
-        $insertSubmissionQuery->bind_param("sssbi", $showFilePath, $mixcloudName, $description, $null, $endDateTime);
+        $insertSubmissionQuery->bind_param("ssssbi", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime);
         $insertSubmissionQuery->send_long_data(3, $imgContent);
 
         if (!$insertSubmissionQuery->execute()) {
@@ -244,7 +249,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // iterate through the passed tags, inserting them for each
         foreach ($tags as $tag) {
-            $insertTagsQuery->bind_param("ss", $tag, $showFilePath);
+            $insertTagsQuery->bind_param("ss", $tag, $showFileName);
 
             if (!$insertTagsQuery->execute()) {
                 // TODO insert failed
@@ -313,6 +318,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     wordwrap("A new show has been submitted:\n\n" .
                         $showDetails["name"] . " for " . $_POST["date"] . ".", 70));
             }
+
+            // run the cron job just now, but asynchronously
+            curl_exec(curl_init("/processing/cron.php"));
         } else {
             $showAlertStyling = "#submit-fail {display:block}";
             error_log("Submission for show " . $_POST["name"] . " failed.\n" . json_encode($_POST));
@@ -322,3 +330,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         error_log("Submission for show " . $_POST["name"] . " had invalid input.\n" . json_encode($_POST));
     }
 }
+

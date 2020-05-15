@@ -1,6 +1,5 @@
 <?php
 
-use Aws\S3\Exception\S3Exception;
 use Flow\Basic;
 use Flow\Config;
 use Flow\Request;
@@ -43,7 +42,6 @@ if ( // if show name or broadcast date is missing, stop the upload
 $flowConfig = new Config();
 $flowConfig->setTempDir($config["tempDirectory"]);
 $request = new Request();
-$uploadFolder = $config["uploadFolder"] . "/"; // Folder where the file will be stored
 
 // if the file name doesn't have the expected type of extension
 $fileNameSplit = explode(".", $request->getFileName());
@@ -57,29 +55,15 @@ if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileN
     $uploadFileName = $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit); // The name the file will have on the server
 }
 
-$uploadPath = $uploadFolder . $uploadFileName;
+// if we're not using S3, store the show file locally
+if (empty($config["s3Endpoint"])) {
+    $uploadPath = $config["uploadFolder"] . "/" . $uploadFileName;
+} else { // if we're using S3, put the show file into a holding area
+    $uploadPath = $config["waitingUploadsFolder"] . "/" . $uploadFileName;
+}
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
     error_log("Uploaded " . $uploadFileName);
-
-    // if an S3 endpoint is set
-    if (!empty($config["s3Endpoint"])) {
-        try {
-            // send the file to S3
-            $result = $connections["s3"]->putObject([
-                'Bucket' => $config["s3Bucket"],
-                'Key' => "shows/" . $uploadFileName,
-                'SourceFile' => $uploadPath
-            ]);
-
-            // remove the uploaded show file from local storage
-            unlink($uploadPath);
-
-            error_log("Sent " . $uploadFileName . " to S3 and removed from local storage.");
-        } catch (S3Exception $e) {
-            error_log("Couldn't move " . $uploadFileName . " to S3. Error:\n" . $e->getMessage());
-        }
-    }
 } else {
     // This is not a final chunk or request is invalid, continue to upload.
 }

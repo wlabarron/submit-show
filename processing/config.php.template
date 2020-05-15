@@ -30,6 +30,11 @@ return array(
     's3Region' => '',
     's3Bucket' => '',
     's3Profile' => '',
+    // Files are stored here while they are waiting to be transferred to S3
+    'waitingUploadsFolder' => '',
+
+    // How long a show should be kept in storage after being published to Mixcloud - format at https://www.php.net/manual/en/datetime.formats.relative.php
+    'retentionPeriod' => '',
 
     // Text appended to the description of every upload. Use '{n}' for a new line.
     'fixedDescription' => '',
