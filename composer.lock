@@ -1,25 +1,25 @@
 {
-  "_readme": [
-    "This file locks the dependencies of your project to a known state",
-    "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
-    "This file is @generated automatically"
-  ],
-  "content-hash": "7d26063d617b446652be1e269197b237",
-  "packages": [
-    {
-      "name": "aws/aws-sdk-php",
-      "version": "3.138.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/aws/aws-sdk-php.git",
-        "reference": "32a4fa88dffc4328d415b922ef74819dfe060696"
-      },
-      "dist": {
-        "type": "zip",
-        "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/32a4fa88dffc4328d415b922ef74819dfe060696",
-        "reference": "32a4fa88dffc4328d415b922ef74819dfe060696",
-        "shasum": ""
-      },
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "340bc42b5f4ce4a3490412bf11f4c604",
+    "packages": [
+        {
+            "name": "aws/aws-sdk-php",
+            "version": "3.138.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aws/aws-sdk-php.git",
+                "reference": "66df78e714c7ac87a9ea2bbb77cde586649d0141"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/66df78e714c7ac87a9ea2bbb77cde586649d0141",
+                "reference": "66df78e714c7ac87a9ea2bbb77cde586649d0141",
+                "shasum": ""
+            },
             "require": {
                 "ext-json": "*",
                 "ext-pcre": "*",
@@ -88,7 +88,7 @@
                 "s3",
                 "sdk"
             ],
-      "time": "2020-05-13T18:11:31+00:00"
+            "time": "2020-05-14T18:17:11+00:00"
         },
         {
             "name": "flowjs/flow-php-server",
@@ -661,6 +661,11 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "ext-mysqli": "*",
+        "ext-json": "*",
+        "ext-gd": "*",
+        "ext-curl": "*"
+    },
     "platform-dev": []
 }
