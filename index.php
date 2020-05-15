@@ -1,7 +1,4 @@
 <?php
-
-use SimpleSAML\Auth\Simple;
-
 require_once './processing/requireAuth.php';
 
 $config = require './processing/config.php';

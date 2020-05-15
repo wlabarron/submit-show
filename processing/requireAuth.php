@@ -1,4 +1,7 @@
 <?php
+
+use SimpleSAML\Auth\Simple;
+
 $config = require 'config.php';
 
 // if simpleSAMLphp is set up, require authentication
