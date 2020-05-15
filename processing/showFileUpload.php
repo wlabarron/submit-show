@@ -1,12 +1,21 @@
 <?php
+$config = require 'config.php';
+
+// if simpleSAMLphp is set up, require authentication
+if (!empty($config["simpleSAMLphpAutoloadPath"])) {
+    require_once($config["simpleSAMLphpAutoloadPath"]);
+    $as = new Simple($config["simpleSAMLphpAuthSource"]);
+    $as->requireAuth();
+    $attributes = $as->getAttributes();
+}
 
 use Flow\Basic;
 use Flow\Config;
 use Flow\Request;
+use SimpleSAML\Auth\Simple;
 
 require_once '../vendor/autoload.php';
 require 'usefulFunctions.php';
-$config = require 'config.php';
 $connections = require 'databaseConnections.php';
 
 if ( // if show name or broadcast date is missing, stop the upload

@@ -41,6 +41,10 @@ return array(
     'fixedDescription' => '',
 
     // Access token for Mixcloud account - https://www.mixcloud.com/developers/
-    'mixcloudAccessToken' => ''
+    'mixcloudAccessToken' => '',
+
+    // SimpleSAMLphp details
+    'simpleSAMLphpAutoloadPath' => '',
+    'simpleSAMLphpAuthSource' => ''
 );
 ?>
