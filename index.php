@@ -54,7 +54,7 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
 <div class="container" id="submit-success">
     <div class="alert alert-success mt-2" role="alert">
         <strong>Your show was submitted successfully.</strong> Thank you. You can upload another below, if you're so
-        inclined.
+        inclined, or leave the page.
     </div>
 </div>
 <div class="container" id="submit-fail">
@@ -75,7 +75,8 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
     </div>
 </div>
 <div class="container" id="page-content">
-    <h1>Upload</h1>
+    <h1>Submit Show</h1>
+    <p>Submit a show for scheduling and automatic upload to Mixcloud.</p>
     <div class="form-group" id="showFileInputGroup">
         <label for="showFileInput">Show file</label>
         <div class="custom-file">
