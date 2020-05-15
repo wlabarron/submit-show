@@ -1,5 +1,5 @@
 <?php
-$config = require './processing/config.php';
+$config = require 'config.php';
 
 // if simpleSAMLphp is set up, require authentication
 if (!empty($config["simpleSAMLphpAutoloadPath"])) {
