@@ -238,7 +238,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))");
         $null = null;
         $insertSubmissionQuery->bind_param("ssssbi", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime);
-        $insertSubmissionQuery->send_long_data(3, $imgContent);
+        $insertSubmissionQuery->send_long_data(4, $imgContent);
 
         if (!$insertSubmissionQuery->execute()) {
             // TODO insert failed
