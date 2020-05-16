@@ -3,12 +3,7 @@
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 
-// TODO this the proper way
-if (file_exists('../vendor/autoload.php')) {
-    require_once '../vendor/autoload.php';
-} else {
-    require_once 'vendor/autoload.php';
-}
+require_once $_SERVER["DOCUMENT_ROOT"] . 'vendor/autoload.php';
 $config = require "config.php";
 
 // Connect to database, set charset and return error if connection failed.
