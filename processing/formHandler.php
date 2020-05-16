@@ -324,8 +324,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $showDetails["name"] . " for " . $_POST["date"] . ".", 70));
             }
 
-            // run the cron job just now, but asynchronously
-            curl_exec(curl_init("/processing/cron.php"));
+            // run the cron job just now asynchronously
+            exec("php " . __DIR__ . "cron.php");
         } else {
             $showAlertStyling = "#submit-fail {display:block}";
             error_log("Submission for show " . $_POST["name"] . " failed.\n" . json_encode($_POST));
