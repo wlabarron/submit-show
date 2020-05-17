@@ -28,6 +28,7 @@ class ComposerStaticInit06b01a5f260683cc58b78fa76ae3572d
         'P' => 
         array (
             'Psr\\Http\\Message\\' => 17,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'J' => 
         array (
@@ -61,6 +62,10 @@ class ComposerStaticInit06b01a5f260683cc58b78fa76ae3572d
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'JmesPath\\' => 
         array (

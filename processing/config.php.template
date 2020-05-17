@@ -20,9 +20,6 @@ return array(
     'submissionsPassword' => '',
     'submissionsDatabaseName' => '',
 
-    // Where email notifications for new show submissions should be sent (leave as empty string to not send email)
-    'notificationEmail' => '',
-
     // Folder where show files will be stored
     'uploadFolder' => '',
     // Folder for temporary storage of uploading chunks
@@ -50,6 +47,16 @@ return array(
 
     // SimpleSAMLphp details
     'simpleSAMLphpAutoloadPath' => '',
-    'simpleSAMLphpAuthSource' => ''
+    'simpleSAMLphpAuthSource' => '',
+
+    // Details for notification emails
+    'smtpServer' => '',
+    'smtpPort' => '',
+    'smtpAuth' => true,
+    'smtpUsername' => '',
+    'smtpPassword' => '',
+    'smtpSendAddress' => '',
+    'smtpSendName' => '',
+    'smtpRecipient' => ''
 );
 ?>

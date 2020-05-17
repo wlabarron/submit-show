@@ -5,6 +5,7 @@
       "ext-mysqli": "*",
       "ext-json": "*",
       "ext-gd": "*",
-      "ext-curl": "*"
+      "ext-curl": "*",
+      "phpmailer/phpmailer": "^6.1"
     }
 }
