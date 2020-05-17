@@ -63,7 +63,7 @@ $uploadPath = $config["holdingDirectory"] . "/" . $uploadFileName;
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
     error_log("Uploaded " . $uploadFileName);
-    logToDatabase($attributes["NameId"], "upload", $uploadFileName);
+    logToDatabase($attributes["id"], "upload", $uploadFileName);
 } else {
     // This is not a final chunk or request is invalid, continue to upload.
 }
