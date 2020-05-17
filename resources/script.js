@@ -15,6 +15,11 @@ $(document).ready(function () {
     $('#broadcast-time').timepicker({
         snapToStep: true
     });
+
+    // Enable prompt if the user tries to navigate away
+    window.onbeforeunload = function () {
+        return true;
+    };
 });
 
 // first show file uploader object, only used for file picking
