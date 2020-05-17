@@ -73,6 +73,8 @@ function uploadAndContinue() {
         // show error if something goes wrong in the file upload
         uploader.on('fileError', function(file, message){
             $('#showFileUploadFailAlert').modal('show');
+            // Remove warning when navigating away
+            window.onbeforeunload = null;
         });
 
         // activate the submit button when the upload succeeds
