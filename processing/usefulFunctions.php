@@ -12,3 +12,12 @@ function clearUpInput($data) {
     // Send the data back to the program
     return $data;
 }
+
+function logToDatabase($userID, $actionType, $actionDetail) {
+    if (!empty($userID)) {
+        $connections = require "databaseConnections.php";
+        $logQuery = $connections["submissions"]->prepare("INSERT INTO log (user, action_type, action_detail) VALUES (?, ?, ?)");
+        $logQuery->bindParam("sss", $userID, $actionType, $actionDetail);
+        $logQuery->execute();
+    }
+}

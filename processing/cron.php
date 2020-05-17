@@ -1,6 +1,8 @@
 <?php
 
 use Aws\S3\Exception\S3Exception;
+use Flow\FileOpenException;
+use Flow\Uploader;
 
 if (mkdir('cronRunning.lock', 0700)) {
     $config = require 'config.php';
@@ -194,4 +196,11 @@ if (mkdir('cronRunning.lock', 0700)) {
     rmdir('cronRunning.lock');
 } else {
     error_log("Cron is already running at the moment. It can't be re-run until it's finished.");
+}
+
+// Get rid of leftover chunks from file uploads which never finished
+try {
+    Uploader::pruneChunks($config["tempDirectory"]);
+} catch (FileOpenException $e) {
+    error_log("Failed to prune upload chunks. Details:\n" . $e->getMessage());
 }

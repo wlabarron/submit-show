@@ -1,5 +1,5 @@
 <?php
-require_once 'requireAuth.php';
+$attributes = require_once 'requireAuth.php';
 
 $config = require 'config.php';
 
@@ -67,6 +67,7 @@ if (empty($config["s3Endpoint"])) {
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
     error_log("Uploaded " . $uploadFileName);
+    logToDatabase($attributes["NameId"], "upload", $uploadFileName);
 } else {
     // This is not a final chunk or request is invalid, continue to upload.
 }
