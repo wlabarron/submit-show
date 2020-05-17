@@ -309,7 +309,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($showSubmitted) {
             $showAlertStyling = "#submit-success {display:block}";
             error_log("Submission for show " . $_POST["name"] . " recorded.");
-            logToDatabase($attributes["id"], "submission", "Show ID " . $_POST["name"]);
+            logToDatabase($attributes["identifier"], "submission", "Show ID " . $_POST["name"]);
 
             // run the cron job now
             shell_exec("php cron.php");
