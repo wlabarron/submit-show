@@ -27,6 +27,8 @@ return array(
     'uploadFolder' => '',
     // Folder for temporary storage of uploading chunks
     'tempDirectory' => '',
+    // Folder for holding uploads before the user submits the form
+    'holdingDirectory' => '',
 
     // S3 storage details (if using local storage, leave as empty strings)
     's3Endpoint' => '',

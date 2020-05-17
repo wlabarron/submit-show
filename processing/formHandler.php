@@ -161,30 +161,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // have a guess at the path of the uploaded file
             $showFileName = $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit);
 
-            // if S3 is configured
-            if (!empty($config["s3Endpoint"])) {
-                // check if the file is in the folder of things waiting to go to S3
-                if (file_exists($config["waitingUploadsFolder"] . "/" . $showFileName)) {
+            // if the file exists in the holding folder of uploaded files
+            if (file_exists($config["holdingDirectory"] . "/" . $showFileName)) {
+                // if S3 is configured
+                if (!empty($config["s3Endpoint"])) {
+                    // the show will now be waiting for transfer to S3
                     $showFileLocation = "waiting";
-                } else { // if it isn't, check if it's miraculously already in S3 (it shouldn't be)
-                    $s3FileMetadata = $connections["s3"]->headObject(array(
-                        'Bucket' => $config["s3Bucket"],
-                        'Key' => "shows/" . $showFileName
-                    ));
-
-                    if (is_null($s3FileMetadata)) {
-                        $inputValid = false;
-                        error_log("Can't find uploaded show file " . $showFileName . " in S3.");
-                    } else {
-                        $showFileLocation = "s3";
-                    }
+                    // move the folder from the holding location to waiting
+                    rename($config["holdingDirectory"] . "/" . $showFileName,
+                        $config["waitingUploadsFolder"] . "/" . $showFileName);
+                } else {
+                    // the show stays in local storage
+                    $showFileLocation = "local";
+                    // move the folder from the holding location to local storage
+                    rename($config["holdingDirectory"] . "/" . $showFileName,
+                        $config["uploadFolder"] . "/" . $showFileName);
                 }
-            } else if (file_exists($config["uploadFolder"] . "/" . $showFileName)) { // if we can find the file locally
-                $showFileLocation = "local";
             } else {
+                // Can't find the uploaded show file in the holding folder
                 $inputValid = false;
-                error_log("Can't find uploaded show file " . $showFileName . " in local storage.");
-                // TODO can't find uploaded show file
+                error_log("Can't find uploaded show file " . $showFileName . " in S3.");
             }
 
             ////////////

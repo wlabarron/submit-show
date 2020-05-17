@@ -198,9 +198,10 @@ if (mkdir('cronRunning.lock', 0700)) {
     error_log("Cron is already running at the moment. It can't be re-run until it's finished.");
 }
 
-// Get rid of leftover chunks from file uploads which never finished
+// Get rid of leftover chunks and files from file uploads which never finished and forms which weren't submitted
 try {
     Uploader::pruneChunks($config["tempDirectory"]);
+    Uploader::pruneChunks($config["holdingDirectory"]);
 } catch (FileOpenException $e) {
     error_log("Failed to prune upload chunks. Details:\n" . $e->getMessage());
 }

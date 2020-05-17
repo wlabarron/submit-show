@@ -58,12 +58,8 @@ if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileN
     $uploadFileName = $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit); // The name the file will have on the server
 }
 
-// if we're not using S3, store the show file locally
-if (empty($config["s3Endpoint"])) {
-    $uploadPath = $config["uploadFolder"] . "/" . $uploadFileName;
-} else { // if we're using S3, put the show file into a holding area
-    $uploadPath = $config["waitingUploadsFolder"] . "/" . $uploadFileName;
-}
+// set the path to upload to
+$uploadPath = $config["holdingDirectory"] . "/" . $uploadFileName;
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
     error_log("Uploaded " . $uploadFileName);
