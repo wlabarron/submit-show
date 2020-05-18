@@ -19,8 +19,10 @@ function logToDatabase($userID, $actionType, $actionDetail) {
     if (!empty($userID)) {
         $connections = require "databaseConnections.php";
         $logQuery = $connections["submissions"]->prepare("INSERT INTO log (user, action_type, action_detail) VALUES (?, ?, ?)");
-        $logQuery->bindParam("sss", $userID, $actionType, $actionDetail);
-        $logQuery->execute();
+        $logQuery->bind_param("sss", $userID, $actionType, $actionDetail);
+        if (!$logQuery->execute()) {
+            error_log("Failed to log user action to database. Details:\n" . $logQuery->error);
+        }
     }
 }
 
