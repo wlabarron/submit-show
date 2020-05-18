@@ -8,7 +8,7 @@ require 'usefulFunctions.php';
 
 // Prepare SQL queries
 $savedShowDetailsQuery = $connections["submissions"]->prepare("SELECT * FROM saved_info WHERE `show` = ?");
-$savedTagsQuery = $connections["submissions"]->prepare("SELECT tag FROM saved_tags WHERE `show` = ?");
+$savedTagsQuery = $connections["submissions"]->prepare("SELECT tag FROM saved_tags WHERE `show` = ? ORDER BY id");
 
 // Sanitise requested show
 $_GET["show"] = clearUpInput($_GET["show"]);
