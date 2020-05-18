@@ -31,9 +31,8 @@ var showFileUploader = new Flow({
 // second file uploader, used to send the file and defined later
 var uploader;
 
-// Set browser and drop areas
+// Set file browser area
 showFileUploader.assignBrowse(document.getElementById('showFileInput'));
-showFileUploader.assignDrop(document.getElementById('showFileInputGroup'));
 
 // If the uploader isn't supported, hide the page content and show the rror
 if(!showFileUploader.support) {
