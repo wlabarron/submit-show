@@ -93,7 +93,9 @@ audio/mpeg4-generic" required>
     <form action="/index.php"
           method="POST"
           enctype="multipart/form-data"
-          class="needs-validation" novalidate>
+          class="needs-validation" novalidate
+          onsubmit="// Remove warning when navigating away
+                      window.onbeforeunload = null;">
         <input type="hidden" name="showFileUploadName" id="showFileUploadName">
         <input type="hidden" name="name" id="hiddenShowName">
 
