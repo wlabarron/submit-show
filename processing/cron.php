@@ -139,7 +139,7 @@ if (mkdir('cronRunning.lock', 0700)) {
                 }
             } else if ($show["file_location"] == "s3") { // if file is in S3
                 try {
-                    // Save object to a file
+                    // Delete object
                     $result = $connections["s3"]->deleteObject(array(
                         'Bucket' => $config["s3Bucket"],
                         'Key' => "shows/" . $show["file"],
@@ -203,5 +203,5 @@ try {
     Uploader::pruneChunks($config["tempDirectory"]);
     Uploader::pruneChunks($config["holdingDirectory"]);
 } catch (FileOpenException $e) {
-    error_log("Failed to prune upload chunks. Details:\n" . $e->getMessage());
+    error_log("Failed to prune upload remnants. Details:\n" . $e->getMessage());
 }

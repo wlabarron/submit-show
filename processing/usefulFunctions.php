@@ -33,14 +33,18 @@ function notificationEmail($subject, $body) {
 
     try {
         //Server settings
-        $mail->isSMTP();                                            // Send using SMTP
-        $mail->Host = $config["smtpServer"];                    // Set the SMTP server to send through
-        $mail->Port = $config["smtpPort"];                                    // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
-        $mail->SMTPAuth = $config["smtpAuth"];                                   // Enable SMTP authentication
+        $mail->isSMTP();
+        $mail->Host = $config["smtpServer"];
+        $mail->Port = $config["smtpPort"];
+        $mail->SMTPAuth = $config["smtpAuth"];
         if ($config["smtpAuth"]) {
-            $mail->Username = $config["smtpUsername"];                     // SMTP username
-            $mail->Password = $config["smtpPassword"];                               // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
+            $mail->Username = $config["smtpUsername"];
+            $mail->Password = $config["smtpPassword"];
+            if ($config["smtpAuth"] == "ssl") {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            } else if ($config["smtpAuth"] == "tls") {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            }
         }
 
         //Recipients
