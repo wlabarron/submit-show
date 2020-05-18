@@ -166,7 +166,7 @@ audio/mpeg4-generic" required>
                             id="imageSelection"
                             aria-label="Choose how to proceed with the cover image"
                             name="imageSelection"
-                            onchange="changeUploadState();">
+                            onchange="changeShowImageSelection();">
                         <option value="saved">Use saved photo for this show</option>
                         <option value="upload" selected>Upload new photo</option>
                         <option value="none">Don't use a photo</option>

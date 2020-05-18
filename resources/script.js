@@ -126,7 +126,7 @@ function uploadAndContinue() {
     }
 }
 
-function changeUploadState() {
+function changeShowImageSelection() {
     if ($("#imageSelection").val() === "upload") {
         $("#imageFileUploader").slideDown();
     } else {
