@@ -315,9 +315,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             shell_exec("php cron.php");
 
             // send notification email
-            notificationEmail($showDetails["name"] . " submitted",
-                "A new show has been submitted:\n\n" .
-                $showDetails["name"] . " for " . $_POST["date"] . ".");
+            // TODO fix email
+//            notificationEmail($showDetails["name"] . " submitted",
+//                "A new show has been submitted:\n\n" .
+//                $showDetails["name"] . " for " . $_POST["date"] . ".");
 
             // run the cron job just now asynchronously
             exec("php " . __DIR__ . "/cron.php");
