@@ -13,7 +13,8 @@ $(document).ready(function () {
     });
 
     $('#broadcast-time').timepicker({
-        snapToStep: true
+        snapToStep: true,
+        defaultTime: "00:00"
     });
 
     // Enable prompt if the user tries to navigate away
