@@ -20,6 +20,14 @@ return array(
     'submissionsPassword' => '',
     'submissionsDatabaseName' => '',
 
+    // Max size in bytes for an uploaded show file. Mixcloud's maximum is 4294967296 bytes.
+    'maxShowFileSize' => '4294967296',
+    'maxShowFileSizeFriendly' => '4GB', // friendly way to write the max size, used in alerts
+
+    // Max size in bytes for an uploaded show cover image. Mixcloud's maximum is 10485760 bytes.
+    'maxShowImageSize' => '10485760',
+    'maxShowImageSizeFriendly' => '10MB', // friendly way to write the max size, used in alerts
+
     // Folder where show files will be stored
     'uploadFolder' => '',
     // Folder for temporary storage of uploading chunks

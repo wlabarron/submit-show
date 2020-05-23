@@ -23,6 +23,16 @@ $(document).ready(function () {
     };
 });
 
+function checkShowCoverImageSize() {
+    $(".show-image-oversized").slideUp();
+    if (document.getElementById("showImageInput").files[0].size > maxShowImageSize) {
+        $('#submit').prop("disabled", true);
+        $(".show-image-oversized").slideDown();
+    } else {
+        $('#submit').prop("disabled", false);
+    }
+}
+
 // first show file uploader object, only used for file picking
 var showFileUploader = new Flow({
     singleFile: true,
@@ -42,9 +52,16 @@ if(!showFileUploader.support) {
 }
 
 // When a file is added, show its name on the page
-showFileUploader.on('fileAdded', function(file){
-    $("#custom-file-label").text(file.name);
-    $("#showFileUploadName").val(file.name);
+showFileUploader.on('fileAdded', function(file) {
+    $("#show-file-oversized").slideUp();
+    if (file.size > maxShowFileSize) {
+        $('#uploadAndContinueButton').prop("disabled", true);
+        $("#show-file-oversized").slideDown();
+    } else {
+        $('#uploadAndContinueButton').prop("disabled", false);
+        $("#custom-file-label").text(file.name);
+        $("#showFileUploadName").val(file.name);
+    }
 });
 
 // Function used when "upload and continue" is clicked, to proceed through the form

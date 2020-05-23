@@ -35,6 +35,8 @@ hr {
 #defaultImageDisplay,
 #submit-fail,
 #submit-invalid,
-#submit-success {
+#submit-success,
+#show-file-oversized,
+.show-image-oversized {
   display: none;
 }

@@ -17,7 +17,7 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
           integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
           integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="/resources/style.css">
+    <link rel="stylesheet" href="/resources/style.css?version=2">
     <style>
         <?php
             if (isset($showAlertStyling)) {
@@ -66,7 +66,7 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
     </div>
 </div>
 <div class="container" id="submit-invalid">
-    <div class="alert alert-danger mt-5" role="alert">
+    <div class="alert alert-danger mt-2" role="alert">
         <strong>Something was wrong with the submitted info, but we're not sure what.</strong> Please try again, and if
         the problem persists, please report this to technical staff, including the date and time you tried to upload
         your
@@ -127,6 +127,13 @@ audio/mpeg4-generic" required>
             Hang on! Make sure you've filled in all the fields above, and that the date you've entered is correct.
         </div>
 
+        <div class="alert alert-warning mt-2" role="alert" id="show-file-oversized">
+            <strong>The show file you chose is too big.</strong> The maximum size
+            is <? echo $config["maxShowFileSizeFriendly"]; ?>.
+            Please try again with a smaller version of the file. If you're not sure how to do this, please contact
+            technical staff. Thank you.
+        </div>
+
         <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" onclick="uploadAndContinue()"
                 type="button">Upload and Continue
         </button>
@@ -135,7 +142,8 @@ audio/mpeg4-generic" required>
             <hr>
             <div class="form-group">
                 <label for="broadcast-time">Original broadcast end time</label>
-                <input type="text" class="form-control" id="broadcast-time" aria-describedby="broadcastEndTimeHelp" name="endTime">
+                <input type="text" class="form-control" id="broadcast-time" aria-describedby="broadcastEndTimeHelp"
+                       name="endTime">
                 <small id="broadcastEndTimeHelp" class="form-text text-muted">
                     Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
                     to-the-minute - if your show's time slot is noon-2pm, you'd enter 2pm here, even if you finished at
@@ -174,17 +182,25 @@ audio/mpeg4-generic" required>
                 </div>
             </div>
             <div class="bs-custom-file custom-file" id="imageFileUploader">
-                <input type="file" class="custom-file-input" id="showImageInput" name="image">
+                <input type="file" class="custom-file-input" id="showImageInput" name="image"
+                       onchange="checkShowCoverImageSize()">
                 <label class="custom-file-label" for="showImageInput" aria-describedby="showImageInputHelp">Choose
                     file</label>
+                <div class="alert alert-warning mt-2 show-image-oversized" role="alert">
+                    <strong>The image you chose is too big.</strong> The maximum size
+                    is <? echo $config["maxShowImageSizeFriendly"]; ?>.
+                    Please try again with a smaller version of the file. If you're not sure how to do this, please
+                    contact technical staff. Thank you.
+                </div>
                 <small id="showImageInputHelp" class="form-text text-muted">
-                    You can upload JPG or PNG files.
+                    You can upload JPG or PNG files up to <? echo $config["maxShowImageSizeFriendly"]; ?>.
                 </small>
             </div>
             <hr>
             <div class="form-group">
                 <label for="descriptionInput">Description</label>
-                <textarea class="form-control joint-input-top" id="descriptionInput" rows="3" maxlength="<? echo 999 - strlen($config["fixedDescription"]);  ?>"
+                <textarea class="form-control joint-input-top" id="descriptionInput" rows="3"
+                          maxlength="<? echo 999 - strlen($config["fixedDescription"]); ?>"
                           name="description"></textarea>
                 <textarea class="form-control joint-input-bottom" type="text" readonly
                           aria-label="Fixed description text"><? echo str_replace("{n}", "&#13;", $config["fixedDescription"]); ?></textarea>
@@ -264,6 +280,12 @@ audio/mpeg4-generic" required>
                 or broadcast, as appropriate.<br>
                 This show will published to Mixcloud <strong>as soon as possible after the "end" date and time specified
                     above</strong>.</p>
+            <div class="alert alert-warning mt-2 show-image-oversized" role="alert">
+                <strong>The image you chose is too big.</strong> The maximum size
+                is <? echo $config["maxShowImageSizeFriendly"]; ?>.
+                Please try again with a smaller version of the file. If you're not sure how to do this, please contact
+                technical staff. Thank you.
+            </div>
             <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled><i
                         class="fas fa-circle-notch fa-spin"></i> Uploading...
             </button>
@@ -272,7 +294,8 @@ audio/mpeg4-generic" required>
     </form>
 
     <!-- Modal if show file upload fails -->
-    <div class="modal fade" id="showFileUploadFailAlert" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="showFileUploadFailAlert" data-backdrop="static" tabindex="-1" role="dialog"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -288,7 +311,11 @@ audio/mpeg4-generic" required>
         </div>
     </div>
 
-    <!-- partial -->
+    <script>
+        // make some config items available to the JS
+        var maxShowFileSize = <? echo $config["maxShowFileSize"]; ?>;
+        var maxShowImageSize = <? echo $config["maxShowImageSize"]; ?>;
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"
             integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"
@@ -302,6 +329,6 @@ audio/mpeg4-generic" required>
             integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.0/flow.min.js"
             integrity="sha256-pX7VAtlSGK55XgQjYFMvQbIRbHvD3R2Nb3JrdDDmxyk=" crossorigin="anonymous"></script>
-    <script src="/resources/script.js?version=5"></script>
+    <script src="/resources/script.js?version=6"></script>
 </body>
 </html>
