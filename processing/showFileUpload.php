@@ -51,11 +51,16 @@ $fileNameSplit = explode(".", $request->getFileName());
 if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileNameSplit) !== "mp4" && end($fileNameSplit) !== "aac") {
     // cancel upload
     header("HTTP/1.0 406 Not Acceptable", true, 406);
-    error_log("Invalid file type sent.");
+    error_log("Invalid file type for show.");
+    exit;
+} else if ($request->getTotalSize() > $config["maxShowFileSize"]) { // if the file is too large
+    // cancel upload
+    header("HTTP/1.0 406 Not Acceptable", true, 406);
+    error_log("Show file too large.");
     exit;
 } else {
     // name the file in the correct format
-    $uploadFileName = $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit); // The name the file will have on the server
+    $uploadFileName = $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit);
 }
 
 // set the path to upload to

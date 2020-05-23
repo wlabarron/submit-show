@@ -192,14 +192,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     // Get image file type
                     $fileType = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
 
-                    // if the image's type is allowed
+                    // if the image's type is not allowed
                     $allowTypes = array('jpg', 'png', 'jpeg');
-                    if (in_array(strtolower($fileType), $allowTypes)) { // TODO better image type checking
+                    if (!in_array(strtolower($fileType), $allowTypes)) { // TODO better image type checking
+                        $inputValid = false;
+                        error_log("Image file format invalid.");
+                    } else if ($_FILES["image"]["size"] > $config["maxShowImageSize"]) { // if the image is too large
+                        $inputValid = false;
+                        error_log("Show image too large.");
+                    } else {
                         // get the image data as a blob
                         $imgContent = file_get_contents($_FILES['image']['tmp_name']);
-                    } else {
-                        $inputValid = false;
-                        // TODO image format invalid
+
                     }
                 } else { // if they've not uploaded an image, use null
                     $imgContent = null;
