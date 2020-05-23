@@ -17,7 +17,7 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
           integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
           integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="/resources/style.css?version=2">
+    <link rel="stylesheet" href="/resources/style.css?version=3">
     <style>
         <?php
             if (isset($showAlertStyling)) {
@@ -101,22 +101,44 @@ audio/mpeg4-generic" required>
 
         <div class="form-group">
             <label for="showNameInput">Show name</label>
-            <select class="form-control" id="showNameInput" aria-describedby="showNameHelp" name="name" required>
+            <select class="form-control" id="showNameInput" aria-describedby="showNameHelp" name="name"
+                    onchange="handlespecialShowInput()" required>
                 <option value="" disabled selected>Choose show name...</option>
                 <?php
                 while ($show = $shows->fetch_assoc()) {
                     echo "<option value='" . $show["id"] . "'>" . $show["name"] . "</option>";
                 }
                 ?>
+                <option value='special'>One-off or Special Show</option>
             </select>
             <small id="showNameHelp" class="form-text text-muted">
                 Show missing? Please report it to technical staff.
             </small>
         </div>
+
+        <div id="specialShowDetails">
+            <div class="form-group">
+                <label for="specialShowName">Show name</label>
+                <input type="text" class="form-control" id="specialShowName" aria-describedby="specialShowNameHelp"
+                       name="specialShowName" maxlength="50">
+                <small id="specialShowNameHelp" class="form-text text-muted">
+                    Enter the name of the show.
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="specialShowPresenter">Show presenter</label>
+                <input type="text" class="form-control" id="specialShowPresenter"
+                       aria-describedby="specialShowPresenterHelp" name="specialShowPresenter" maxlength="50">
+                <small id="specialShowPresenterHelp" class="form-text text-muted">
+                    Enter the show's presenter.
+                </small>
+            </div>
+        </div>
+
         <div class="form-group bootstrap-timepicker timepicker">
             <label for="broadcast-date">Original broadcast date</label>
             <input type="text" class="form-control" id="broadcast-date" aria-describedby="broadcastDateHelp" name="date"
-                   required>
+                   required maxlength="30">
             <small id="broadcastDateHelp" class="form-text text-muted">
                 Enter the date this show was first broadcast (or when it will be broadcasted for the first time, as
                 appropriate).
@@ -264,18 +286,21 @@ audio/mpeg4-generic" required>
                 </small>
             </div>
             <hr>
-            <div class="form-group form-check">
-                <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults" name="saveAsDefaults"
-                       checked>
-                <label class="form-check-label" for="saveAsDefaults" aria-describedby="saveHelp">
-                    Save these values as the defaults for this show
-                </label>
-                <small id="saveHelp" class="form-text text-muted">
-                    If this box is ticked, next time you choose this show from the "Show name" list, the image,
-                    description, and tags you've chosen here will appear automatically.
-                </small>
+            <div id="saveFormDefaultsSection">
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults"
+                           name="saveAsDefaults"
+                           checked>
+                    <label class="form-check-label" for="saveAsDefaults" aria-describedby="saveHelp">
+                        Save these values as the defaults for this show
+                    </label>
+                    <small id="saveHelp" class="form-text text-muted">
+                        If this box is ticked, next time you choose this show from the "Show name" list, the image,
+                        description, and tags you've chosen here will appear automatically.
+                    </small>
+                </div>
+                <hr>
             </div>
-            <hr>
             <p class="text-center">This show will be sent to the scheduling team <strong>immediately</strong> for replay
                 or broadcast, as appropriate.<br>
                 This show will published to Mixcloud <strong>as soon as possible after the "end" date and time specified
@@ -329,6 +354,6 @@ audio/mpeg4-generic" required>
             integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.0/flow.min.js"
             integrity="sha256-pX7VAtlSGK55XgQjYFMvQbIRbHvD3R2Nb3JrdDDmxyk=" crossorigin="anonymous"></script>
-    <script src="/resources/script.js?version=6"></script>
+    <script src="/resources/script.js?version=7"></script>
 </body>
 </html>

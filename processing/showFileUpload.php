@@ -23,23 +23,25 @@ if ( // if show name or broadcast date is missing, stop the upload
 } else {
     // prepare the input from the form
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $showName = clearUpInput($_POST["showName"]);
+        $showID = clearUpInput($_POST["showName"]);
+        $specialShowName = clearUpInput($_POST["specialShowName"]);
+        $specialShowPresenter = clearUpInput($_POST["specialShowPresenter"]);
         $broadcastDate = clearUpInput($_POST["broadcastDate"]);
     } else if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $showName = clearUpInput($_GET["showName"]);
+        $showID = clearUpInput($_GET["showName"]);
+        $specialShowName = clearUpInput($_GET["specialShowName"]);
+        $specialShowPresenter = clearUpInput($_GET["specialShowPresenter"]);
         $broadcastDate = clearUpInput($_GET["broadcastDate"]);
     }
 
-    // prepare a database query for show info
-    $showDetailsQuery = $connections["details"]->prepare($config["oneShowQuery"]);
-    $showDetailsQuery->bind_param("i", $showName);
-
-    // get the info about the show
-    $showDetailsQuery->execute();
-    $showDetails = mysqli_fetch_assoc($showDetailsQuery->get_result());
-
-    // prepare the passed date
-    $date = date("ymd", strtotime($broadcastDate));
+    // check length of submitted data
+    if (strlen($specialShowName) > 50 ||
+        strlen($specialShowPresenter) > 50 ||
+        strlen($broadcastDate) > 30) {
+        header("HTTP/1.0 406 Not Acceptable", true, 406);
+        error_log("File upload sent with form data which is too long.");
+        exit;
+    }
 }
 
 $flowConfig = new Config();
@@ -60,7 +62,7 @@ if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileN
     exit;
 } else {
     // name the file in the correct format
-    $uploadFileName = $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit);
+    $uploadFileName = prepareFileName($showID, $request->getFileName(), $broadcastDate, $specialShowName, $specialShowPresenter);
 }
 
 // set the path to upload to

@@ -37,6 +37,7 @@ hr {
 #submit-invalid,
 #submit-success,
 #show-file-oversized,
-.show-image-oversized {
+.show-image-oversized,
+#specialShowDetails {
   display: none;
 }

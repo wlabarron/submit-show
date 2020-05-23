@@ -15,6 +15,60 @@ function clearUpInput($data) {
     return $data;
 }
 
+function prepareFileName($showName, $uploadedFileName, $date, $specialShowName = null, $presenterShowName = null) {
+    // if a special show was submitted
+    if ($showName == "special") {
+        // get special show details in array
+        // replace special characters with spaces for the file name
+        $name = preg_replace("/\W/", " ", $specialShowName);
+        $presenter = preg_replace("/\W/", " ", $presenterShowName);
+
+        // put details into an array and return it
+        $details = [
+            "name" => $name,
+            "presenter" => $presenter
+        ];
+    } else {
+        $config = require "config.php";
+        $connections = require "databaseConnections.php";
+        // prepare a database query for show info
+        $showDetailsQuery = $connections["details"]->prepare($config["oneShowQuery"]);
+        $showDetailsQuery->bind_param("i", $showName);
+
+        // get the info about the show
+        $showDetailsQuery->execute();
+        $details = mysqli_fetch_assoc($showDetailsQuery->get_result());
+    }
+
+    // put the date into the correct format
+    $date = date("ymd", strtotime($date));
+
+    // if the file name doesn't have the expected type of extension
+    $fileNameSplit = explode(".", $uploadedFileName);
+
+    return $details["presenter"] . "-" . $details["name"] . " " . $date . "." . end($fileNameSplit);
+}
+
+function getShowDetails($showName, $specialShowName = null, $presenterShowName = null) {
+    // if a special show was submitted
+    if ($showName == "special") {
+        return [
+            "name" => $specialShowName,
+            "presenter" => $presenterShowName
+        ];
+    } else {
+        $config = require "config.php";
+        $connections = require "databaseConnections.php";
+        // prepare a database query for show info
+        $showDetailsQuery = $connections["details"]->prepare($config["oneShowQuery"]);
+        $showDetailsQuery->bind_param("i", $showName);
+
+        // get the info about the show
+        $showDetailsQuery->execute();
+        return mysqli_fetch_assoc($showDetailsQuery->get_result());
+    }
+}
+
 function logToDatabase($userID, $actionType, $actionDetail) {
     if (!empty($userID)) {
         $connections = require "databaseConnections.php";

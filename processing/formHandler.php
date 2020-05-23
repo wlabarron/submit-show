@@ -143,80 +143,76 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ///////////////////////////////
             // File and Publication Name //
             ///////////////////////////////
-            // Get show details
-            // prepare a database query for show info
-            $showDetailsQuery = $connections["details"]->prepare($config["oneShowQuery"]);
-            $showDetailsQuery->bind_param("i", $_POST["name"]);
-
-            // get the info about the show
-            $showDetailsQuery->execute();
-            $showDetails = mysqli_fetch_assoc($showDetailsQuery->get_result());
-
-            // get the show's date
-            $date = date("ymd", strtotime($_POST["date"]));
-
-            // split the uploaded show file's name by ".", from which we'll take the extension in a moment
-            $fileNameSplit = explode(".", $_POST["showFileUploadName"]);
-
-            // have a guess at the path of the uploaded file
-            $showFileName = $showDetails["presenter"] . "-" . $showDetails["name"] . " " . $date . "." . end($fileNameSplit);
-
-            // if the file exists in the holding folder of uploaded files
-            if (file_exists($config["holdingDirectory"] . "/" . $showFileName)) {
-                // if S3 is configured
-                if (!empty($config["s3Endpoint"])) {
-                    // the show will now be waiting for transfer to S3
-                    $showFileLocation = "waiting";
-                    // move the folder from the holding location to waiting
-                    rename($config["holdingDirectory"] . "/" . $showFileName,
-                        $config["waitingUploadsFolder"] . "/" . $showFileName);
-                } else {
-                    // the show stays in local storage
-                    $showFileLocation = "local";
-                    // move the folder from the holding location to local storage
-                    rename($config["holdingDirectory"] . "/" . $showFileName,
-                        $config["uploadFolder"] . "/" . $showFileName);
-                }
-            } else {
-                // Can't find the uploaded show file in the holding folder
+            // check length of special show details
+            if (strlen($_POST["specialShowName"]) > 50 ||
+                strlen($_POST["specialShowPresenter"]) > 50) {
                 $inputValid = false;
-                error_log("Can't find uploaded show file " . $showFileName . " in S3.");
-            }
+                error_log("Special show info is too long.");
+                // TODO Special show info is too long.
+            } else {
+                // work out what the show's file name should be
+                $showFileName = prepareFileName($_POST["name"], $_POST["showFileUploadName"], $_POST["date"], $_POST["specialShowName"], $_POST["specialShowPresenter"]);
 
-            ////////////
-            // Images //
-            ////////////
-            if ($_POST["imageSelection"] == "upload") { // if the user has chosen to upload an image
-                // If they actually have uploaded an image
-                if (!empty($_FILES["image"]["name"])) {
-                    // Get image file type
-                    $fileType = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
+                // note the show's details for later
+                $showDetails = getShowDetails($_POST["name"], $_POST["specialShowName"], $_POST["specialShowPresenter"]);
 
-                    // if the image's type is not allowed
-                    $allowTypes = array('jpg', 'png', 'jpeg');
-                    if (!in_array(strtolower($fileType), $allowTypes)) { // TODO better image type checking
-                        $inputValid = false;
-                        error_log("Image file format invalid.");
-                    } else if ($_FILES["image"]["size"] > $config["maxShowImageSize"]) { // if the image is too large
-                        $inputValid = false;
-                        error_log("Show image too large.");
+                // if the file exists in the holding folder of uploaded files
+                if (file_exists($config["holdingDirectory"] . "/" . $showFileName)) {
+                    // if S3 is configured
+                    if (!empty($config["s3Endpoint"])) {
+                        // the show will now be waiting for transfer to S3
+                        $showFileLocation = "waiting";
+                        // move the folder from the holding location to waiting
+                        rename($config["holdingDirectory"] . "/" . $showFileName,
+                            $config["waitingUploadsFolder"] . "/" . $showFileName);
                     } else {
-                        // get the image data as a blob
-                        $imgContent = file_get_contents($_FILES['image']['tmp_name']);
-
+                        // the show stays in local storage
+                        $showFileLocation = "local";
+                        // move the folder from the holding location to local storage
+                        rename($config["holdingDirectory"] . "/" . $showFileName,
+                            $config["uploadFolder"] . "/" . $showFileName);
                     }
-                } else { // if they've not uploaded an image, use null
+                } else {
+                    // Can't find the uploaded show file in the holding folder
+                    $inputValid = false;
+                    error_log("Can't find uploaded show file " . $showFileName . " in S3.");
+                }
+
+                ////////////
+                // Images //
+                ////////////
+                if ($_POST["imageSelection"] == "upload") { // if the user has chosen to upload an image
+                    // If they actually have uploaded an image
+                    if (!empty($_FILES["image"]["name"])) {
+                        // Get image file type
+                        $fileType = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
+
+                        // if the image's type is not allowed
+                        $allowTypes = array('jpg', 'png', 'jpeg');
+                        if (!in_array(strtolower($fileType), $allowTypes)) { // TODO better image type checking
+                            $inputValid = false;
+                            error_log("Image file format invalid.");
+                        } else if ($_FILES["image"]["size"] > $config["maxShowImageSize"]) { // if the image is too large
+                            $inputValid = false;
+                            error_log("Show image too large.");
+                        } else {
+                            // get the image data as a blob
+                            $imgContent = file_get_contents($_FILES['image']['tmp_name']);
+
+                        }
+                    } else { // if they've not uploaded an image, use null
+                        $imgContent = null;
+                    }
+                } else if ($_POST["imageSelection"] == "saved") { // if they've chosen to use a previously-saved image
+                    // get the image from the database and store it in the variable
+                    $getSavedImageQuery = $connections["submissions"]->prepare("SELECT image FROM saved_info WHERE `show` = ?");
+                    $getSavedImageQuery->bind_param("i", $_POST["name"]);
+                    $getSavedImageQuery->execute();
+                    $savedImageResults = mysqli_fetch_assoc($getSavedImageQuery->get_result());
+                    $imgContent = $savedImageResults["image"];
+                } else { // if they've chosen not to use an image, use null
                     $imgContent = null;
                 }
-            } else if ($_POST["imageSelection"] == "saved") { // if they've chosen to use a previously-saved image
-                // get the image from the database and store it in the variable
-                $getSavedImageQuery = $connections["submissions"]->prepare("SELECT image FROM saved_info WHERE `show` = ?");
-                $getSavedImageQuery->bind_param("i", $_POST["name"]);
-                $getSavedImageQuery->execute();
-                $savedImageResults = mysqli_fetch_assoc($getSavedImageQuery->get_result());
-                $imgContent = $savedImageResults["image"];
-            } else { // if they've chosen not to use an image, use null
-                $imgContent = null;
             }
         }
     }
@@ -231,8 +227,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Put the submitted description together with the fixed one
         $description = $_POST["description"] . "\n\n" . str_replace("{n}", "\n", $config["fixedDescription"]);
-        // Prepare the standard name for Mixcloud
-        $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . date("jS F o", strtotime($_POST["date"]));
+
+        // Prepare the name for the Mixcloud upload
+        // if the presenter's name is not in the show's name
+        if (stristr($showDetails["name"], $showDetails["presenter"]) == false) {
+            // prepare name in format "Show with Presenter: YYMMDD
+            $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . date("jS F o", strtotime($_POST["date"]));
+        } else {
+            // prepare name in format "Show: YYMMDD
+            $mixcloudName = $showDetails["name"] . ": " . date("jS F o", strtotime($_POST["date"]));
+        }
 
         // Insert the submission into the database
         $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))");
