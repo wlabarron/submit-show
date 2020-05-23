@@ -316,7 +316,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // If the show was submitted successfully, log, report to user, send email, otherwise, log and report to user
         if ($showSubmitted) {
             $showAlertStyling = "#submit-success {display:block}";
-            error_log("Submission for show " . $_POST["name"] . " recorded.");
+            error_log("Submission for show " . $showDetails["name"] . " recorded.");
             logToDatabase($attributes["identifier"][0], "submission", "Show ID " . $_POST["name"]);
 
             // run the cron job now
@@ -331,11 +331,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exec("php " . __DIR__ . "/cron.php");
         } else {
             $showAlertStyling = "#submit-fail {display:block}";
-            error_log("Submission for show " . $_POST["name"] . " failed.\n" . json_encode($_POST));
+            error_log("Submission for show " . $showDetails["name"] . " failed.\n" . json_encode($_POST));
         }
     } else {
         $showAlertStyling = "#submit-invalid {display:block}";
-        error_log("Submission for show " . $_POST["name"] . " had invalid input.\n" . json_encode($_POST));
+        error_log("Show submission had invalid input.\n" . json_encode($_POST));
     }
 }
 
