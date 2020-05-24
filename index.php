@@ -104,12 +104,16 @@ audio/mpeg4-generic" required>
             <select class="form-control" id="showNameInput" aria-describedby="showNameHelp" name="name"
                     onchange="handlespecialShowInput()" required>
                 <option value="" disabled selected>Choose show name...</option>
-                <?php
-                while ($show = $shows->fetch_assoc()) {
-                    echo "<option value='" . $show["id"] . "'>" . $show["name"] . "</option>";
-                }
-                ?>
-                <option value='special'>One-off or Special Show</option>
+                <optgroup label="Shows">
+                    <?php
+                    while ($show = $shows->fetch_assoc()) {
+                        echo "<option value='" . $show["id"] . "'>" . $show["name"] . "</option>";
+                    }
+                    ?>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value='special'>One-off or Special Show</option>
+                </optgroup>
             </select>
             <small id="showNameHelp" class="form-text text-muted">
                 Show missing? Please report it to technical staff.
