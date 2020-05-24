@@ -109,6 +109,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $endDateTime = date_add($endDateTime, date_interval_create_from_date_string("1 day"));
             }
 
+            // enforce formatting of date attribute since we output it later
+            $_POST["date"] = date("jS F o", strtotime($_POST["date"]));
+
             /////////////////
             // Description //
             /////////////////
@@ -232,10 +235,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // if the presenter's name is not in the show's name
         if (stristr($showDetails["name"], $showDetails["presenter"]) == false) {
             // prepare name in format "Show with Presenter: YYMMDD
-            $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . date("jS F o", strtotime($_POST["date"]));
+            $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . $_POST["date"];
         } else {
             // prepare name in format "Show: YYMMDD
-            $mixcloudName = $showDetails["name"] . ": " . date("jS F o", strtotime($_POST["date"]));
+            $mixcloudName = $showDetails["name"] . ": " . $_POST["date"];
         }
 
         // Insert the submission into the database
