@@ -19,14 +19,9 @@ function prepareFileName($showName, $uploadedFileName, $date, $specialShowName =
     // if a special show was submitted
     if ($showName == "special") {
         // get special show details in array
-        // replace special characters with spaces for the file name
-        $name = preg_replace("/\W/", " ", $specialShowName);
-        $presenter = preg_replace("/\W/", " ", $presenterShowName);
-
-        // put details into an array and return it
         $details = [
-            "name" => $name,
-            "presenter" => $presenter
+            "name" => $specialShowName,
+            "presenter" => $presenterShowName
         ];
     } else {
         $config = require "config.php";
@@ -43,10 +38,18 @@ function prepareFileName($showName, $uploadedFileName, $date, $specialShowName =
     // put the date into the correct format
     $date = date("ymd", strtotime($date));
 
-    // if the file name doesn't have the expected type of extension
+    // split the file name by '.'
     $fileNameSplit = explode(".", $uploadedFileName);
 
-    return $details["presenter"] . "-" . $details["name"] . " " . $date . "." . end($fileNameSplit);
+    // replace special characters in show details with spaces for the file name
+    $details["name"] = preg_replace("/\W/", " ", $details["name"]);
+    $details["presenter"] = preg_replace("/\W/", " ", $details["presenter"]);
+
+    // replace multiple spaces with a single space
+    $details["name"] = preg_replace("/\s+/", " ", $details["name"]);
+    $details["presenter"] = preg_replace("/\s+/", " ", $details["presenter"]);
+
+    return trim($details["presenter"]) . "-" . trim($details["name"]) . " " . $date . "." . end($fileNameSplit);
 }
 
 function getShowDetails($showName, $specialShowName = null, $presenterShowName = null) {
