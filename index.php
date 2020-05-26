@@ -94,15 +94,19 @@ audio/mpeg4-generic" required>
           method="POST"
           enctype="multipart/form-data"
           class="needs-validation" novalidate
-          onsubmit="// Remove warning when navigating away
-                      window.onbeforeunload = null;">
+          onsubmit='// Remove warning when navigating away
+                      window.onbeforeunload = null;
+                      $("#submit").html("<i class=\"fas fa-circle-notch fa-spin \"></i> Submitting...");
+                      $("#submit").prop("disabled", true);
+                      $("#submit").removeClass("btn-outline-success");
+                      $("#submit").addClass("btn-outline-dark");'>
         <input type="hidden" name="showFileUploadName" id="showFileUploadName">
         <input type="hidden" name="name" id="hiddenShowName">
 
         <div class="form-group">
             <label for="showNameInput">Show name</label>
             <select class="form-control" id="showNameInput" aria-describedby="showNameHelp" name="name"
-                    onchange="handlespecialShowInput()" required>
+                    onchange="handleSpecialShowInput()" required>
                 <option value="" disabled selected>Choose show name...</option>
                 <optgroup label="Shows">
                     <?php
@@ -315,8 +319,8 @@ audio/mpeg4-generic" required>
                 Please try again with a smaller version of the file. If you're not sure how to do this, please contact
                 technical staff. Thank you.
             </div>
-            <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled><i
-                        class="fas fa-circle-notch fa-spin"></i> Uploading...
+            <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled>
+                <i class="fas fa-circle-notch fa-spin"></i> Uploading...
             </button>
             <p id="uploadingHelpText" class="text-center">You can submit your show once it has uploaded.</p>
         </div>
@@ -358,6 +362,6 @@ audio/mpeg4-generic" required>
             integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.0/flow.min.js"
             integrity="sha256-pX7VAtlSGK55XgQjYFMvQbIRbHvD3R2Nb3JrdDDmxyk=" crossorigin="anonymous"></script>
-    <script src="/resources/script.js?version=7"></script>
+    <script src="/resources/script.js?version=8"></script>
 </body>
 </html>

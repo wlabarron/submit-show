@@ -36,7 +36,7 @@ function checkShowCoverImageSize() {
     }
 }
 
-function handlespecialShowInput() {
+function handleSpecialShowInput() {
     // if we've chosen a special one off show from dropdown
     if ($("#showNameInput").val() === "special") {
         // show the extra inputs
