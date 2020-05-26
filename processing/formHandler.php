@@ -226,93 +226,136 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // If the input is valid
     if ($inputValid) {
-        $showSubmitted = true;
+        // Check if there's already an entry in the database with this file name - this would be the case if a show
+        // was being resubmitted
+        $checkForExistingFileSubmission = $connections["submissions"]->prepare("SELECT id FROM submissions WHERE file = ? LIMIT 1");
+        $checkForExistingFileSubmission->bind_param("s", $showFileName);
+        $checkForExistingFileSubmission->execute();
+        $existingFileSubmissions = $checkForExistingFileSubmission->get_result()->fetch_assoc();
 
-        // Put the submitted description together with the fixed one
-        $description = $_POST["description"] . "\n\n" . str_replace("{n}", "\n", $config["fixedDescription"]);
+        // if a submission with this file name already exists, this is a resubmission
+        if (!empty($existingFileSubmissions) && sizeof($existingFileSubmissions) > 0) {
+            $isResubmission = true;
+            $existingSubmissionRemoved = true;
 
-        // Prepare the name for the Mixcloud upload
-        // if the presenter's name is not in the show's name
-        if (stristr($showDetails["name"], $showDetails["presenter"]) == false) {
-            // prepare name in format "Show with Presenter: YYMMDD
-            $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . $_POST["date"];
+            // get the ID of the existing submission
+            $existingSubmissionID = $existingFileSubmissions["id"];
+
+            // remove the tags associated with the existing submission
+            $removeExistingSubmissionTags = $connections["submissions"]->prepare("DELETE FROM tags WHERE submission = ?");
+            $removeExistingSubmissionTags->bind_param("i", $existingSubmissionID);
+            if (!$removeExistingSubmissionTags->execute()) {
+                // TODO tag removal failed
+                $existingSubmissionRemoved = false;
+                error_log($removeExistingSubmissionTags->error);
+            }
+
+            // remove existing submission details
+            $removeExistingSubmission = $connections["submissions"]->prepare("DELETE FROM submissions WHERE id = ?");
+            $removeExistingSubmission->bind_param("i", $existingSubmissionID);
+            if (!$removeExistingSubmission->execute()) {
+                // TODO submission removal failed
+                $existingSubmissionRemoved = false;
+                error_log($removeExistingSubmission->error);
+            }
         } else {
-            // prepare name in format "Show: YYMMDD
-            $mixcloudName = $showDetails["name"] . ": " . $_POST["date"];
+            $isResubmission = false;
         }
 
-        // Insert the submission into the database
-        $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))");
-        $null = null;
-        $insertSubmissionQuery->bind_param("ssssbi", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime);
-        $insertSubmissionQuery->send_long_data(4, $imgContent);
 
-        if (!$insertSubmissionQuery->execute()) {
-            // TODO insert failed
-            $showSubmitted = false;
-            error_log($insertSubmissionQuery->error);
-        }
+        // if this is not a resubmission OR if it is a resubmission and the previous submission was removed properly
+        if (!$isResubmission ||
+            ($isResubmission && $existingSubmissionRemoved)) {
+            $showSubmitted = true;
 
-        // Prepare a query to insert a tag into the database
-        $insertTagsQuery = $connections["submissions"]->prepare("INSERT INTO tags (tag, submission) VALUES (?, (SELECT id FROM submissions WHERE file = ? LIMIT 1))");
+            // Put the submitted description together with the fixed one
+            $description = $_POST["description"] . "\n\n" . str_replace("{n}", "\n", $config["fixedDescription"]);
 
-        // iterate through the passed tags, inserting them for each
-        foreach ($tags as $tag) {
-            $insertTagsQuery->bind_param("ss", $tag, $showFileName);
+            // Prepare the name for the Mixcloud upload
+            // if the presenter's name is not in the show's name
+            if (stristr($showDetails["name"], $showDetails["presenter"]) == false) {
+                // prepare name in format "Show with Presenter: YYMMDD
+                $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . $_POST["date"];
+            } else {
+                // prepare name in format "Show: YYMMDD
+                $mixcloudName = $showDetails["name"] . ": " . $_POST["date"];
+            }
 
-            if (!$insertTagsQuery->execute()) {
+            // Insert the submission into the database
+            $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))");
+            $null = null;
+            $insertSubmissionQuery->bind_param("ssssbi", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime);
+            $insertSubmissionQuery->send_long_data(4, $imgContent);
+
+            if (!$insertSubmissionQuery->execute()) {
                 // TODO insert failed
                 $showSubmitted = false;
-                error_log($insertTagsQuery->error);
-            }
-        }
-
-        // Save the details to save
-        if (isset($_POST["saveAsDefaults"])) {
-            // Find out if there's already any details saved for this show
-            $checkForExistingSavedDetails = $connections["submissions"]->prepare("SELECT * FROM saved_info WHERE `show` = ?");
-            $checkForExistingSavedDetails->bind_param("i", $_POST["name"]);
-            $checkForExistingSavedDetails->execute();
-
-            // if saved details already exist in the database for this show
-            if (mysqli_num_rows(mysqli_stmt_get_result($checkForExistingSavedDetails)) > 0) {
-                // delete saved tags - we'll re-insert them instead
-                $tagsDeleteQuery = $connections["submissions"]->prepare("DELETE FROM saved_tags WHERE `show` = ?");
-                $tagsDeleteQuery->bind_param("i", $_POST["name"]);
-                $tagsDeleteQuery->execute();
-
-                // prepare a query to update the entry for show details
-                // ?s should match the query for adding new show details
-                $saveDetailsQuery = $connections["submissions"]->prepare("UPDATE saved_info SET description = ?, image = ? WHERE `show` = ?");
-            } else { // no saved details exist for this show
-                // prepare a query to insert the saved show details
-                // ?s should match the query for updating existing show details
-                $saveDetailsQuery = $connections["submissions"]->prepare("INSERT INTO saved_info (description, image, `show`) VALUES (?, ?, ?)");
+                error_log($insertSubmissionQuery->error);
             }
 
-            // insert details into the query
-            $saveDetailsQuery->bind_param("sbi", $_POST["description"], $null, $_POST["name"]);
-            if (isset($imgContent)) {
-                $saveDetailsQuery->send_long_data(1, $imgContent);
-            }
-            // save the show details to database
-            if (!$saveDetailsQuery->execute()) {
-                error_log($saveDetailsQuery->error);
-                // TODO report this?
-            }
+            // Prepare a query to insert a tag into the database
+            $insertTagsQuery = $connections["submissions"]->prepare("INSERT INTO tags (tag, submission) VALUES (?, (SELECT id FROM submissions WHERE file = ? LIMIT 1))");
 
-            // Prepare a query for saving tags
-            $saveTagsQuery = $connections["submissions"]->prepare("INSERT INTO saved_tags (`show`, tag) VALUES (?, ?)");
-
-            // Iterate through the tags, inserting them into the database
+            // iterate through the passed tags, inserting them for each
             foreach ($tags as $tag) {
-                $saveTagsQuery->bind_param("ss", $_POST["name"], $tag);
+                $insertTagsQuery->bind_param("ss", $tag, $showFileName);
 
-                if (!$saveTagsQuery->execute()) {
-                    error_log($saveTagsQuery->error);
-                    // TODO report this?
+                if (!$insertTagsQuery->execute()) {
+                    // TODO insert failed
+                    $showSubmitted = false;
+                    error_log($insertTagsQuery->error);
                 }
             }
+
+            // Save the details to save
+            if (isset($_POST["saveAsDefaults"])) {
+                // Find out if there's already any details saved for this show
+                $checkForExistingSavedDetails = $connections["submissions"]->prepare("SELECT * FROM saved_info WHERE `show` = ?");
+                $checkForExistingSavedDetails->bind_param("i", $_POST["name"]);
+                $checkForExistingSavedDetails->execute();
+
+                // if saved details already exist in the database for this show
+                if (mysqli_num_rows(mysqli_stmt_get_result($checkForExistingSavedDetails)) > 0) {
+                    // delete saved tags - we'll re-insert them instead
+                    $tagsDeleteQuery = $connections["submissions"]->prepare("DELETE FROM saved_tags WHERE `show` = ?");
+                    $tagsDeleteQuery->bind_param("i", $_POST["name"]);
+                    $tagsDeleteQuery->execute();
+
+                    // prepare a query to update the entry for show details
+                    // ?s should match the query for adding new show details
+                    $saveDetailsQuery = $connections["submissions"]->prepare("UPDATE saved_info SET description = ?, image = ? WHERE `show` = ?");
+                } else { // no saved details exist for this show
+                    // prepare a query to insert the saved show details
+                    // ?s should match the query for updating existing show details
+                    $saveDetailsQuery = $connections["submissions"]->prepare("INSERT INTO saved_info (description, image, `show`) VALUES (?, ?, ?)");
+                }
+
+                // insert details into the query
+                $saveDetailsQuery->bind_param("sbi", $_POST["description"], $null, $_POST["name"]);
+                if (isset($imgContent)) {
+                    $saveDetailsQuery->send_long_data(1, $imgContent);
+                }
+                // save the show details to database
+                if (!$saveDetailsQuery->execute()) {
+                    error_log($saveDetailsQuery->error);
+                    // TODO report this?
+                }
+
+                // Prepare a query for saving tags
+                $saveTagsQuery = $connections["submissions"]->prepare("INSERT INTO saved_tags (`show`, tag) VALUES (?, ?)");
+
+                // Iterate through the tags, inserting them into the database
+                foreach ($tags as $tag) {
+                    $saveTagsQuery->bind_param("ss", $_POST["name"], $tag);
+
+                    if (!$saveTagsQuery->execute()) {
+                        error_log($saveTagsQuery->error);
+                        // TODO report this?
+                    }
+                }
+            }
+        } else {
+            $showSubmitted = false;
         }
 
 
@@ -325,10 +368,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // run the cron job now
             shell_exec("php cron.php");
 
-            // send notification email
-            notificationEmail($showDetails["name"] . " submitted",
-                "A new show has been submitted:\n\n" .
-                $showDetails["name"] . " for " . $_POST["date"] . ".");
+            if ($isResubmission) {
+                // send notification email
+                notificationEmail($showDetails["name"] . " re-submitted",
+                    "A show which was already in the system has been re-submitted:\n\n" .
+                    $showDetails["name"] . " for " . $_POST["date"] . ".");
+            } else {
+                // send notification email
+                notificationEmail($showDetails["name"] . " submitted",
+                    "A new show has been submitted:\n\n" .
+                    $showDetails["name"] . " for " . $_POST["date"] . ".");
+            }
 
             // run the cron job just now asynchronously
             exec("php " . __DIR__ . "/cron.php");
