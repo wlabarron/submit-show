@@ -29,6 +29,10 @@ hr {
   padding: 3px 6px;
 }
 
+.make-disabled-input-appear-normal {
+  background-color: #FFF !important;
+}
+
 #detailsForm,
 #initial-form-invalid,
 #files-unsupported,

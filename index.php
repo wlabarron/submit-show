@@ -17,7 +17,9 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
           integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
           integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="/resources/style.css?version=3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css"
+          integrity="sha256-DVV5cU9pxHH2Rofop3XD3b3rbfrOSIy2nU61DEbYy1Q=" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="/resources/style.css?version=4">
     <style>
         <?php
             if (isset($showAlertStyling)) {
@@ -145,8 +147,8 @@ audio/mpeg4-generic" required>
 
         <div class="form-group bootstrap-timepicker timepicker">
             <label for="broadcast-date">Original broadcast date</label>
-            <input type="text" class="form-control" id="broadcast-date" aria-describedby="broadcastDateHelp" name="date"
-                   required maxlength="30">
+            <input type="text" class="form-control make-disabled-input-appear-normal" id="broadcast-date"
+                   aria-describedby="broadcastDateHelp" name="date" required maxlength="30" readonly>
             <small id="broadcastDateHelp" class="form-text text-muted">
                 Enter the date this show was first broadcast (or when it will be broadcasted for the first time, as
                 appropriate).
@@ -173,7 +175,7 @@ audio/mpeg4-generic" required>
             <div class="form-group">
                 <label for="broadcast-time">Original broadcast end time</label>
                 <input type="text" class="form-control" id="broadcast-time" aria-describedby="broadcastEndTimeHelp"
-                       name="endTime">
+                       name="endTime" step="300">
                 <small id="broadcastEndTimeHelp" class="form-text text-muted">
                     Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
                     to-the-minute - if your show's time slot is noon-2pm, you'd enter 2pm here, even if you finished at
@@ -356,12 +358,12 @@ audio/mpeg4-generic" required>
     <script src='https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
             integrity="sha256-bqVeqGdJ7h/lYPq6xrPv/YGzMEb6dNxlfiTUHSgRCp8=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"
-            integrity="sha256-bmXHkMKAxMZgr2EehOetiN/paT9LXp0KKAKnLpYlHwE=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"
+            integrity="sha256-+jmym6PChFok5u02khNcYDy5AdfiIN7Y/QCbBqiNgeE=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
             integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.0/flow.min.js"
             integrity="sha256-pX7VAtlSGK55XgQjYFMvQbIRbHvD3R2Nb3JrdDDmxyk=" crossorigin="anonymous"></script>
-    <script src="/resources/script.js?version=8"></script>
+    <script src="/resources/script.js?version=9"></script>
 </body>
 </html>

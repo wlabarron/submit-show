@@ -8,13 +8,15 @@ $(document).ready(function () {
         assumeNearbyYear: true,
         todayBtn: "linked",
         autoclose: true,
-        todayHighlight: true,
-        enableOnReadonly: false
+        todayHighlight: true
     });
 
     $('#broadcast-time').timepicker({
-        snapToStep: true,
-        defaultTime: "00:00"
+        timeFormat: 'h:mm p',
+        startHour: new Date().getHours(),
+        startMinutes: 0,
+        interval: 15,
+        dropdown: true,
     });
 
     // Enable prompt if the user tries to navigate away
@@ -160,8 +162,10 @@ function uploadAndContinue() {
         $("#showNameInput").prop('disabled', true);
         $("#specialShowName").prop('readonly', true);
         $("#specialShowPresenter").prop('readonly', true);
-        $("#broadcast-date").prop('readonly', true);
         $("#uploadAndContinueButton").slideUp();
+        // destroy the datepicker so it can't be modified now, and stop re-styling it to look normal
+        $('#broadcast-date').datepicker('destroy');
+        $('#broadcast-date').removeClass("make-disabled-input-appear-normal")
 
         // if this is a special show
         if ($("#showNameInput").val() === "special") {
