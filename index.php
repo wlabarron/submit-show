@@ -148,7 +148,8 @@ audio/mpeg4-generic" required>
         <div class="form-group bootstrap-timepicker timepicker">
             <label for="broadcast-date">Original broadcast date</label>
             <input type="text" class="form-control make-disabled-input-appear-normal" id="broadcast-date"
-                   aria-describedby="broadcastDateHelp" name="date" required maxlength="30" readonly>
+                   aria-describedby="broadcastDateHelp" name="date" required maxlength="30" readonly
+                   placeholder="Choose a date...">
             <small id="broadcastDateHelp" class="form-text text-muted">
                 Enter the date this show was first broadcast (or when it will be broadcasted for the first time, as
                 appropriate).
@@ -175,7 +176,7 @@ audio/mpeg4-generic" required>
             <div class="form-group">
                 <label for="broadcast-time">Original broadcast end time</label>
                 <input type="text" class="form-control" id="broadcast-time" aria-describedby="broadcastEndTimeHelp"
-                       name="endTime" step="300">
+                       name="endTime" step="300" placeholder="Type or choose a time...">
                 <small id="broadcastEndTimeHelp" class="form-text text-muted">
                     Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
                     to-the-minute - if your show's time slot is noon-2pm, you'd enter 2pm here, even if you finished at
@@ -233,9 +234,14 @@ audio/mpeg4-generic" required>
                 <label for="descriptionInput">Description</label>
                 <textarea class="form-control joint-input-top" id="descriptionInput" rows="3"
                           maxlength="<? echo 999 - strlen($config["fixedDescription"]); ?>"
-                          name="description"></textarea>
+                          name="description"
+                          aria-describedby="descriptionHelp"></textarea>
                 <textarea class="form-control joint-input-bottom" type="text" readonly
                           aria-label="Fixed description text"><? echo str_replace("{n}", "&#13;", $config["fixedDescription"]); ?></textarea>
+                <small id="descriptionHelp" class="form-text text-muted">
+                    Describe what happened in your show or enter your tagline. This is a good place to include a link,
+                    for example, if you had a guest on your show you may want to link to their website.
+                </small>
             </div>
             <hr>
             <div class="form-group">
