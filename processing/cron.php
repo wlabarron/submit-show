@@ -68,7 +68,7 @@ if (mkdir('cronRunning.lock', 0700)) {
             }
 
             // get the show's tags as an array
-            $showTagsQuery = $connections["submissions"]->prepare("SELECT tag FROM tags WHERE `submission` = ?");
+            $showTagsQuery = $connections["submissions"]->prepare("SELECT tag FROM tags WHERE `submission` = ? ORDER BY id");
             $showTagsQuery->bind_param("i", $show["id"]);
             if (!$showTagsQuery->execute()) {
                 // TODO handle this
