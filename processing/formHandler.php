@@ -294,7 +294,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // Insert the submission into the database
             $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`, `notification-email`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))");
             $null = null;
-            $insertSubmissionQuery->bind_param("ssssbi", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime, $notificationEmail);
+            $insertSubmissionQuery->bind_param("ssssbis", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime, $notificationEmail);
             $insertSubmissionQuery->send_long_data(4, $imgContent);
 
             if (!$insertSubmissionQuery->execute()) {
