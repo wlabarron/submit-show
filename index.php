@@ -1,5 +1,5 @@
 <?php
-$attributes = require_once './processing/requireAuth.php';
+$attributes = require './processing/requireAuth.php';
 
 $config = require './processing/config.php';
 $connections = require './processing/databaseConnections.php';
