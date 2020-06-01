@@ -1,5 +1,5 @@
 <?php
-require_once './processing/requireAuth.php';
+$attributes = require_once './processing/requireAuth.php';
 
 $config = require './processing/config.php';
 $connections = require './processing/databaseConnections.php';
@@ -157,7 +157,7 @@ audio/mpeg4-generic" required>
         </div>
 
         <div class="alert alert-warning" role="alert" id="initial-form-invalid">
-            Hang on! Make sure you've filled in all the fields above, and that the date you've entered is correct.
+            Hang on! Make sure you've filled in all the fields above.
         </div>
 
         <div class="alert alert-warning mt-2" role="alert" id="show-file-oversized">
@@ -302,6 +302,21 @@ audio/mpeg4-generic" required>
                 </small>
             </div>
             <hr>
+            <?php
+            if (isset($attributes["email"][0]) && !empty($attributes["email"][0])) {
+                echo '<div class="form-group form-check">
+                            <input class="form-check-input" type="checkbox" value="true" id="notifyOnPublish"
+                                   name="notifyOnPublish">
+                            <label class="form-check-label" for="notifyOnPublish" aria-describedby="notifyOnPublishHelp">
+                                Email me when this show is published to Mixcloud 
+                            </label>
+                            <small id="notifyOnPublishHelp" class="form-text text-muted">
+                                If this box is ticked, an email will be sent to ' . $attributes["email"][0] . ' once this show is published to Mixcloud.
+                            </small>
+                        </div>
+                        <hr>';
+            }
+            ?>
             <div id="saveFormDefaultsSection">
                 <div class="form-group form-check">
                     <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults"

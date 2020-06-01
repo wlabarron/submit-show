@@ -109,6 +109,17 @@ if (mkdir('cronRunning.lock', 0700)) {
 
                 error_log("Published submission " . $show["id"] . " to Mixcloud.");
 
+                // if a notification email address is listed in the database, send a notification email
+                if (!empty($show["notification-email"])) {
+                    notificationEmail($show["notification-email"],
+                        $show["name"] . " published",
+                        "Hello!\n\n
+                                        \"" . $show["name"] . "\" was just published to Mixcloud. Here's the link: " .
+                        shortenURL("https://www.mixcloud.com" . $response["result"]["key"]) . "\n\n
+                                        Thank you!\n\n
+                                        If you'd prefer not to receive these emails in future, leave the notification box 
+                                        unticked when you submit your show.");
+                }
             } else {
                 error_log("Failed to publish submission " . $show["id"] . " to Mixcloud. Response:\n" . json_encode($response));
             }

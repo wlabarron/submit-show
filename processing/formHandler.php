@@ -143,6 +143,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 }
             }
 
+            /////////////////////////////////////
+            // Publication Notification Emails //
+            /////////////////////////////////////
+            // If notifyOnPublish is ticked, set the email address to send the notification to based on the authentication details
+            if (isset($_POST["notifyOnPublish"])) {
+                $notificationEmail = $attributes["email"][0];
+            } else {
+                $notificationEmail = null;
+            }
+
             ///////////////////////////////
             // File and Publication Name //
             ///////////////////////////////
@@ -282,9 +292,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
 
             // Insert the submission into the database
-            $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))");
+            $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`, `notification-email`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))");
             $null = null;
-            $insertSubmissionQuery->bind_param("ssssbi", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime);
+            $insertSubmissionQuery->bind_param("ssssbi", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime, $notificationEmail);
             $insertSubmissionQuery->send_long_data(4, $imgContent);
 
             if (!$insertSubmissionQuery->execute()) {
@@ -370,12 +380,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             if ($isResubmission) {
                 // send notification email
-                notificationEmail($showDetails["name"] . " re-submitted",
+                notificationEmail($config["smtpRecipient"], $showDetails["name"] . " re-submitted",
                     "A show which was already in the system has been re-submitted:\n\n" .
                     $showDetails["name"] . " for " . $_POST["date"] . ".");
             } else {
                 // send notification email
-                notificationEmail($showDetails["name"] . " submitted",
+                notificationEmail($config["smtpRecipient"], $showDetails["name"] . " submitted",
                     "A new show has been submitted:\n\n" .
                     $showDetails["name"] . " for " . $_POST["date"] . ".");
             }
