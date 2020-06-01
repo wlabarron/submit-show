@@ -176,7 +176,7 @@ audio/mpeg4-generic" required>
             <div class="form-group">
                 <label for="broadcast-time">Original broadcast end time</label>
                 <input type="text" class="form-control" id="broadcast-time" aria-describedby="broadcastEndTimeHelp"
-                       name="endTime" step="300" placeholder="Type or choose a time...">
+                       name="endTime" step="300" placeholder="Type or choose a time..." required>
                 <small id="broadcastEndTimeHelp" class="form-text text-muted">
                     Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
                     to-the-minute - if your show's time slot is noon-2pm, you'd enter 2pm here, even if you finished at
