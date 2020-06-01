@@ -1,5 +1,5 @@
 <?php
-$attributes = require_once 'requireAuth.php';
+$attributes = require 'requireAuth.php';
 
 $config = require 'config.php';
 $connections = require 'databaseConnections.php';
