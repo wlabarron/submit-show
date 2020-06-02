@@ -4,7 +4,7 @@ use Aws\S3\Exception\S3Exception;
 use Flow\FileOpenException;
 use Flow\Uploader;
 
-if (mkdir('cronRunning.lock', 0700)) {
+if (mkdir('showSubmissionsCronRunning.lock', 0700)) {
     $config = require 'config.php';
     $connections = require 'databaseConnections.php';
     require 'usefulFunctions.php';
@@ -112,6 +112,7 @@ if (mkdir('cronRunning.lock', 0700)) {
 
                 // if a notification email address is listed in the database, send a notification email
                 if (!empty($show["notification-email"])) {
+                    error_log("Sending notification email to " . $show["notification-email"]);
                     notificationEmail($show["notification-email"],
                         $show["name"] . " published",
                         "Hello!\n\n
@@ -205,7 +206,7 @@ if (mkdir('cronRunning.lock', 0700)) {
         }
     }
 
-    rmdir('cronRunning.lock');
+    rmdir('showSubmissionsCronRunning.lock');
 } else {
     error_log("Cron is already running at the moment. It can't be re-run until it's finished.");
 }
