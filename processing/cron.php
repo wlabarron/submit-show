@@ -7,6 +7,7 @@ use Flow\Uploader;
 if (mkdir('cronRunning.lock', 0700)) {
     $config = require 'config.php';
     $connections = require 'databaseConnections.php';
+    require 'usefulFunctions.php';
 
 // get the shows due to publish, delete, and move to S3
     $showsDueToPublish = $connections["submissions"]->query("SELECT * FROM submissions WHERE `end-datetime` < CURRENT_TIMESTAMP AND `deletion-datetime` IS NULL");
