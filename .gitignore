@@ -2,3 +2,4 @@
 .idea
 processing/config.php
 .htaccess
+vendor
