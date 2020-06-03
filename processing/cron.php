@@ -116,12 +116,10 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                     error_log("Sending notification email to " . $show["notification-email"]);
                     notificationEmail($show["notification-email"],
                         $show["title"] . " published",
-                        "Hello!\n\n
-                                        \"" . $show["title"] . "\" was just published to Mixcloud. Here's the link: " .
-                        shortenURL("https://www.mixcloud.com" . $response["result"]["key"]) . "\n\n
-                                        Thank you!\n\n
-                                        If you'd prefer not to receive these emails in future, leave the notification box 
-                                        unticked when you submit your show.");
+                        "Hello!\n\n" .
+                        "\"" . $show["title"] . "\" was just published to Mixcloud. Here's the link: " . shortenURL("https://www.mixcloud.com" . $response["result"]["key"]) . "\n\n" .
+                        "Thank you!\n\n" .
+                        "If you'd prefer not to receive these emails in future, leave the notification box unticked when you submit your show.");
                 }
             } else {
                 error_log("Failed to publish submission " . $show["id"] . " to Mixcloud. Response:\n" . json_encode($response));
