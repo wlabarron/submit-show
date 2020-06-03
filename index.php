@@ -385,6 +385,6 @@ audio/mpeg4-generic" required>
             integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.0/flow.min.js"
             integrity="sha256-pX7VAtlSGK55XgQjYFMvQbIRbHvD3R2Nb3JrdDDmxyk=" crossorigin="anonymous"></script>
-    <script src="/resources/script.js?version=9"></script>
+    <script src="/resources/script.js?version=10"></script>
 </body>
 </html>
