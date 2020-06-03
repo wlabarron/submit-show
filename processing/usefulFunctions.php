@@ -84,7 +84,7 @@ function logToDatabase($userID, $actionType, $actionDetail) {
 }
 
 function notificationEmail($recipient, $subject, $body) {
-    require_once __DIR__ . "/../vendor/autoload.php";
+    require __DIR__ . "/../vendor/autoload.php";
     $config = require 'config.php';
 
     // Instantiation and passing `true` enables exceptions
