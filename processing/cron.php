@@ -115,9 +115,9 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                 if (!empty($show["notification-email"])) {
                     error_log("Sending notification email to " . $show["notification-email"]);
                     notificationEmail($show["notification-email"],
-                        $show["name"] . " published",
+                        $show["title"] . " published",
                         "Hello!\n\n
-                                        \"" . $show["name"] . "\" was just published to Mixcloud. Here's the link: " .
+                                        \"" . $show["title"] . "\" was just published to Mixcloud. Here's the link: " .
                         shortenURL("https://www.mixcloud.com" . $response["result"]["key"]) . "\n\n
                                         Thank you!\n\n
                                         If you'd prefer not to receive these emails in future, leave the notification box 
