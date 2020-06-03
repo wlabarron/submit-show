@@ -4,7 +4,7 @@ use Aws\S3\Exception\S3Exception;
 use Flow\FileOpenException;
 use Flow\Uploader;
 
-if (mkdir('showSubmissionsCronRunning.lock', 0700)) {
+if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
     $config = require 'config.php';
     $connections = require 'databaseConnections.php';
     require __DIR__ . "/../vendor/autoload.php";
@@ -207,7 +207,7 @@ if (mkdir('showSubmissionsCronRunning.lock', 0700)) {
         }
     }
 
-    rmdir('showSubmissionsCronRunning.lock');
+    rmdir(__DIR__ . '/showSubmissionsCronRunning.lock');
 } else {
     error_log("Cron is already running at the moment. It can't be re-run until it's finished.");
 }
