@@ -25,16 +25,33 @@ $(document).ready(function () {
     };
 });
 
+// The show file has not been uploaded yet
+var showUploaded = false;
+// The image provided is valid
+var imageValid = true;
+
+function updateStatusOfFormSubmitButton() {
+    // If the image is valid and the file has been uploaded, allow form submission. Otherwise, disable the button
+    if (showUploaded && imageValid) {
+        $('#submit').prop("disabled", false);
+    } else {
+        $('#submit').prop("disabled", true);
+    }
+}
+
 function checkShowCoverImageSize() {
     $(".show-image-oversized").slideUp();
     // if image is too large
     if (document.getElementById("showImageInput").files[0].size > maxShowImageSize) {
         // prevent form submission and show warning
-        $('#submit').prop("disabled", true);
+        imageValid = false;
+        updateStatusOfFormSubmitButton();
         $(".show-image-oversized").slideDown();
     } else {
         // permit form submission
-        $('#submit').prop("disabled", false);
+        imageValid = true;
+        updateStatusOfFormSubmitButton();
+        $(".show-image-oversized").slideUp();
     }
 }
 
@@ -141,7 +158,9 @@ function uploadAndContinue() {
         });
 
         // activate the submit button when the upload succeeds
-        uploader.on('fileSuccess', function(file){
+        uploader.on('fileSuccess', function(file) {
+            showUploaded = true;
+            updateStatusOfFormSubmitButton();
             $("#uploadingHelpText").slideUp();
             $("#submit").text("Submit Show");
             $("#submit").prop('disabled', false);
