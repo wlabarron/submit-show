@@ -78,7 +78,7 @@ function logToDatabase($userID, $actionType, $actionDetail) {
         $logQuery = $connections["submissions"]->prepare("INSERT INTO log (user, action_type, action_detail) VALUES (?, ?, ?)");
         $logQuery->bind_param("sss", $userID, $actionType, $actionDetail);
         if (!$logQuery->execute()) {
-            error_log("Failed to log user action to database. Details:\n" . $logQuery->error);
+            logWithLevel("error", "Failed to log user action to database. Details:\n" . $logQuery->error);
         }
     }
 }
@@ -117,7 +117,7 @@ function notificationEmail($recipient, $subject, $body) {
 
         $mail->send();
     } catch (Exception $e) {
-        error_log("Failed to send email with subject " . $subject . ". Mailer Error: {$mail->ErrorInfo}");
+        logWithLevel("error", "Failed to send email with subject " . $subject . ". Mailer Error: {$mail->ErrorInfo}");
     }
 }
 
@@ -153,5 +153,13 @@ function shortenURL($url) {
         // Return the short URL
         $data = json_decode($data);
         return $data->shorturl;
+    }
+}
+
+function logWithLevel($level, $message) {
+    $config = require 'config.php';
+
+    if ($config["loggingLevel"][$level]) {
+        error_log($message);
     }
 }

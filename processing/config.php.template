@@ -74,5 +74,17 @@ return array(
     // recipient for notifications when a show is submitted -
     // probably a mailing list for your scheduling team so they know a show has arrived
     'smtpRecipient' => ''
+
+    // Logging level
+    /// Logs are written to the standard PHP error log, as defined in the ini file.
+    /// true to log that message type, otherwise false
+    'loggingLevel' => array (
+        "fatal"    => false,
+        "error"    => false,
+        "warning"  => false,
+        "info"     => false,
+        "debug"    => false,
+        "trace"    => false
+    )
 );
 ?>

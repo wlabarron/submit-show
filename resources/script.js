@@ -23,6 +23,9 @@ $(document).ready(function () {
     window.onbeforeunload = function () {
         return true;
     };
+
+    // enable tooltips
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
 // The show file has not been uploaded yet

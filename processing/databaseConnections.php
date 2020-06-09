@@ -10,7 +10,7 @@ $config = require "config.php";
 $detailsConnection = new mysqli($config["detailsServer"], $config["detailsUser"], $config["detailsPassword"], $config["detailsDatabaseName"]);
 $detailsConnection->query("SET NAMES 'utf8'");
 if ($detailsConnection->connect_error) {
-    error_log($detailsConnection->connect_error);
+    logWithLevel("fatal", "Can't connect to details database. " . $detailsConnection->connect_error);
     die("Something's gone wrong. Please try again in a few minutes.");
 }
 
@@ -18,7 +18,7 @@ if ($detailsConnection->connect_error) {
 $submissionsConnection = new mysqli($config["submissionsServer"], $config["submissionsUser"], $config["submissionsPassword"], $config["submissionsDatabaseName"]);
 $submissionsConnection->query("SET NAMES 'utf8'");
 if ($submissionsConnection->connect_error) {
-    error_log($submissionsConnection->connect_error);
+    logWithLevel("fatal", "Can't connect to submissions database. " . $submissionsConnection->connect_error);
     die("Something's gone wrong. Please try again in a few minutes.");
 }
 
@@ -36,7 +36,7 @@ if (!empty($config["s3Endpoint"])) {
             ],
         ]);
     } catch (S3Exception $e) {
-        error_log("Couldn't create S3 client. Error:\n" . $e->getMessage());
+        logWithLevel("error", "Couldn't create S3 client. Error:\n" . $e->getMessage());
     }
 } else {
     $s3Client = null;

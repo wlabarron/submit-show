@@ -89,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         is_null($_POST["showFileUploadName"]) ||
         is_null($_POST["imageSelection"])) {
         $inputValid = false;
-        error_log("Form missing parts");
+        logWithLevel("debug", "Form missing parts");
         // TODO form missing parts
     } else {
         //////////////
@@ -101,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // if the end datetime is invalid
         if ($endDateTime === false) {
             $inputValid = false;
-            error_log("End datetime invalid.");
+            logWithLevel("debug", "End datetime invalid.");
             // TODO end datetime is invalid
         } else {
             // if the show ended the day after it started, add 1 day onto the time (so the date is the following day)
@@ -118,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // check description length
             if (strlen($_POST["description"]) > (999 - strlen($config["fixedDescription"]))) {
                 $inputValid = false;
-                error_log("Description too long.");
+                logWithLevel("debug", "Description too long.");
                 // TODO description too long
             }
 
@@ -129,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             foreach ($tags as $tag) {
                 if (strlen($tag) > 20) {
                     $inputValid = false;
-                    error_log("Tag too long.");
+                    logWithLevel("debug", "Tag too long.");
                     // TODO tag too long
                 }
             }
@@ -138,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (sizeof($tags) > 0) {
                 if (!in_array($tags[0], $primaryTagOptions)) {
                     $inputValid = false;
-                    error_log("First tag isn't a default tag.");
+                    logWithLevel("debug", "First tag isn't a default tag.");
                     // TODO first tag isn't a default tag
                 }
             }
@@ -160,7 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (strlen($_POST["specialShowName"]) > 50 ||
                 strlen($_POST["specialShowPresenter"]) > 50) {
                 $inputValid = false;
-                error_log("Special show info is too long.");
+                logWithLevel("debug", "Special show info is too long.");
                 // TODO Special show info is too long.
             } else {
                 // work out what the show's file name should be
@@ -188,7 +188,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 } else {
                     // Can't find the uploaded show file in the holding folder
                     $inputValid = false;
-                    error_log("Can't find uploaded show file " . $showFileName . " in S3.");
+                    logWithLevel("warn", "Can't find uploaded show file " . $showFileName . " in the holding folder.");
                 }
 
                 ////////////
@@ -204,10 +204,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $allowTypes = array('jpg', 'png', 'jpeg');
                         if (!in_array(strtolower($fileType), $allowTypes)) { // TODO better image type checking
                             $inputValid = false;
-                            error_log("Image file format invalid.");
+                            logWithLevel("debug", "Image file format invalid.");
                         } else if ($_FILES["image"]["size"] > $config["maxShowImageSize"]) { // if the image is too large
                             $inputValid = false;
-                            error_log("Show image too large.");
+                            logWithLevel("debug", "Show image too large.");
                         } else {
                             // get the image data as a blob
                             $imgContent = file_get_contents($_FILES['image']['tmp_name']);
@@ -257,7 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (!$removeExistingSubmissionTags->execute()) {
                 // TODO tag removal failed
                 $existingSubmissionRemoved = false;
-                error_log($removeExistingSubmissionTags->error);
+                logWithLevel("error", "Failed to remove tags for existing submission: " . $removeExistingSubmissionTags->error);
             }
 
             // remove existing submission details
@@ -266,7 +266,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (!$removeExistingSubmission->execute()) {
                 // TODO submission removal failed
                 $existingSubmissionRemoved = false;
-                error_log($removeExistingSubmission->error);
+                logWithLevel("error", "Failed to remove existing submission: " . $removeExistingSubmission->error);
             }
         } else {
             $isResubmission = false;
@@ -300,7 +300,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (!$insertSubmissionQuery->execute()) {
                 // TODO insert failed
                 $showSubmitted = false;
-                error_log($insertSubmissionQuery->error);
+                logWithLevel("error", "Failed to add submission: " . $insertSubmissionQuery->error);
             }
 
             // Prepare a query to insert a tag into the database
@@ -313,7 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if (!$insertTagsQuery->execute()) {
                     // TODO insert failed
                     $showSubmitted = false;
-                    error_log($insertTagsQuery->error);
+                    logWithLevel("error", "Failed to add tags for submission: " . $insertTagsQuery->error);
                 }
             }
 
@@ -347,7 +347,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 }
                 // save the show details to database
                 if (!$saveDetailsQuery->execute()) {
-                    error_log($saveDetailsQuery->error);
+                    logWithLevel("error", "Failed to save show details: " . $saveDetailsQuery->error);
                     // TODO report this?
                 }
 
@@ -359,7 +359,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $saveTagsQuery->bind_param("ss", $_POST["name"], $tag);
 
                     if (!$saveTagsQuery->execute()) {
-                        error_log($saveTagsQuery->error);
+                        logWithLevel("error", "Failed to save show tags: " . $saveTagsQuery->error);
                         // TODO report this?
                     }
                 }
@@ -372,7 +372,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // If the show was submitted successfully, log, report to user, send email, otherwise, log and report to user
         if ($showSubmitted) {
             $showAlertStyling = "#submit-success {display:block}";
-            error_log("Submission for show " . $showDetails["name"] . " recorded.");
+            logWithLevel("info", "Submission for show " . $showDetails["name"] . " recorded.");
             logToDatabase($attributes["identifier"][0], "submission", $showDetails["name"]);
 
             // run the cron job now
@@ -394,11 +394,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exec("php " . __DIR__ . "/cron.php");
         } else {
             $showAlertStyling = "#submit-fail {display:block}";
-            error_log("Submission for show " . $showDetails["name"] . " failed.\n" . json_encode($_POST));
+            logWithLevel("error", "Submission for show " . $showDetails["name"] . " failed.\n" . json_encode($_POST));
         }
     } else {
         $showAlertStyling = "#submit-invalid {display:block}";
-        error_log("Show submission had invalid input.\n" . json_encode($_POST));
+        logWithLevel("info", "Show submission had invalid input.\n" . json_encode($_POST));
     }
 }
 

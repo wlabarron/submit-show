@@ -18,7 +18,7 @@ if ( // if show name or broadcast date is missing, stop the upload
     ($_SERVER['REQUEST_METHOD'] === 'GET' &&
         (is_null($_GET["showName"]) || is_null($_GET["broadcastDate"])))) {
     header("HTTP/1.0 406 Not Acceptable", true, 406);
-    error_log("File upload sent with missing form data.");
+    logWithLevel("info", "File upload sent with missing form data.");
     exit;
 } else {
     // prepare the input from the form
@@ -39,7 +39,7 @@ if ( // if show name or broadcast date is missing, stop the upload
         strlen($specialShowPresenter) > 50 ||
         strlen($broadcastDate) > 30) {
         header("HTTP/1.0 406 Not Acceptable", true, 406);
-        error_log("File upload sent with form data which is too long.");
+        logWithLevel("info", "File upload sent with form data which is too long.");
         exit;
     }
 }
@@ -53,12 +53,12 @@ $fileNameSplit = explode(".", $request->getFileName());
 if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileNameSplit) !== "mp4" && end($fileNameSplit) !== "aac") {
     // cancel upload
     header("HTTP/1.0 406 Not Acceptable", true, 406);
-    error_log("Invalid file type for show.");
+    logWithLevel("info", "Invalid file type for show.");
     exit;
 } else if ($request->getTotalSize() > $config["maxShowFileSize"]) { // if the file is too large
     // cancel upload
     header("HTTP/1.0 406 Not Acceptable", true, 406);
-    error_log("Show file too large.");
+    logWithLevel("info", "Show file too large.");
     exit;
 } else {
     // name the file in the correct format
@@ -69,7 +69,7 @@ if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileN
 $uploadPath = $config["holdingDirectory"] . "/" . $uploadFileName;
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
-    error_log("Uploaded " . $uploadFileName);
+    logWithLevel("info", "Uploaded " . $uploadFileName);
     logToDatabase($attributes["identifier"][0], "upload", $uploadFileName);
 } else {
     // This is not a final chunk or request is invalid, continue to upload.

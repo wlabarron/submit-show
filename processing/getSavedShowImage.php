@@ -19,7 +19,7 @@ if (is_numeric($_GET["show"])) {
 
     // Do query, handle errors
     if (!$savedImageQuery->execute()) {
-        error_log($savedImageQuery->error);
+        logWithLevel("error", "Failed to get saved show image to return to user. " . $savedImageQuery->error);
         // TODO Report this?
     }
     $imageString = mysqli_fetch_assoc(mysqli_stmt_get_result($savedImageQuery));
@@ -32,6 +32,7 @@ if (is_numeric($_GET["show"])) {
         imagepng($image, null, 9);
         imagedestroy($image);
     } else {
+        logWithLevel("error", "Failed to create image from the information stored in the database for show " . $_GET["show"]);
         // TODO failed
     }
 }

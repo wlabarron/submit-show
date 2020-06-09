@@ -39,7 +39,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                         'SaveAs' => $config["tempDirectory"] . "/" . $show["file"]
                     ));
                 } catch (S3Exception $e) {
-                    error_log("Couldn't get " . $show["file"] . " from S3. Error:\n" . $e->getMessage());
+                    logWithLevel("error", "Couldn't get " . $show["file"] . " from S3. Error:\n" . $e->getMessage());
                 }
 
                 // open the file from S3 as a CURLFile
@@ -74,7 +74,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
             $showTagsQuery->bind_param("i", $show["id"]);
             if (!$showTagsQuery->execute()) {
                 // TODO handle this
-                error_log($showTagsQuery->error);
+                logWithLevel("error", "Couldn't get tags of show to publish. " . $showTagsQuery->error);
             }
             $tags = mysqli_fetch_all(mysqli_stmt_get_result($showTagsQuery));
 
@@ -109,11 +109,11 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                 $noteShowForDeletion->bind_param("ii", $deletionTime, $show["id"]);
                 $noteShowForDeletion->execute();
 
-                error_log("Published submission " . $show["id"] . " to Mixcloud.");
+                logWithLevel("info", "Published submission " . $show["id"] . " to Mixcloud.");
 
                 // if a notification email address is listed in the database, send a notification email
                 if (!empty($show["notification-email"])) {
-                    error_log("Sending notification email to " . $show["notification-email"]);
+                    logWithLevel("debug", "Sending publication notification email.");
                     notificationEmail($show["notification-email"],
                         $show["title"] . " published",
                         "Hello!\n\n" .
@@ -122,7 +122,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                         "If you'd prefer not to receive these emails in future, leave the notification box unticked when you submit your show.");
                 }
             } else {
-                error_log("Failed to publish submission " . $show["id"] . " to Mixcloud. Response:\n" . json_encode($response));
+                logWithLevel("warn", "Failed to publish submission " . $show["id"] . " to Mixcloud. Response:\n" . json_encode($response));
             }
 
             // delete the temporary image file, if there was an image
@@ -144,9 +144,9 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
 
             if ($show["file_location"] == "local") { // if file is in local storage, delete it
                 if (!unlink($config["uploadFolder"] . "/" . $show["file"])) {
-                    error_log("Couldn't delete " . $show["file"] . " from local storage.");
+                    logWithLevel("warn", "Couldn't delete " . $show["file"] . " from local storage.");
                 } else {
-                    error_log("Deleted " . $show["file"] . " from local storage.");
+                    logWithLevel("info", "Deleted " . $show["file"] . " from local storage.");
                     $fileDeleted = true;
                 }
             } else if ($show["file_location"] == "s3") { // if file is in S3
@@ -158,14 +158,14 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                         'SaveAs' => $config["tempDirectory"] . "/" . $show["file"]
                     ));
 
-                    error_log("Deleted " . $show["file"] . " from S3.");
+                    logWithLevel("info", "Deleted " . $show["file"] . " from S3.");
                     $fileDeleted = true;
                 } catch (S3Exception $e) {
-                    error_log("Couldn't delete " . $show["file"] . " from S3. Error:\n" . $e->getMessage());
+                    logWithLevel("warn", "Couldn't delete " . $show["file"] . " from S3. Error:\n" . $e->getMessage());
                 }
 
             } else {
-                error_log("Invalid storage location for " . $show["file"] . ".");
+                logWithLevel("error", "Invalid storage location for " . $show["file"] . ".");
             }
 
             if ($fileDeleted) {
@@ -197,9 +197,9 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                     // remove the uploaded show file from local storage
                     unlink($config["waitingUploadsFolder"] . "/" . $show["file"]);
 
-                    error_log("Sent " . $show["file"] . " to S3 and removed from local storage.");
+                    logWithLevel("info", "Sent " . $show["file"] . " to S3 and removed from local storage.");
                 } catch (S3Exception $e) {
-                    error_log("Couldn't move " . $show["file"] . " to S3. Error:\n" . $e->getMessage());
+                    logWithLevel("error", "Couldn't move " . $show["file"] . " to S3. Error:\n" . $e->getMessage());
                 }
             }
         }
@@ -207,7 +207,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
 
     rmdir(__DIR__ . '/showSubmissionsCronRunning.lock');
 } else {
-    error_log("Cron is already running at the moment. It can't be re-run until it's finished.");
+    logWithLevel("info", "Cron is already running at the moment. It can't be re-run until it's finished.");
 }
 
 // Get rid of leftover chunks and files from file uploads which never finished and forms which weren't submitted
@@ -215,5 +215,5 @@ try {
     Uploader::pruneChunks($config["tempDirectory"]);
     Uploader::pruneChunks($config["holdingDirectory"]);
 } catch (FileOpenException $e) {
-    error_log("Failed to prune upload remnants. Details:\n" . $e->getMessage());
+    logWithLevel("error", "Failed to prune upload remnants. Details:\n" . $e->getMessage());
 }

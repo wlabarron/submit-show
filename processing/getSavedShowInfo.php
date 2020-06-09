@@ -22,13 +22,13 @@ if (is_numeric($_GET["show"])) {
     // Do query, handle errors
     if (!$savedShowDetailsQuery->execute()) {
         // TODO reporting
-        error_log($savedShowDetailsQuery->error);
+        logWithLevel("error", "Failed to get details of saved show to return to user. " . $savedShowDetailsQuery->error);
     }
     $showDetails = mysqli_fetch_assoc(mysqli_stmt_get_result($savedShowDetailsQuery));
 
     // Do query, handle errors
     if (!$savedTagsQuery->execute()) {
-        error_log($savedTagsQuery->error);
+        logWithLevel("error", "Failed to get tags of saved show to return to user. " . $savedTagsQuery->error);
     }
     $tags = mysqli_fetch_all(mysqli_stmt_get_result($savedTagsQuery));
 

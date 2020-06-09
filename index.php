@@ -176,7 +176,9 @@ audio/mpeg4-generic" required>
             <div class="form-group">
                 <label for="broadcast-time">Original broadcast end time</label>
                 <input type="text" class="form-control" id="broadcast-time" aria-describedby="broadcastEndTimeHelp"
-                       name="endTime" step="300" placeholder="Type or choose a time..." required>
+                       name="endTime" step="300" placeholder="Type or choose a time..." required
+                       data-toggle="tooltip" data-trigger="focus" data-placement="top"
+                       title="Remember - this is the show end time, not the start!">
                 <small id="broadcastEndTimeHelp" class="form-text text-muted">
                     Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
                     to-the-minute - if your show's time slot is noon-2pm, you'd enter 2pm here, even if you finished at
@@ -374,9 +376,10 @@ audio/mpeg4-generic" required>
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"
             integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"
-            integrity="sha256-WqU1JavFxSAMcLP2WIOI+GB2zWmShMI82mTpLDcqFUg=" crossorigin="anonymous"></script>
-    <script src='https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"
+            integrity="sha256-Xt8pc4G0CdcRvI0nZ2lRpZ4VHng0EoUDMlGcBSQ9HiQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bs-custom-file-input/1.3.4/bs-custom-file-input.min.js"
+            integrity="sha256-e0DUqNhsFAzOlhrWXnMOQwRoqrCRlofpWgyhnrIIaPo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
             integrity="sha256-bqVeqGdJ7h/lYPq6xrPv/YGzMEb6dNxlfiTUHSgRCp8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"
