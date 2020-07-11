@@ -389,9 +389,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     "A new show has been submitted:\n\n" .
                     $showDetails["name"] . " for " . $_POST["date"] . ".");
             }
-
-            // run the cron job just now asynchronously
-            exec("php " . __DIR__ . "/cron.php");
         } else {
             $showAlertStyling = "#submit-fail {display:block}";
             logWithLevel("error", "Submission for show " . $showDetails["name"] . " failed.\n" . json_encode($_POST));
