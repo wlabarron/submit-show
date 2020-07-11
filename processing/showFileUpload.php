@@ -69,6 +69,10 @@ if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileN
 $uploadPath = $config["holdingDirectory"] . "/" . $uploadFileName;
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
+    // Remove metadata from uploaded file
+    shell_exec("ffmpeg -i $uploadPath -map_metadata -1 -c:v copy -c:a copy $uploadPath");
+
+    // Log upload completed
     logWithLevel("info", "Uploaded " . $uploadFileName);
     logToDatabase($attributes["identifier"][0], "upload", $uploadFileName);
 } else {
