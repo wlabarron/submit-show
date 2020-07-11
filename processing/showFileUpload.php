@@ -70,7 +70,7 @@ $uploadPath = $config["holdingDirectory"] . "/" . $uploadFileName;
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
     // Remove metadata from uploaded file
-    shell_exec("ffmpeg -i $uploadPath -map_metadata -1 -c:v copy -c:a copy $uploadPath");
+//    shell_exec("ffmpeg -i $uploadPath -map_metadata -1 -c:v copy -c:a copy $uploadPath");
 
     // Log upload completed
     logWithLevel("info", "Uploaded " . $uploadFileName);
