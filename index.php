@@ -95,13 +95,13 @@ audio/mpeg4-generic" required>
     <form action="/index.php"
           method="POST"
           enctype="multipart/form-data"
-          class="needs-validation" novalidate
           onsubmit='// Remove warning when navigating away
                       window.onbeforeunload = null;
                       $("#submit").html("<i class=\"fas fa-circle-notch fa-spin \"></i> Submitting...");
                       $("#submit").prop("disabled", true);
                       $("#submit").removeClass("btn-outline-success");
-                      $("#submit").addClass("btn-outline-dark");'>
+                      $("#submit").addClass("btn-outline-dark");'
+    >
         <input type="hidden" name="showFileUploadName" id="showFileUploadName">
         <input type="hidden" name="name" id="hiddenShowName">
 
@@ -354,6 +354,7 @@ audio/mpeg4-generic" required>
                 Please try again with a smaller version of the file. If you're not sure how to do this, please contact
                 technical staff. Thank you.
             </div>
+            <!-- Submit button behaviour modified by the <form> tag -->
             <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled>
                 <i class="fas fa-circle-notch fa-spin"></i> Uploading...
             </button>
