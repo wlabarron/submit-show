@@ -83,7 +83,7 @@ function logToDatabase($userID, $actionType, $actionDetail) {
     }
 }
 
-function notificationEmail($recipient, $subject, $body) {
+function notificationEmail($recipient, $subject, $body, $cc) {
     require __DIR__ . "/../vendor/autoload.php";
     $config = require 'config.php';
 
@@ -109,6 +109,10 @@ function notificationEmail($recipient, $subject, $body) {
         //Recipients
         $mail->setFrom($config["smtpSendAddress"], $config["smtpSendName"]);
         $mail->addAddress($recipient);     // Add a recipient
+
+        if (!empty($cc)) { // if a CC receipt has been specified
+            $mail->addCC($cc); // add the recipient
+        }
 
         // Content
         $mail->isHTML(false);                                  // Set email format to plain text

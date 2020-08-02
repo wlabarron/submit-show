@@ -153,6 +153,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $notificationEmail = null;
             }
 
+            // if notifyOnSubmit is ticked, set the email address to send the receipt to based on the authentication details
+            if (isset($_POST["notifyOnSubmit"])) {
+                $receiptEmail = $attributes["email"][0];
+            } else {
+                $receiptEmail = null;
+            }
+
             ///////////////////////////////
             // File and Publication Name //
             ///////////////////////////////
@@ -382,12 +389,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 // send notification email
                 notificationEmail($config["smtpRecipient"], $showDetails["name"] . " re-submitted",
                     "A show which was already in the system has been re-submitted:\n\n" .
-                    $showDetails["name"] . " for " . $_POST["date"] . ".");
+                    $showDetails["name"] . " for " . $_POST["date"] . ".", $receiptEmail);
             } else {
                 // send notification email
                 notificationEmail($config["smtpRecipient"], $showDetails["name"] . " submitted",
                     "A new show has been submitted:\n\n" .
-                    $showDetails["name"] . " for " . $_POST["date"] . ".");
+                    $showDetails["name"] . " for " . $_POST["date"] . ".", $receiptEmail);
             }
         } else {
             $showAlertStyling = "#submit-fail {display:block}";

@@ -307,6 +307,16 @@ audio/mpeg4-generic" required>
             <?php
             if (isset($attributes["email"][0]) && !empty($attributes["email"][0])) {
                 echo '<div class="form-group form-check">
+                            <input class="form-check-input" type="checkbox" value="true" id="notifyOnSubmit"
+                                   name="notifyOnSubmit">
+                            <label class="form-check-label" for="notifyOnSubmit" aria-describedby="notifyOnSubmitHelp">
+                                Email me a receipt when I submit this show
+                            </label>
+                            <small id="notifyOnSubmitHelp" class="form-text text-muted">
+                                If this box is ticked, an email will be sent to ' . $attributes["email"][0] . ' once you press the Submit button below.
+                            </small>
+                        </div>
+                        <div class="form-group form-check">
                             <input class="form-check-input" type="checkbox" value="true" id="notifyOnPublish"
                                    name="notifyOnPublish">
                             <label class="form-check-label" for="notifyOnPublish" aria-describedby="notifyOnPublishHelp">
