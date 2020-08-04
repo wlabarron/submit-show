@@ -1,5 +1,7 @@
 <?php
 
+require 'usefulFunctions.php';
+
 use Aws\S3\Exception\S3Exception;
 use Flow\FileOpenException;
 use Flow\Uploader;
@@ -8,7 +10,6 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
     $config = require 'config.php';
     $connections = require 'databaseConnections.php';
     require __DIR__ . "/../vendor/autoload.php";
-    require 'usefulFunctions.php';
 
 // get the shows due to publish, delete, and move to S3
     $showsDueToPublish = $connections["submissions"]->query("SELECT * FROM submissions WHERE `end-datetime` < CURRENT_TIMESTAMP AND `deletion-datetime` IS NULL");
@@ -205,15 +206,15 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
         }
     }
 
+    // Get rid of leftover chunks and files from file uploads which never finished and forms which weren't submitted
+    try {
+        Uploader::pruneChunks($config["tempDirectory"]);
+        Uploader::pruneChunks($config["holdingDirectory"]);
+    } catch (FileOpenException $e) {
+        logWithLevel("error", "Failed to prune upload remnants. Details:\n" . $e->getMessage());
+    }
+
     rmdir(__DIR__ . '/showSubmissionsCronRunning.lock');
 } else {
     logWithLevel("info", "Cron is already running at the moment. It can't be re-run until it's finished.");
-}
-
-// Get rid of leftover chunks and files from file uploads which never finished and forms which weren't submitted
-try {
-    Uploader::pruneChunks($config["tempDirectory"]);
-    Uploader::pruneChunks($config["holdingDirectory"]);
-} catch (FileOpenException $e) {
-    logWithLevel("error", "Failed to prune upload remnants. Details:\n" . $e->getMessage());
 }
