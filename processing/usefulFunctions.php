@@ -83,7 +83,7 @@ function logToDatabase($userID, $actionType, $actionDetail) {
     }
 }
 
-function notificationEmail($recipient, $subject, $body, $cc) {
+function notificationEmail($recipient, $subject, $body, $cc = null) {
     require __DIR__ . "/../vendor/autoload.php";
     $config = require 'config.php';
 
