@@ -69,11 +69,13 @@ if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileN
 $uploadPath = $config["holdingDirectory"] . "/" . $uploadFileName;
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
+    $removingMetadataLocation = $uploadPath . "removingMeta";
+
     // Remove metadata from uploaded file
-    shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -c:v copy -c:a copy \"$uploadPath-removingMetadata\"");
+    shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -c:v copy -c:a copy \"$removingMetadataLocation\"");
 
     // move metadata-removed file back to the upload path
-    rename($uploadPath . "-removingMetadata", $uploadPath);
+    rename($removingMetadataLocation, $uploadPath);
 
     // Log upload completed
     logWithLevel("info", "Uploaded " . $uploadFileName);
