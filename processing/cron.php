@@ -155,7 +155,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                         "If you'd prefer not to receive these emails in future, leave the notification box unticked when you submit your show.");
                 }
             } else {
-                logWithLevel("warn", "Failed to publish submission " . $show["id"] . " to Mixcloud. Response:\n" . json_encode($response));
+                logWithLevel("warning", "Failed to publish submission " . $show["id"] . " to Mixcloud. Response:\n" . json_encode($response));
             }
 
             // delete the temporary image file, if there was an image
@@ -177,7 +177,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
 
             if ($show["file_location"] == "local") { // if file is in local storage, delete it
                 if (!unlink($config["uploadFolder"] . "/" . $show["file"])) {
-                    logWithLevel("warn", "Couldn't delete " . $show["file"] . " from local storage.");
+                    logWithLevel("warning", "Couldn't delete " . $show["file"] . " from local storage.");
                 } else {
                     logWithLevel("info", "Deleted " . $show["file"] . " from local storage.");
                     $fileDeleted = true;
@@ -194,7 +194,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
                     logWithLevel("info", "Deleted " . $show["file"] . " from S3.");
                     $fileDeleted = true;
                 } catch (S3Exception $e) {
-                    logWithLevel("warn", "Couldn't delete " . $show["file"] . " from S3. Error:\n" . $e->getMessage());
+                    logWithLevel("warning", "Couldn't delete " . $show["file"] . " from S3. Error:\n" . $e->getMessage());
                 }
 
             } else {

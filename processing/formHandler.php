@@ -195,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 } else {
                     // Can't find the uploaded show file in the holding folder
                     $inputValid = false;
-                    logWithLevel("warn", "Can't find uploaded show file " . $showFileName . " in the holding folder.");
+                    logWithLevel("warning", "Can't find uploaded show file " . $showFileName . " in the holding folder.");
                 }
 
                 ////////////
