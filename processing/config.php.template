@@ -50,7 +50,9 @@ return array(
     // Text appended to the description of every upload. Use '{n}' for a new line.
     'fixedDescription' => '',
 
-    // Access token for Mixcloud account - https://www.mixcloud.com/developers/
+    // Access token for Mixcloud account - https://www.mixcloud.com/developers/.
+    // Leave blank to prevent shows being published to Mixcloud. In that case, they'll all sit in a queue waiting until
+    // an access token is provided, at which point they'll all be published.
     'mixcloudAccessToken' => '',
 
     // YOURLS details if you'd like to get shortened URLs in notification emails

@@ -15,25 +15,25 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
     require __DIR__ . "/../vendor/autoload.php";
     logWithLevel("info", "Cron: Requires complete");
 
-// get the shows due to publish, delete, and move to S3
+    // get the shows due to publish, delete, and move to S3
     $showsDueToPublish = $connections["submissions"]->query("SELECT * FROM submissions WHERE `end-datetime` < CURRENT_TIMESTAMP AND `deletion-datetime` IS NULL");
     $showsDueForDeletion = $connections["submissions"]->query("SELECT * FROM submissions WHERE `deletion-datetime` < CURRENT_TIMESTAMP");
     $showsWaitingForS3 = $connections["submissions"]->query("SELECT * FROM submissions WHERE file_location = 'waiting'");
     logWithLevel("trace", "Cron: Queried for details");
 
-// prepare queries for removing published shows
+    // prepare queries for removing published shows
     $removePublishedTags = $connections["submissions"]->prepare("DELETE FROM tags WHERE submission = ?");
     $removeShowSubmission = $connections["submissions"]->prepare("DELETE FROM submissions WHERE id = ?");
 
-// prepare query for marking a show for deletion
+    // prepare query for marking a show for deletion
     $noteShowForDeletion = $connections["submissions"]->prepare("UPDATE submissions SET `deletion-datetime` = FROM_UNIXTIME(?) WHERE id = ?");
 
-// prepare query for noting in database that a show is now in S3
+    // prepare query for noting in database that a show is now in S3
     $noteShowMovedToS3 = $connections["submissions"]->prepare("UPDATE submissions SET file_location = 's3' WHERE id = ?");
     logWithLevel("trace", "Cron: Prepared queries");
 
-// if there are any shows to publish, for each show
-    if ($showsDueToPublish->num_rows > 0) {
+    // if there are any shows to publish and if we have a Mixcloud access token, for each show
+    if ($showsDueToPublish->num_rows > 0 && !empty($config["mixcloudAccessToken"])) {
         logWithLevel("trace", "Cron: There are shows to publish");
         while ($show = $showsDueToPublish->fetch_assoc()) {
             logWithLevel("trace", "Cron: Processing the publication of a show");
