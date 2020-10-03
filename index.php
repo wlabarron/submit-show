@@ -11,7 +11,7 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Submit Show - <? echo $config["organisationName"]; ?></title>
+    <title>Submit Show - <?php echo $config["organisationName"]; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous"/>
@@ -19,7 +19,7 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
           integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css"
           integrity="sha256-DVV5cU9pxHH2Rofop3XD3b3rbfrOSIy2nU61DEbYy1Q=" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="/resources/style.css?version=4">
+    <link rel="stylesheet" href="resources/style.css?version=4">
     <style>
         <?php
             if (isset($showAlertStyling)) {
@@ -162,7 +162,7 @@ audio/mpeg4-generic" required>
 
         <div class="alert alert-warning mt-2" role="alert" id="show-file-oversized">
             <strong>The show file you chose is too big.</strong> The maximum size
-            is <? echo $config["maxShowFileSizeFriendly"]; ?>.
+            is <?php echo $config["maxShowFileSizeFriendly"]; ?>.
             Please try again with a smaller version of the file. If you're not sure how to do this, please contact
             technical staff. Thank you.
         </div>
@@ -223,23 +223,23 @@ audio/mpeg4-generic" required>
                     file</label>
                 <div class="alert alert-warning mt-2 show-image-oversized" role="alert">
                     <strong>The image you chose is too big.</strong> The maximum size
-                    is <? echo $config["maxShowImageSizeFriendly"]; ?>.
+                    is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                     Please try again with a smaller version of the file. If you're not sure how to do this, please
                     contact technical staff. Thank you.
                 </div>
                 <small id="showImageInputHelp" class="form-text text-muted">
-                    You can upload JPG or PNG files up to <? echo $config["maxShowImageSizeFriendly"]; ?>.
+                    You can upload JPG or PNG files up to <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                 </small>
             </div>
             <hr>
             <div class="form-group">
                 <label for="descriptionInput">Description</label>
                 <textarea class="form-control joint-input-top" id="descriptionInput" rows="3"
-                          maxlength="<? echo 999 - strlen($config["fixedDescription"]); ?>"
+                          maxlength="<?php echo 999 - strlen($config["fixedDescription"]); ?>"
                           name="description"
                           aria-describedby="descriptionHelp"></textarea>
                 <textarea class="form-control joint-input-bottom" type="text" readonly
-                          aria-label="Fixed description text"><? echo str_replace("{n}", "&#13;", $config["fixedDescription"]); ?></textarea>
+                          aria-label="Fixed description text"><?php echo str_replace("{n}", "&#13;", $config["fixedDescription"]); ?></textarea>
                 <small id="descriptionHelp" class="form-text text-muted">
                     Describe what happened in your show or enter your tagline. This is a good place to include a link,
                     for example, if you had a guest on your show you may want to link to their website.
@@ -350,7 +350,7 @@ audio/mpeg4-generic" required>
                     above</strong>.</p>
             <div class="alert alert-warning mt-2 show-image-oversized" role="alert">
                 <strong>The image you chose is too big.</strong> The maximum size
-                is <? echo $config["maxShowImageSizeFriendly"]; ?>.
+                is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                 Please try again with a smaller version of the file. If you're not sure how to do this, please contact
                 technical staff. Thank you.
             </div>
@@ -382,8 +382,8 @@ audio/mpeg4-generic" required>
 
     <script>
         // make some config items available to the JS
-        var maxShowFileSize = <? echo $config["maxShowFileSize"]; ?>;
-        var maxShowImageSize = <? echo $config["maxShowImageSize"]; ?>;
+        var maxShowFileSize = <?php echo $config["maxShowFileSize"]; ?>;
+        var maxShowImageSize = <?php echo $config["maxShowImageSize"]; ?>;
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"
             integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
@@ -399,6 +399,6 @@ audio/mpeg4-generic" required>
             integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.0/flow.min.js"
             integrity="sha256-pX7VAtlSGK55XgQjYFMvQbIRbHvD3R2Nb3JrdDDmxyk=" crossorigin="anonymous"></script>
-    <script src="/resources/script.js?version=10"></script>
+    <script src="resources/script.js?version=10"></script>
 </body>
 </html>
