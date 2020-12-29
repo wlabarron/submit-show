@@ -39,9 +39,15 @@ if (is_numeric($_GET["show"])) {
         $imageExists = false;
     }
 
+    if (!empty($showDetails["description"])) {
+        $description = $showDetails["description"];
+    } else {
+        $description = null;
+    }
+
     // Set up a JSON object to return
     echo json_encode(array(
-        "description" => $showDetails["description"],
+        "description" => $description,
         "imageExists" => $imageExists,
         "tags" => $tags
     ));
