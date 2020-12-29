@@ -68,7 +68,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
             // basic data
             $postData = array(
                 'mp3' => $showFile,
-                'name' => html_entity_decode($show["title"], ENT_QUOTES),
+                'name' => htmlspecialchars_decode($show["title"], ENT_QUOTES),
                 'description' => $show["description"]
             );
             logWithLevel("trace", "Cron: Prepared basic show info");

@@ -41,6 +41,10 @@ function prepareFileName($showName, $uploadedFileName, $date, $specialShowName =
     // split the file name by '.'
     $fileNameSplit = explode(".", $uploadedFileName);
 
+    // Decode the encoded special characters
+    $details["name"] = htmlspecialchars_decode($details["name"], ENT_QUOTES);
+    $details["presenter"] = htmlspecialchars_decode($details["presenter"], ENT_QUOTES);
+
     // replace special characters in show details with spaces for the file name
     $details["name"] = preg_replace("/\W/", " ", $details["name"]);
     $details["presenter"] = preg_replace("/\W/", " ", $details["presenter"]);
