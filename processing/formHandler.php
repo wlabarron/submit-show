@@ -110,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
 
             // enforce formatting of date attribute since we output it later
-            $_POST["date"] = date("jS F o", strtotime($_POST["date"]));
+            $_POST["date"] = date("jS F Y", strtotime($_POST["date"]));
 
             /////////////////
             // Description //
