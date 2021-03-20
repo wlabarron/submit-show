@@ -71,8 +71,10 @@ $uploadPath = $config["holdingDirectory"] . "/" . $uploadFileName;
 if (Basic::save($uploadPath, $flowConfig, $request)) {
     $removingMetadataLocation = $config["holdingDirectory"] . "/meta-" . $uploadFileName;
 
-    // Remove metadata from uploaded file
-    shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -c:v copy -c:a copy \"$removingMetadataLocation\"");
+    // Remove metadata from uploaded file, put in the show presenter and title instead
+    // $metadata[0] is presenter, [1] is title, [2] is file extension
+    $metadata = preg_split("/[-.]/", $uploadFileName, 3);
+    shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -metadata title=\"$metadata[1]\" -metadata artist=\"$metadata[0]\" -c:v copy -c:a copy \"$removingMetadataLocation\"");
 
     // move metadata-removed file back to the upload path
     rename($removingMetadataLocation, $uploadPath);
