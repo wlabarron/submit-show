@@ -1,5 +1,5 @@
 <?php
-$attributes = require_once 'requireAuth.php';
+require_once 'requireAuth.php';
 
 $config = require 'config.php';
 
@@ -81,7 +81,7 @@ if (Basic::save($uploadPath, $flowConfig, $request)) {
 
     // Log upload completed
     logWithLevel("info", "Uploaded " . $uploadFileName);
-    logToDatabase($attributes["identifier"][0], "upload", $uploadFileName);
+    logToDatabase($_SESSION["samlNameId"], "upload", $uploadFileName);
 } else {
     // This is not a final chunk or request is invalid, continue to upload.
 }

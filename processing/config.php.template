@@ -60,9 +60,8 @@ return array(
     'yourlsApiUrl' => 'http://sho.rt/yourls-api.php',
     'yourlsSignature' => '',
 
-    // SimpleSAMLphp details
-    'simpleSAMLphpAutoloadPath' => '',
-    'simpleSAMLphpAuthSource' => '',
+    // Enable or disable SAML authentication -- configure in auth/settings.php
+    'saml' => false,
 
     // Details for notification emails
     'smtpServer' => '',

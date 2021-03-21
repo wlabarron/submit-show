@@ -305,7 +305,7 @@ audio/mpeg4-generic" required>
             </div>
             <hr>
             <?php
-            if (isset($attributes["email"][0]) && !empty($attributes["email"][0])) {
+            if (isset($_SESSION['samlUserdata']["email"][0]) && !empty($_SESSION['samlUserdata']["email"][0])) {
                 echo '<div class="form-group form-check">
                             <input class="form-check-input" type="checkbox" value="true" id="notifyOnSubmit"
                                    name="notifyOnSubmit">
@@ -313,7 +313,7 @@ audio/mpeg4-generic" required>
                                 Email me a receipt when I submit this show
                             </label>
                             <small id="notifyOnSubmitHelp" class="form-text text-muted">
-                                If this box is ticked, an email will be sent to ' . $attributes["email"][0] . ' once you press the Submit button below.
+                                If this box is ticked, an email will be sent to ' . $_SESSION['samlUserdata']["email"][0] . ' once you press the Submit button below.
                             </small>
                         </div>
                         <div class="form-group form-check">
@@ -323,7 +323,7 @@ audio/mpeg4-generic" required>
                                 Email me when this show is published to Mixcloud 
                             </label>
                             <small id="notifyOnPublishHelp" class="form-text text-muted">
-                                If this box is ticked, an email will be sent to ' . $attributes["email"][0] . ' once this show is published to Mixcloud.
+                                If this box is ticked, an email will be sent to ' . $_SESSION['samlUserdata']["email"][0] . ' once this show is published to Mixcloud.
                             </small>
                         </div>
                         <hr>';

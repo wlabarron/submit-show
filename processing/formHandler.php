@@ -1,5 +1,5 @@
 <?php
-$attributes = require 'requireAuth.php';
+require 'requireAuth.php';
 
 $config = require 'config.php';
 $connections = require 'databaseConnections.php';
@@ -380,7 +380,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($showSubmitted) {
             $showAlertStyling = "#submit-success {display:block}";
             logWithLevel("info", "Submission for show " . $showDetails["name"] . " recorded.");
-            logToDatabase($attributes["identifier"][0], "submission", $showDetails["name"]);
+            logToDatabase($_SESSION['samlNameId'], "submission", $showDetails["name"]);
 
             // run the cron job now
             shell_exec("php cron.php");
