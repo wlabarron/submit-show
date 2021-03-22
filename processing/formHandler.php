@@ -5,237 +5,281 @@ $config = require 'config.php';
 $connections = require 'databaseConnections.php';
 require 'usefulFunctions.php';
 
+/**
+ * Return an array of the (up to) 5 tags passed, after validating them.
+ *
+ * The checks made are: first tag is from the list of default tags, tag max length is 20 characters.
+ *
+ * @param string|null $tag1 Tag 1, or null.
+ * @param string|null $tag2 Tag 2, or null.
+ * @param string|null $tag3 Tag 3, or null.
+ * @param string|null $tag4 Tag 4, or null.
+ * @param string|null $tag5 Tag 5, or null.
+ * @return array     An array of the tags provided.
+ * @throws Exception If any of the tags are invalid.
+ */
+function validateTags(string $tag1 = null, string $tag2 = null, string $tag3 = null, string $tag4 = null, string $tag5 = null): array {
+    // options for primary tags
+    $primaryTagOptions = array("ambient", "bass", "beats", "chillout", "classical", "deep house", "drum &amp; bass", "dub",
+        "dubstep", "edm", "electronica", "funk", "garage", "hip hop", "house", "indie", "jazz", "pop", "rap", "reggae",
+        "r&amp;b", "rock", "soul", "tech house", "techno", "trance", "trap", "world", "business", "comedy", "education",
+        "lifestyle", "interview", "news", "politics", "science", "sport", "technology", "other");
+
+    // Convert tags to lowercase and put into an array.
+    $tags = array();
+    if (!empty($tag1)) $tags[] = strtolower($tag1);
+    if (!empty($tag2)) $tags[] = strtolower($tag2);
+    if (!empty($tag3)) $tags[] = strtolower($tag3);
+    if (!empty($tag4)) $tags[] = strtolower($tag4);
+    if (!empty($tag5)) $tags[] = strtolower($tag5);
+
+    if (sizeof($tags) == 0) {
+        // No tags, so it's valid and good to go.
+        return $tags;
+    } else {
+
+        // Check the first tag is included in the array of acceptable tags.
+        if (!in_array($tags[0], $primaryTagOptions)) {
+            throw new Exception("First tag isn't a default tag, but it should be.");
+        }
+
+        // Check each tag's length.
+        foreach ($tags as $tag) {
+            if (strlen($tag) > 20) {
+                throw new Exception("A tag was too long.");
+            }
+        }
+
+        // All good!
+        return $tags;
+    }
+}
+
+/**
+ * Validates and formats the date and time of the show.
+ * @param string $date The date the show started, as a string.
+ * @param string $time The time the show started, as a string.
+ * @param bool $nextDay `true` if the show finished the day after it started (i.e. ran over midnight).
+ * @return array An array with two elements: "endTime", with the UNIX timestamp of the show's end time, and "startDate",
+ *               with the date the show started on in format "jS F Y" (21st March 2021).
+ * @throws Exception If any parameters are invalid.
+ */
+function validateEndDateTime(string $date, string $time, bool $nextDay = false): array {
+    if (is_null($date)) throw new Exception("No date provided.");
+    if (is_null($time)) throw new Exception("No time provided.");
+
+    // Get the datetime the show ended at
+    $endDateTime = strtotime($_POST["date"] . " " . $_POST["endTime"]);
+
+    // If the end datetime is invalid
+    if ($endDateTime === false) throw new Exception("End datetime invalid.");
+
+    // If the show ended the day after it started, add 1 day onto the time (so the date is the following day)
+    $endDateTime = $nextDay ? $endDateTime + 86400 // 86400 seconds = 24 hours
+                            : $endDateTime;        // no change
+
+    return array(
+        "endTime"   => $endDateTime,
+        "startDate" => date("jS F Y", strtotime($date))
+    );
+}
+
+/**
+ * Checks the length of the provided description combined with the length of the fixed description in the config file
+ * is valid.
+ * @param string|null $description The show-specific description to check (don't include the fixed part from the config
+ *                                 file).
+ * @return  string The passed description combined with the fixed description from the config file.
+ * @throws Exception If the description is too long/
+ */
+function validateDescription(string $description = null): string {
+    $config = require 'config.php';
+
+    if (is_null($description)) return $config["fixedDescription"];
+
+    // Check description length
+    if (strlen($description) > (999 - strlen($config["fixedDescription"]))) {
+        throw new Exception("Description too long when combined with fixed description in config file.");
+    }
+
+    // Combined fixed description with passed description. Replace "{n}" in the fixed description with line breaks.
+    return $description . "\n\n" . str_replace("{n}", "\n", $config["fixedDescription"]);
+}
+
+/**
+ * Based on the two booleans submitted, prepare email addresses for the relevant notifications.
+ * @param bool $submit `true` if a notification should be sent to the submitter when they submit their show.
+ * @param bool $publish `true` if a notification should be sent to the submitter when their show is published to
+ *                       Mixcloud.
+ * @return array An array with elements "submit" and "publish". Each will be either null if no email is to be sent, or
+ *               the address of the email recipient according to the SAML user data.
+ */
+function checkIfEmail(bool $submit, bool $publish): array {
+    $submitEmail = $publishEmail = null;
+
+    // If there is an email address in the SAML user data
+    if (!is_null($_SESSION['samlUserdata']["email"][0])) {
+        $submitEmail = $submit ? $_SESSION['samlUserdata']["email"][0]
+            : null;
+
+        $publishEmail = $publish ? $_SESSION['samlUserdata']["email"][0]
+            : null;
+    }
+
+    return array(
+        "submit"  => $submitEmail,
+        "publish" => $publishEmail
+    );
+}
+
+/**
+ * For shows from the database, this will retrieve the show's name and presenter. For special show, this will validate
+ * the name and presenter.
+ * @param string $name The ID of a show in the database, or "special" for special show.
+ * @param string $fileName The name of the uploaded show file.
+ * @param string $date The show date.
+ * @param string|null $specialName If name == "special", the name of the show.
+ * @param string|null $specialPresenter If name == "special", the presenter of the show.
+ * @return array An array with 3 elements: "file" being the normalised file name of the show, "show" being the name of
+ *               the show, and "presenter" being the show's presenter.
+ * @throws Exception If any validation checks fail.
+ */
+function validateShowName(string $name, string $fileName, string $date, string $specialName = null, string $specialPresenter = null): array {
+    if (is_null($name))     throw new Exception("No show name provided.");
+    if (is_null($date))     throw new Exception("No show date provided.");
+    if (is_null($fileName)) throw new Exception("No upload file name provided.");
+
+    if ($name === "special") {
+        if (is_null($specialName))      throw new Exception("Listed as special show, but no show name provided.");
+        if (is_null($specialPresenter)) throw new Exception("Listed as special show, but no presenter name provided.");
+
+        if (strlen($specialName) > 50)      throw new Exception("Special show name is too long.");
+        if (strlen($specialPresenter) > 50) throw new Exception("Special show presenter name is too long.");
+    }
+
+    $details = getShowDetails($name, $specialName, $specialPresenter);
+    if (is_null($details["name"]))      throw new Exception("Couldn't retrieve show name.");
+    if (is_null($details["presenter"])) throw new Exception("Couldn't retrieve show presenter.");
+
+    return array(
+        "file"      => prepareFileName($name, $fileName, $date, $specialName, $specialPresenter),
+        "show"      => $details["name"],
+        "presenter" => $details["presenter"]
+    );
+}
+
+/**
+ * Moves a show file from the holding directory to a more permanent storage location, and returns what that location is.
+ * @param string $fileName The file name of the show to handle.
+ * @return string "local" if the show is remaining in local storage on this server, "waiting" if it is waiting to move
+ *                to S3.
+ * @throws Exception If the show file can't be found in the holding directory or can't be moved to its new home.
+ */
+function moveShowFile(string $fileName): string  {
+    $config = require 'config.php';
+
+    // if the file exists in the holding folder of uploaded files
+    if (file_exists($config["holdingDirectory"] . "/" . $fileName)) {
+        $location = null;
+
+        // if S3 is configured
+        if (!empty($config["s3Endpoint"])) {
+            // The show is waiting to go to S3
+            $location = "waiting";
+            $moveTarget = $config["waitingUploadsFolder"];
+        } else {
+            // The show is staying locally on this server
+            $location = "local";
+            $moveTarget = $config["uploadFolder"];
+        }
+
+        // move the folder from the holding location to its target
+        if (!rename($config["holdingDirectory"] . "/" . $fileName, $moveTarget . "/" . $fileName)) {
+            throw new Exception("Couldn't move " . $fileName . " from holding directory to " . $location);
+        }
+
+        return $location;
+    } else {
+        // Can't find the uploaded show file in the holding folder
+        throw new Exception("Can't find uploaded show file in the holding folder. Was looking for " .
+            $fileName . ".");
+    }
+}
+
+/**
+ * Returns an image based on the criteria passed.
+ * @param string $imageChoice "upload" for uploaded images, "saved" for an image saved in the database.
+ * @param string|null $showName If $imageChoice == "saved", this should be the ID of the show in the database.
+ * @return string|null Either the show image, or null.
+ * @throws Exception If the request or image is invalid.
+ */
+function handleImage(string $imageChoice, string $showName = null): ?string {
+    if ($imageChoice == "upload") {
+        // If the user has uploaded an image
+        return handleImageUpload();
+    } else if ($_POST["imageSelection"] == "saved") {
+        // If they've chosen to use a previously-saved image
+        return getImageFromDatabase($showName);
+    } else {
+        $imgContent = null;
+    }
+}
+
+/**
+ * Checks if the uploaded image meets the given criteria, and if so, returns the image as a blob.
+ * @return string|null The image, or null if there is no image.
+ * @throws Exception If the image fails validation.
+ */
+function handleImageUpload(): ?string {
+    // If they actually have uploaded an image
+    if (!empty($_FILES["image"]["name"])) {
+        // Get and check the image's file type
+        $fileType = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
+        $allowTypes = array('jpg', 'png', 'jpeg');
+        if (!in_array(strtolower($fileType), $allowTypes)) { // TODO better image type checking
+            throw new Exception("Uploaded image format not permitted.");
+        }
+
+        $config = require 'config.php';
+
+        // Check the image's size
+        if ($_FILES["image"]["size"] > $config["maxShowImageSize"]) {
+            throw new Exception("Uploaded image too large.");
+        }
+
+        // Return the image data as a blob
+        return file_get_contents($_FILES['image']['tmp_name']);
+    } else {
+        // No image uploaded.
+        return null;
+    }
+}
+
+/**
+ * Gets a saved image from the database based on a given show ID.
+ * @param string $showName The ID of the show whose image you wish to retrieve.
+ * @return string|null The image content.
+ * @throws Exception If the request is invalid.
+ */
+function getImageFromDatabase(string $showName): ?string {
+    if ($showName === "special") throw new Exception("Attempted to get image from database for a special show.");
+
+    $connections = require 'databaseConnections.php';
+
+    $getSavedImageQuery = $connections["submissions"]->prepare("SELECT image FROM saved_info WHERE `show` = ?");
+    $getSavedImageQuery->bind_param("i", $showName);
+    $getSavedImageQuery->execute();
+    $savedImageResults = mysqli_fetch_assoc($getSavedImageQuery->get_result());
+
+    return $savedImageResults["image"];
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // sanitise input
     foreach ($_POST as $item) {
         $item = clearUpInput($item);
     }
 
-    // put all of the tags into an array
-    $tags = array();
-
-    if (!empty($_POST["tag1"])) {
-        $tags[] = strtolower($_POST["tag1"]);
-    }
-
-    if (!empty($_POST["tag2"])) {
-        $tags[] = strtolower($_POST["tag2"]);
-    }
-
-    if (!empty($_POST["tag3"])) {
-        $tags[] = strtolower($_POST["tag3"]);
-    }
-
-    if (!empty($_POST["tag4"])) {
-        $tags[] = strtolower($_POST["tag4"]);
-    }
-
-    if (!empty($_POST["tag5"])) {
-        $tags[] = strtolower($_POST["tag5"]);
-    }
-
-    // options for primary tags
-    $primaryTagOptions = array("ambient",
-        "bass",
-        "beats",
-        "chillout",
-        "classical",
-        "deep house",
-        "drum &amp; bass",
-        "dub",
-        "dubstep",
-        "edm",
-        "electronica",
-        "funk",
-        "garage",
-        "hip hop",
-        "house",
-        "indie",
-        "jazz",
-        "pop",
-        "rap",
-        "reggae",
-        "r&amp;b",
-        "rock",
-        "soul",
-        "tech house",
-        "techno",
-        "trance",
-        "trap",
-        "world",
-        "business",
-        "comedy",
-        "education",
-        "lifestyle",
-        "interview",
-        "news",
-        "politics",
-        "science",
-        "sport",
-        "technology",
-        "other");
-
-    /////////////////////////
-    // VALIDATION AND PREP //
-    /////////////////////////
-
-    $inputValid = true;
-
-    //////////////
-    // Presence //
-    //////////////
-    if (is_null($_POST["date"]) ||
-        is_null($_POST["endTime"]) ||
-        is_null($_POST["showFileUploadName"]) ||
-        is_null($_POST["imageSelection"])) {
-        $inputValid = false;
-        logWithLevel("debug", "Form missing parts");
-        // TODO form missing parts
-    } else {
-        //////////////
-        // Datetime //
-        //////////////
-        // get the datetime the show ended at
-        $endDateTime = strtotime($_POST["date"] . " " . $_POST["endTime"]);
-
-        // if the end datetime is invalid
-        if ($endDateTime === false) {
-            $inputValid = false;
-            logWithLevel("debug", "End datetime invalid.");
-            // TODO end datetime is invalid
-        } else {
-            // if the show ended the day after it started, add 1 day onto the time (so the date is the following day)
-            if (isset($_POST["endedOnFollowingDay"])) {
-                $endDateTime = date_add($endDateTime, date_interval_create_from_date_string("1 day"));
-            }
-
-            // enforce formatting of date attribute since we output it later
-            $_POST["date"] = date("jS F Y", strtotime($_POST["date"]));
-
-            /////////////////
-            // Description //
-            /////////////////
-            // check description length
-            if (strlen($_POST["description"]) > (999 - strlen($config["fixedDescription"]))) {
-                $inputValid = false;
-                logWithLevel("debug", "Description too long.");
-                // TODO description too long
-            }
-
-            //////////
-            // Tags //
-            //////////
-            // check length of each tag
-            foreach ($tags as $tag) {
-                if (strlen($tag) > 20) {
-                    $inputValid = false;
-                    logWithLevel("debug", "Tag too long.");
-                    // TODO tag too long
-                }
-            }
-
-            // check if the first tag (if it exists) is one of the options for a primary tag
-            if (sizeof($tags) > 0) {
-                if (!in_array($tags[0], $primaryTagOptions)) {
-                    $inputValid = false;
-                    logWithLevel("debug", "First tag isn't a default tag.");
-                    // TODO first tag isn't a default tag
-                }
-            }
-
-            /////////////////////////////////////
-            // Publication Notification Emails //
-            /////////////////////////////////////
-            // If notifyOnPublish is ticked, set the email address to send the notification to based on the authentication details
-            if (isset($_POST["notifyOnPublish"])) {
-                $notificationEmail = $attributes["email"][0];
-            } else {
-                $notificationEmail = null;
-            }
-
-            // if notifyOnSubmit is ticked, set the email address to send the receipt to based on the authentication details
-            if (isset($_POST["notifyOnSubmit"])) {
-                $receiptEmail = $attributes["email"][0];
-            } else {
-                $receiptEmail = null;
-            }
-
-            ///////////////////////////////
-            // File and Publication Name //
-            ///////////////////////////////
-            // check length of special show details
-            if (strlen($_POST["specialShowName"]) > 50 ||
-                strlen($_POST["specialShowPresenter"]) > 50) {
-                $inputValid = false;
-                logWithLevel("debug", "Special show info is too long.");
-                // TODO Special show info is too long.
-            } else {
-                // work out what the show's file name should be
-                $showFileName = prepareFileName($_POST["name"], $_POST["showFileUploadName"], $_POST["date"], $_POST["specialShowName"], $_POST["specialShowPresenter"]);
-
-                // note the show's details for later
-                $showDetails = getShowDetails($_POST["name"], $_POST["specialShowName"], $_POST["specialShowPresenter"]);
-
-                // if the file exists in the holding folder of uploaded files
-                if (file_exists($config["holdingDirectory"] . "/" . $showFileName)) {
-                    // if S3 is configured
-                    if (!empty($config["s3Endpoint"])) {
-                        // the show will now be waiting for transfer to S3
-                        $showFileLocation = "waiting";
-                        // move the folder from the holding location to waiting
-                        rename($config["holdingDirectory"] . "/" . $showFileName,
-                            $config["waitingUploadsFolder"] . "/" . $showFileName);
-                    } else {
-                        // the show stays in local storage
-                        $showFileLocation = "local";
-                        // move the folder from the holding location to local storage
-                        rename($config["holdingDirectory"] . "/" . $showFileName,
-                            $config["uploadFolder"] . "/" . $showFileName);
-                    }
-                } else {
-                    // Can't find the uploaded show file in the holding folder
-                    $inputValid = false;
-                    logWithLevel("warning", "Can't find uploaded show file " . $showFileName . " in the holding folder.");
-                }
-
-                ////////////
-                // Images //
-                ////////////
-                if ($_POST["imageSelection"] == "upload") { // if the user has chosen to upload an image
-                    // If they actually have uploaded an image
-                    if (!empty($_FILES["image"]["name"])) {
-                        // Get image file type
-                        $fileType = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
-
-                        // if the image's type is not allowed
-                        $allowTypes = array('jpg', 'png', 'jpeg');
-                        if (!in_array(strtolower($fileType), $allowTypes)) { // TODO better image type checking
-                            $inputValid = false;
-                            logWithLevel("debug", "Image file format invalid.");
-                        } else if ($_FILES["image"]["size"] > $config["maxShowImageSize"]) { // if the image is too large
-                            $inputValid = false;
-                            logWithLevel("debug", "Show image too large.");
-                        } else {
-                            // get the image data as a blob
-                            $imgContent = file_get_contents($_FILES['image']['tmp_name']);
-
-                        }
-                    } else { // if they've not uploaded an image, use null
-                        $imgContent = null;
-                    }
-                } else if ($_POST["imageSelection"] == "saved") { // if they've chosen to use a previously-saved image
-                    // get the image from the database and store it in the variable
-                    $getSavedImageQuery = $connections["submissions"]->prepare("SELECT image FROM saved_info WHERE `show` = ?");
-                    $getSavedImageQuery->bind_param("i", $_POST["name"]);
-                    $getSavedImageQuery->execute();
-                    $savedImageResults = mysqli_fetch_assoc($getSavedImageQuery->get_result());
-                    $imgContent = $savedImageResults["image"];
-                } else { // if they've chosen not to use an image, use null
-                    $imgContent = null;
-                }
-            }
-        }
-    }
 
     /////////////////
     // HANDLE DATA //
