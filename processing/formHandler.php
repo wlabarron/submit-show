@@ -221,7 +221,7 @@ function handleImage(string $imageChoice, string $showName = null): ?string {
         // If they've chosen to use a previously-saved image
         return getImageFromDatabase($showName);
     } else {
-        $imgContent = null;
+        return null;
     }
 }
 
@@ -280,20 +280,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $item = clearUpInput($item);
     }
 
+    $details = array();
+    try {
+        $details[] = validateEndDateTime($_POST["date"], $_POST["endTime"], $_POST["endedOnFollowingDay"]);
+        $details[] = validateShowName($_POST["name"], $_POST["showFileUploadName"], $details["startDate"], $_POST["specialShowName"], $_POST["specialShowPresenter"]);
+        $details["location"] = moveShowFile($details["file"]);
+        $details["image"]    = handleImage($_POST["imageSelection"], $_POST["name"]);
+        $details["description"] =  validateDescription($_POST["description"]);
+        $details["tags"] = validateTags($_POST["tag1"], $_POST["tag2"], $_POST["tag3"], $_POST["tag4"], $_POST["tag5"]);
+        $details[] = checkIfEmail($_POST["notifyOnSubmit"], $_POST["notifyOnPublish"]);
+    } catch (Exception) {
+        $details = null;
+        $showAlertStyling = "#submit-invalid {display:block}";
+        logWithLevel("info", "Show submission had invalid input.\n" . json_encode($_POST));
+    }
 
     /////////////////
     // HANDLE DATA //
     /////////////////
 
     // If the input is valid
-    if ($inputValid) {
+    if (!is_null($details)) {
         // Check if there's already an entry in the database with this file name - this would be the case if a show
         // was being resubmitted
         $checkForExistingFileSubmission = $connections["submissions"]->prepare("SELECT id FROM submissions WHERE file = ? LIMIT 1");
-        $checkForExistingFileSubmission->bind_param("s", $showFileName);
+        $checkForExistingFileSubmission->bind_param("s", $details["file"]);
         $checkForExistingFileSubmission->execute();
         $existingFileSubmissions = $checkForExistingFileSubmission->get_result()->fetch_assoc();
 
+        $existingSubmissionRemoved = false;
         // if a submission with this file name already exists, this is a resubmission
         if (!empty($existingFileSubmissions) && sizeof($existingFileSubmissions) > 0) {
             $isResubmission = true;
@@ -325,8 +340,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
         // if this is not a resubmission OR if it is a resubmission and the previous submission was removed properly
-        if (!$isResubmission ||
-            ($isResubmission && $existingSubmissionRemoved)) {
+        if (!$isResubmission || $existingSubmissionRemoved) {
             $showSubmitted = true;
 
             // Put the submitted description together with the fixed one
@@ -334,19 +348,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // Prepare the name for the Mixcloud upload
             // if the presenter's name is not in the show's name
-            if (stristr($showDetails["name"], $showDetails["presenter"]) == false) {
+            if (stristr($details["show"], $details["presenter"]) == false) {
                 // prepare name in format "Show with Presenter: YYMMDD
-                $mixcloudName = $showDetails["name"] . " with " . $showDetails["presenter"] . ": " . $_POST["date"];
+                $mixcloudName = $details["show"] . " with " . $details["presenter"] . ": " . $details["startDate"];
             } else {
                 // prepare name in format "Show: YYMMDD
-                $mixcloudName = $showDetails["name"] . ": " . $_POST["date"];
+                $mixcloudName = $details["show"] . ": " . $details["startDate"];
             }
 
             // Insert the submission into the database
             $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`, `notification-email`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?)");
             $null = null;
-            $insertSubmissionQuery->bind_param("ssssbis", $showFileLocation, $showFileName, $mixcloudName, $description, $null, $endDateTime, $notificationEmail);
-            $insertSubmissionQuery->send_long_data(4, $imgContent);
+            $insertSubmissionQuery->bind_param("ssssbis", $details["location"], $details["file"], $mixcloudName, $details["description"], $null, $details["endTime"], $details["publish"]);
+            $insertSubmissionQuery->send_long_data(4, $details["image"]);
 
             if (!$insertSubmissionQuery->execute()) {
                 // TODO insert failed
@@ -358,8 +372,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $insertTagsQuery = $connections["submissions"]->prepare("INSERT INTO tags (tag, submission) VALUES (?, (SELECT id FROM submissions WHERE file = ? LIMIT 1))");
 
             // iterate through the passed tags, inserting them for each
-            foreach ($tags as $tag) {
-                $insertTagsQuery->bind_param("ss", $tag, $showFileName);
+            foreach ($details["tags"] as $tag) {
+                $insertTagsQuery->bind_param("ss", $tag, $details["file"]);
 
                 if (!$insertTagsQuery->execute()) {
                     // TODO insert failed
@@ -406,7 +420,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $saveTagsQuery = $connections["submissions"]->prepare("INSERT INTO saved_tags (`show`, tag) VALUES (?, ?)");
 
                 // Iterate through the tags, inserting them into the database
-                foreach ($tags as $tag) {
+                foreach ($details["tags"] as $tag) {
                     $saveTagsQuery->bind_param("ss", $_POST["name"], $tag);
 
                     if (!$saveTagsQuery->execute()) {
@@ -423,30 +437,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // If the show was submitted successfully, log, report to user, send email, otherwise, log and report to user
         if ($showSubmitted) {
             $showAlertStyling = "#submit-success {display:block}";
-            logWithLevel("info", "Submission for show " . $showDetails["name"] . " recorded.");
-            logToDatabase($_SESSION['samlNameId'], "submission", $showDetails["name"]);
+            logWithLevel("info", "Submission for show " . $details["show"] . " recorded.");
+            logToDatabase($_SESSION['samlNameId'], "submission", $details["show"]);
 
             // run the cron job now
             shell_exec("php cron.php");
 
             if ($isResubmission) {
                 // send notification email
-                notificationEmail($config["smtpRecipient"], $showDetails["name"] . " re-submitted",
+                notificationEmail($config["smtpRecipient"], $details["show"] . " re-submitted",
                     "A show which was already in the system has been re-submitted:\n\n" .
-                    $showDetails["name"] . " for " . $_POST["date"] . ".", $receiptEmail);
+                    $details["name"] . " for " . $_POST["date"] . ".", $details["submit"]);
             } else {
                 // send notification email
-                notificationEmail($config["smtpRecipient"], $showDetails["name"] . " submitted",
+                notificationEmail($config["smtpRecipient"], $details["name"] . " submitted",
                     "A new show has been submitted:\n\n" .
-                    $showDetails["name"] . " for " . $_POST["date"] . ".", $receiptEmail);
+                    $details["name"] . " for " . $_POST["date"] . ".", $details["submit"]);
             }
         } else {
             $showAlertStyling = "#submit-fail {display:block}";
-            logWithLevel("error", "Submission for show " . $showDetails["name"] . " failed.\n" . json_encode($_POST));
+            logWithLevel("error", "Submission for show " . $details["name"] . " failed.\n" . json_encode($_POST));
         }
-    } else {
-        $showAlertStyling = "#submit-invalid {display:block}";
-        logWithLevel("info", "Show submission had invalid input.\n" . json_encode($_POST));
     }
 }
 
