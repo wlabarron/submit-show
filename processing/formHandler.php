@@ -1,5 +1,9 @@
 <?php
-require 'requireAuth.php';
+
+use SubmitShow\ShowData;
+
+require __DIR__ . '/requireAuth.php';
+require __DIR__ . '/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // sanitise input
@@ -7,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $item = clearUpInput($item);
     }
 
-    $showData = new \SubmitShow\ShowData();
+    $showData = new ShowData();
     try {
         // Populate show data object with form information
         $showData->storeStartDate($_POST["date"]);
@@ -51,7 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $showAlertStyling = "#submit-success {display:block}";
 
         // Log submission to the database audit log
-        logToDatabase($_SESSION['samlNameId'], "submission", $details["show"]);
+        // TODO Check what value should be logged here
+        logToDatabase($_SESSION['samlNameId'], "submission", $showData->publicationName);
 
         // Send notification email
         if ($showData->isResubmission()) {

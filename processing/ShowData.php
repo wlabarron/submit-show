@@ -2,7 +2,7 @@
 
 namespace SubmitShow;
 
-use phpDocumentor\Reflection\Types\This;
+use Exception;
 
 class ShowData {
     // region Statics
@@ -33,9 +33,9 @@ class ShowData {
         "technology", "other");
 
     /**
-     * @var null null
+     * @var ?int null
      */
-    public static null $null = null;
+    public static ?int $null = null;
 
     //endregion
 
@@ -62,17 +62,17 @@ class ShowData {
      */
     public string $publicationName;
     /**
-     * @var string Description of the show -- the description of the show itself, combined with the fixed description in
+     * @var ?string Description of the show -- the description of the show itself, combined with the fixed description in
      * the config file.
      */
     private ?string $description = null;
     /**
-     * @var string The email address to which a receipt should be sent when the show is submitted, or null if no email
+     * @var ?string The email address to which a receipt should be sent when the show is submitted, or null if no email
      * should be sent.
      */
     public ?string $submissionAlertEmail = null;
     /**
-     * @var string The email address to which a notification should be sent when the show is published to Mixcloud, or
+     * @var ?string The email address to which a notification should be sent when the show is published to Mixcloud, or
      * null if no email should be sent.
      */
     private ?string $publicationAlertEmail = null;
@@ -98,7 +98,7 @@ class ShowData {
      */
     private int $fileLocation;
     /**
-     * @var string The image for the show, to use when publishing to Mixcloud.
+     * @var ?string The image for the show, to use when publishing to Mixcloud.
      */
     private ?string $image = null;
 
@@ -120,7 +120,7 @@ class ShowData {
      * @throws Exception If any of the tags are invalid.
      */
     function addTag(string $tag) {
-        if (sizeof($this->tags >= 6)) throw new Exception("Tags array is full");
+        if (sizeof($this->tags) >= 6) throw new Exception("Tags array is full");
 
         if (!empty($tag)) {
             $tag = strtolower($tag);
@@ -128,7 +128,7 @@ class ShowData {
             if (strlen($tag) > 20) throw new Exception("Tag was too long.");
 
             // If this is the first tag being added and it's not a default tag, throw exception
-            if (sizeof($this->tags) == 0 && !in_array($this->tags[0], $primaryTagOptions)) {
+            if (sizeof($this->tags) == 0 && !in_array($this->tags[0], ShowData::$primaryTagOptions)) {
                 throw new Exception("First tag isn't a default tag, but it should be.");
             }
 
@@ -139,12 +139,16 @@ class ShowData {
     /**
      * Stores the start date of the show.
      * @param string $date The date the show started, as a string.
+     * @throws Exception If the date is not provided or cannot be parsed.
      */
     function storeStartDate(string $date) {
         if (is_null($date)) throw new Exception("No date provided.");
-        if (is_null($time)) throw new Exception("No time provided.");
 
-        $this->startDate = date("jS F Y", strtotime($date));
+        $start = date("jS F Y", strtotime($date));
+
+        if ($start === false) throw new Exception("Provided date cannot be parsed.");
+
+        $this->startDate = $start;
     }
 
     /**
@@ -153,7 +157,7 @@ class ShowData {
      * @param bool $nextDay `true` if the show finished the day after it started (i.e. ran over midnight).
      * @throws Exception If any parameters are invalid.
      */
-    function storeEndDateTime(string $time, bool $nextDay = false): array {
+    function storeEndDateTime(string $time, bool $nextDay = false) {
         if (is_null($this->startDate)) throw new Exception("No start date stored before calculating end date time.");
         if (is_null($time)) throw new Exception("No time provided.");
 
@@ -175,10 +179,10 @@ class ShowData {
      *                                 file).
      * @throws Exception If the description is too long.
      */
-    function storeDescription(string $description = null): string {
+    function storeDescription(string $description = null) {
         $config = require __DIR__ . '/config.php';
 
-        if (is_null($description)) return $config["fixedDescription"];
+        if (is_null($description)) $this->description = $config["fixedDescription"];
 
         // Check description length
         if (strlen($description) > (999 - strlen($config["fixedDescription"]))) {
@@ -204,6 +208,15 @@ class ShowData {
         }
     }
 
+    /**
+     * Stores the show's name and presenter in the object, either by retrieving information with a given ID from the
+     * database, or if the id is "special" then the provided name and presenter are used. Afterwards, {@see storePublicationName()}
+     * is called to populate the publication name.
+     * @param string $id ID of the show in the database, or "special" for a show not in the database.
+     * @param string|null $specialName If the ID is "special", the show name to use.
+     * @param string|null $specialPresenter If the ID is "special", the presenter name to use.
+     * @throws Exception If the ID or special details are invalid, or nothing can be retrieved from the database.
+     */
     function storeShowNameAndIdAndPresenter(string $id, string $specialName = null, string $specialPresenter = null) {
         if (is_null($id)) throw new Exception("No show name provided.");
         $this->showID = $id;
@@ -219,7 +232,7 @@ class ShowData {
             $this->showPresenter = $specialPresenter;
         } else {
             // TODO Database connection handling
-            $details = getShowDetails($name, $specialName, $specialPresenter);
+            $details = getShowDetails($this->showID, $specialName, $specialPresenter);
             if (is_null($details["name"])) throw new Exception("Couldn't retrieve show name.");
             if (is_null($details["presenter"])) throw new Exception("Couldn't retrieve show presenter.");
 
@@ -230,6 +243,10 @@ class ShowData {
         $this->storePublicationName();
     }
 
+    /**
+     * Uses the show name, presenter, and start date stored in the object to generate a public-facing publication name.
+     * @throws Exception If any of the prerequisite values are not stored in the object.
+     */
     function storePublicationName() {
         if (is_null($this->showName)) throw new Exception("No show name in object.");
         if (is_null($this->showPresenter)) throw new Exception("No presenter name in object.");
@@ -245,7 +262,12 @@ class ShowData {
         }
     }
 
-    function storeFileName(string $uploadedFileName): array {
+    /**
+     * Generates a standard file name in form "Presenter Name-Show Name 210312.format" and stores in the object.
+     * @param string $uploadedFileName The current file name of the show -- for example, from the form uploader.
+     * @throws Exception If any prerequisite values are not in the object yet.
+     */
+    function storeFileName(string $uploadedFileName) {
         if (is_null($this->showName)) throw new Exception("No show name in object.");
         if (is_null($this->showPresenter)) throw new Exception("No presenter name in object.");
         if (is_null($this->startDate)) throw new Exception("No start date in object.");
@@ -255,7 +277,8 @@ class ShowData {
         $date = date("ymd", strtotime($this->startDate));
 
         // Split the existing file name by '.' and take the last part (the file extension)
-        $extension = end(explode(".", $uploadedFileName));
+        $uploadedFileName = explode(".", $uploadedFileName);
+        $extension = end($uploadedFileName);
 
         // TODO Is this step needed?
         // Decode the encoded special characters
@@ -307,29 +330,11 @@ class ShowData {
     }
 
     /**
-     * Stores an image in this object based on the criteria passed.
-     * @param string $imageChoice "upload" for uploaded images, "saved" for an image saved in the database.
-     * @param string|null $showName If $imageChoice == "saved", this should be the ID of the show in the database.
-     * @throws Exception If the request or image is invalid.
-     */
-    function handleImage(string $imageChoice) {
-        if ($imageChoice == "upload") {
-            // If the user has uploaded an image
-            handleImageUpload();
-        } else if ($imageChoice == "saved") {
-            // If they've chosen to use a previously-saved image
-            getImageFromDatabase($showName);
-        } else {
-            throw new Exception("No image choice passed.");
-        }
-    }
-
-    /**
      * Checks if the uploaded image meets the given criteria, and if so, returns the image as a blob.
      * @param $fileUpload object The image file upload object POSTed to the server (like {@code $_FILES["image"]}).
      * @throws Exception If the image fails validation.
      */
-    function handleImageUpload($fileUpload) {
+    function handleImageUpload(object $fileUpload) {
         // If they actually have uploaded an image
         if (!empty($fileUpload["name"])) {
             // Get and check the image's file type
@@ -363,7 +368,7 @@ class ShowData {
         $connections = require 'databaseConnections.php';
 
         $getSavedImageQuery = $connections["submissions"]->prepare("SELECT image FROM saved_info WHERE `show` = ?");
-        $getSavedImageQuery->bind_param("i", $showName);
+        $getSavedImageQuery->bind_param("i", $this->showID);
         $getSavedImageQuery->execute();
         $savedImageResults = mysqli_fetch_assoc($getSavedImageQuery->get_result());
 
@@ -374,6 +379,14 @@ class ShowData {
 
     // region Resubmissions
 
+    /**
+     * This function checks if the show which this object represents is already in the database. If it is, this is a
+     * resubmission.
+     *
+     * Two shows with the same name, presenter, and date, will result in the same standard file name. This fact is used
+     * to check if this is a resubmission.
+     * @return bool `true` if the show is a resubmission, false otherwise.
+     */
     function isResubmission(): bool {
         if (!is_null($this->existingSubmissionId)) return $this->existingSubmissionId >= 0;
 
@@ -397,6 +410,11 @@ class ShowData {
         }
     }
 
+    /**
+     * If the show is a resubmission ({@see isResubmission()}), this function deletes the original submission's details
+     * from the database. Otherwise, it does nothing.
+     * @throws Exception If there are problems interacting with the database.
+     */
     function removeOldSubmission() {
         if ($this->isResubmission()) {
             // TODO improve database connection
@@ -423,10 +441,15 @@ class ShowData {
 
     // region Submissions
 
+    /**
+     * Inserts the show submission which this object represents into the database for publication.
+     * @throws Exception If any prerequisite values are not yet stored in the object, or if there is a problem interacting
+     * with the database.
+     */
     function insertSubmission() {
         // TODO Database connection
 
-        $location;
+        $location = null;
         switch ($this->fileLocation) {
             case ShowData::$LOCATION_LOCAL:
                 $location = "local";
@@ -449,7 +472,7 @@ class ShowData {
         if (is_null($this->endTime)) throw new Exception("No end time in object.");
 
         $insertSubmissionQuery = $connections["submissions"]->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`, `notification-email`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?)");
-        $insertSubmissionQuery->bind_param("ssssbis", $this->fileLocation, $this->fileName, $this->publicationName, $this->description, $this->null, $this->endTime, $this->publicationAlertEmail);
+        $insertSubmissionQuery->bind_param("ssssbis", $location, $this->fileName, $this->publicationName, $this->description, ShowData::$null, $this->endTime, $this->publicationAlertEmail);
         $insertSubmissionQuery->send_long_data(4, $this->image);
 
         if (!$insertSubmissionQuery->execute()) throw new Exception("Failed to add show information to database: " . $insertSubmissionQuery->error);
@@ -468,7 +491,12 @@ class ShowData {
 
     // region Save as default
 
-    function showHasPreExistingDefaults() {
+    /**
+     * Checks if this show ID already has default values stored in the database.
+     * @return bool true if defaults exist, false otherwise.
+     * @throws Exception If there is a problem interacting with the database.
+     */
+    function showHasPreExistingDefaults(): bool {
         // TODO Database connection
 
         // Search for this show's ID in the saved details table
@@ -479,6 +507,11 @@ class ShowData {
         return mysqli_num_rows(mysqli_stmt_get_result($checkForExistingSavedDetails)) > 0;
     }
 
+    /**
+     * Stores the description, image, and tags in this object as the defaults for this show ID, replacing any pre-existing
+     * defaults in the database.
+     * @throws Exception If there is a problem interacting with the database.
+     */
     function saveAsDefaults() {
         // TODO Database connection
 
@@ -499,7 +532,7 @@ class ShowData {
         }
 
         // insert details into the query
-        $saveDetailsQuery->bind_param("sbi", $this->description, $this->null, $this->showID);
+        $saveDetailsQuery->bind_param("sbi", $this->description, ShowData::$null, $this->showID);
         $saveDetailsQuery->send_long_data(1, $this->image);
 
         // save the show details to database
