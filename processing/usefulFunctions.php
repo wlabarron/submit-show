@@ -16,6 +16,7 @@ function clearUpInput($data) {
 }
 
 function prepareFileName($showName, $uploadedFileName, $date, $specialShowName = null, $presenterShowName = null) {
+    // TODO this is duplicated in ShowData class
     // if a special show was submitted
     if ($showName == "special") {
         // get special show details in array
