@@ -73,9 +73,9 @@ class Recording {
      */
     private ?string $publicationAlertEmail = null;
     /**
-     * @var string The name of the file which this object represents.
+     * @var string The file extension used by the recording.
      */
-    private string $file;
+    private string $extension;
     /**
      * @var string|null The image to be used for this file's upload to Mixcloud, or null if no image is to be used. This
      *                  is a string type and should contain a blob, which can be obtained like
@@ -214,11 +214,10 @@ class Recording {
     }
 
     /**
-     * @param string $file Path to the location where this recording is stored, relative to the {@code $location} (i.e.
-     *                     don't specify an absolute path on a file system)/
+     * @param string $extension The file extension used by the recording.
      */
-    public function setFile(string $file): void {
-        $this->file = $file;
+    public function setFileExtension(string $extension): void {
+        $this->extension = $extension;
     }
 
     /**
@@ -307,10 +306,33 @@ class Recording {
     }
 
     /**
-     * @return string
+     * Constructs a file name for the recording. Ensure the show name, presenter, start date, and file extension are set
+     * before calling this function.
+     * @return string The file name, relative to the storage location.
+     * @throws Exception If prerequisite data is missing or invalid.
      */
-    public function getFile(): string {
-        return $this->file;
+    public function getFileName(): string {
+        if (is_null($this->name)) throw new Exception("No show name stored before requesting file name.");
+        if (is_null($this->presenter)) throw new Exception("No presenter name stored before requesting file name.");
+        if (is_null($this->start)) throw new Exception("No start date stored before requesting file name.");
+        if (is_null($this->extension)) throw new Exception("No file extension stored before requesting file name.");
+
+        // Put the date into the correct format
+        $date = date("ymd", strtotime($this->start));
+
+        // Decode any encoded special characters
+        $name      = htmlspecialchars_decode($this->name, ENT_QUOTES);
+        $presenter = htmlspecialchars_decode($this->presenter, ENT_QUOTES);
+
+        // Replace special characters in show details with spaces
+        $name      = preg_replace("/\W/", " ", $name);
+        $presenter = preg_replace("/\W/", " ", $presenter);
+
+        // replace multiple spaces with a single space and trim whitespace from ends
+        $name      = trim(preg_replace("/\s+/", " ", $name));
+        $presenter = trim(preg_replace("/\s+/", " ", $presenter));
+
+        return $presenter . "-" . $name . " " . $date . "." . $this->extension;
     }
 
     /**
