@@ -2,28 +2,25 @@
 
 
 class LocalStorage extends Storage {
+    private array $config;
 
     /**
      * @inheritDoc
      */
     public function __construct() {
-        // No particular construction is required.
+        $this->config = require __DIR__ . '/config.php';
     }
 
     /**
      * @inheritDoc
      */
-    public function offloadFiles() {
-        $config = require __DIR__ . '/config.php';
-
-        $waitingFiles = glob($config["waitingUploadsFolder"] . "/*");
-
-        foreach ($waitingFiles as $path) {
-            $name = preg_replace("/^" . $config["waitingUploadsFolder"] . "/", "", $path);
-
-            if (!rename($path, $config["uploadFolder"] . $name)) {
+    public function offloadFile(string $file) {
+        if (file_exists($this->config["waitingUploadsFolder"] . "/" . $file)) {
+            if (!rename($this->config["waitingUploadsFolder"] . "/" . $file, $this->config["uploadFolder"] . "/" . $file)) {
                 throw new Exception("Couldn't move file from waiting to local storage.");
             }
+        } else {
+            throw new Exception("Couldn't find specified file in waiting folder.");
         }
     }
 

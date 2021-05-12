@@ -21,6 +21,7 @@ abstract class Storage {
     /**
      * Storage constructor. This should create a connection to the storage system, as appropriate, so that subsequent
      * calls work correctly.
+     * @throws Exception
      */
     abstract public function __construct();
 
@@ -46,12 +47,17 @@ abstract class Storage {
     }
 
     /**
-     * Move all files currently in the waiting location (specified in the config file) to the main storage location.
-     * This is the place to do more expensive and time-consuming network operations (like moving files to an offsite
-     * storage location), since this happens in the background and not in the process of a user uploading a recording.
+     * Move the specified file to the main storage location. The provided path will be relative to the waiting directory
+     * specified in the config file. This is the place to do more expensive and time-consuming network operations (like
+     * moving files to an offsite storage location), since this happens in the background and not in the process of a
+     * user uploading a recording.
+     *
+     * After successfully offloading the file, the copy in the waiting directory should be deleted.
+     *
+     * @param string $file The path of the file to offload, relative to the waiting directory specified in the config file.
      * @throws Exception
      */
-    abstract public function offloadFiles();
+    abstract public function offloadFile(string $file);
 
     /**
      * Retrieve the file at a given location and return a path where it is accessible on the local file system. The file

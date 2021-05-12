@@ -114,25 +114,3 @@ function shortenURL($url) {
         return $data->shorturl;
     }
 }
-
-function configS3() {
-    // if S3 is configured
-    if (!empty($config["s3Endpoint"])) {
-        try {
-            // create S3 client
-            $s3Client = new S3Client([
-                'endpoint' => $config["s3Endpoint"],
-                'region' => $config["s3Region"],
-                'version' => 'latest',
-                'credentials' => [
-                    'key' => $config["s3AccessKey"],
-                    'secret' => $config["s3Secret"],
-                ],
-            ]);
-        } catch (S3Exception $e) {
-            logWithLevel("error", "Couldn't create S3 client. Error:\n" . $e->getMessage());
-        }
-    } else {
-        $s3Client = null;
-    }
-}
