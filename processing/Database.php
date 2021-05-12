@@ -204,6 +204,7 @@ class Database {
     private function saveDefaultsToDatabase(Recording $recording) {
         $null = null;
 
+        // TODO This description will include the "standard" section from the config file, but it shouldn't.
         $description = $recording->getDescription();
         $showID      = $recording->getShowID();
         $image       = $recording->getImage();
@@ -225,6 +226,68 @@ class Database {
                 error_log($tagsQuery->error);
                 throw new Exception("Failed to save a default tag.");
             }
+        }
+    }
+
+    /**
+     * Gets the default show details from the database.
+     * @param string $showID The show ID to get info about.
+     * @return array An array with 2 keys: {@code description} is the show's default description. {@code tags} is an
+     *               array of default tags.
+     * @throws Exception
+     */
+    public function getDefaults(string $showID): array {
+        $infoQuery = $this->connection->prepare("SELECT * FROM saved_info WHERE `show` = ?");
+        $tagsQuery = $this->connection->prepare("SELECT tag FROM saved_tags WHERE `show` = ? ORDER BY id");
+
+        $infoQuery->bind_param("s", $showID);
+        $tagsQuery->bind_param("s", $showID);
+
+        if (!$infoQuery->execute()) {
+            error_log($infoQuery->error);
+            throw new Exception("Failed query for default show info.");
+        }
+        if (!$tagsQuery->execute()) {
+            error_log($tagsQuery->error);
+            throw new Exception("Failed query for default show tags.");
+        }
+
+        $details = mysqli_fetch_assoc(mysqli_stmt_get_result($infoQuery));
+        $tags    = mysqli_fetch_all(mysqli_stmt_get_result($tagsQuery));
+
+        if (!empty($details["description"])) {
+            $description = $details["description"];
+        } else {
+            $description = null;
+        }
+
+        return array(
+            "description" => $description,
+            "tags" => $tags
+        );
+    }
+
+    /**
+     * Gets the default show image from the database.
+     * @param string $showID The show ID to get the image for.
+     * @return string|null The image data as a blob, which can be turned into an image with a function like
+     *                     {@code imagepng()}, or null if no image saved.
+     * @throws Exception
+     */
+    public function getDefaultImage(string $showID): ?string {
+        $query = $this->connection->prepare("SELECT image FROM saved_info WHERE `show` = ?");
+        $query->bind_param("s", $showID);
+        if (!$query->execute()) {
+            error_log($query->error);
+            throw new Exception("Failed query for default show image.");
+        }
+
+        $result = mysqli_fetch_assoc(mysqli_stmt_get_result($query));
+
+        if (!empty($result["image"])) {
+            return $result["image"];
+        } else {
+            return null;
         }
     }
 }
