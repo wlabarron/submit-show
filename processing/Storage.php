@@ -26,6 +26,25 @@ abstract class Storage {
     abstract public function __construct();
 
     /**
+     * Creates an appropriate instance of the Storage class for the storage type specified in the config file.
+     * @return Storage Instance of an extension of the Storage class.
+     * @throws Exception
+     */
+    public static function getProvider(): Storage {
+        $config   = require 'config.php';
+        $provider = $config["storageProvider"];
+
+        switch ($provider) {
+            case "local":
+                return new LocalStorage();
+            case "S3":
+                return new S3Storage();
+            default:
+                throw new Exception("Unknown storage provider specified in config file.");
+        }
+    }
+
+    /**
      * Move a file from the holding location (specified in the config file) to a waiting location (again, specified in
      * the config file). This should be a quick, local operation, so that a file moves into semi-permanent storage and
      * is not somewhere it would be deleted and considered an abandoned upload.
