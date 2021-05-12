@@ -4,29 +4,13 @@
 namespace submitShow;
 
 use Exception;
+use Storage;
 
 /**
  * Class Recording represents a recording of a show.
  * @package submitShow
  */
 class Recording {
-    /**
-     * @var int File has just been uploaded and is awaiting processing.
-     */
-    public static int $LOCATION_HOLDING = 0;
-    /**
-     * @var int File is stored locally.
-     */
-    public static int $LOCATION_LOCAL = 1;
-    /**
-     * @var int File is waiting to be moved to offsite storage.
-     */
-    public static int $LOCATION_WAITING = 2;
-    /**
-     * @var int File is stored in an offsite location (specified in config file).
-     */
-    public static int $LOCATION_OFFSITE = 3;
-
     /**
      *
      * @var string[] An array of valid primary tags on Mixcloud.
@@ -87,8 +71,8 @@ class Recording {
      */
     private ?string $image = null;
     /**
-     * @var int The location of this file. One of {@code Recording::$LOCATION_HOLDING}, {@code Recording::$LOCATION_LOCAL}
-     * {@code Recording::$LOCATION_WAITING} or {@code Recording::$LOCATION_OFFSITE}.
+     * @var int The location of this file. One of {@code Storage::$LOCATION_HOLDING}, {@code Storage::$LOCATION_LOCAL}
+     * {@code Storage::$LOCATION_WAITING} or {@code Storage::$LOCATION_OFFSITE}.
      */
     private int $location;
 
@@ -235,15 +219,15 @@ class Recording {
 
     /**
      * Set the location of this recording's file.
-     * @param int $location One of {@code Recording::$LOCATION_HOLDING}, {@code Recording::$LOCATION_LOCAL}
-     * {@code Recording::$LOCATION_WAITING} or {@code Recording::$LOCATION_OFFSITE}.
+     * @param int $location One of {@code Storage::$LOCATION_HOLDING}, {@code Storage::$LOCATION_LOCAL}
+     * {@code Storage::$LOCATION_WAITING} or {@code Storage::$LOCATION_OFFSITE}.
      * @throws Exception If the specified location is invalid.
      */
     public function setLocation(int $location): void {
-        if ($location !== Recording::$LOCATION_HOLDING &&
-            $location !== Recording::$LOCATION_LOCAL   &&
-            $location !== Recording::$LOCATION_WAITING &&
-            $location !== Recording::$LOCATION_OFFSITE) throw new Exception("Invalid storage location.");
+        if ($location !== Storage::$LOCATION_HOLDING &&
+            $location !== Storage::$LOCATION_LOCAL   &&
+            $location !== Storage::$LOCATION_WAITING &&
+            $location !== Storage::$LOCATION_OFFSITE) throw new Exception("Invalid storage location.");
 
         $this->location = $location;
     }
