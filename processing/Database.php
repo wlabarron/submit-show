@@ -133,17 +133,97 @@ class Database {
         $oldID = $this->getPreviousSubmissionID($recording);
         if (!is_null($oldID)) {
             // remove the tags associated with the existing submission
-            $removeExistingSubmissionTags = $this->connection->prepare("DELETE FROM tags WHERE submission = ?");
-            $removeExistingSubmissionTags->bind_param("i", $oldID);
-            if (!$removeExistingSubmissionTags->execute()) {
-                throw new Exception("Failed to remove tags for existing submission: " . $removeExistingSubmissionTags->error);
+            $tagsQuery = $this->connection->prepare("DELETE FROM tags WHERE submission = ?");
+            $tagsQuery->bind_param("i", $oldID);
+            if (!$tagsQuery->execute()) {
+                error_log($tagsQuery->error);
+                throw new Exception("Failed to remove tags for existing submission.");
             }
 
             // remove existing submission details
-            $removeExistingSubmission = $this->connection->prepare("DELETE FROM submissions WHERE id = ?");
-            $removeExistingSubmission->bind_param("i", $oldID);
-            if (!$removeExistingSubmission->execute()) {
-                throw new Exception("Failed to remove tags for existing submission: " . $removeExistingSubmission->error);
+            $infoQuery = $this->connection->prepare("DELETE FROM submissions WHERE id = ?");
+            $infoQuery->bind_param("i", $oldID);
+            if (!$infoQuery->execute()) {
+                error_log($infoQuery->error);
+                throw new Exception("Failed to remove info for existing submission.");
+            }
+        }
+    }
+
+    /**
+     * Saves the metadata of the given recording as the defaults for its show ID.
+     * @param Recording $recording The recording whose metadata should be saved.
+     * @throws Exception
+     */
+    public function saveAsDefault(Recording $recording) {
+        if (!$this->connection->begin_transaction()) throw new Exception("Couldn't start database transaction.");
+
+        try {
+            $this->deletePreviousDefaults($recording);
+            $this->saveDefaultsToDatabase($recording);
+        } catch (Exception $ex) {
+            error_log("An exception was thrown during saving defaults. Rolling back the database.");
+            if (!$this->connection->rollback()) error_log("Failed to rollback database.");
+            throw $ex;
+        }
+    }
+
+    /**
+     * Checks for saved defaults with the same show ID and deletes them from the database if they exist. If no pre-saved
+     * defaults exist, this function does nothing (so is still safe to call).
+     * @param Recording $recording The recording to check for defaults for.
+     * @throws Exception
+     */
+    private function deletePreviousDefaults(Recording $recording) {
+        $showID = $recording->getShowID();
+
+        if (is_null($showID) || empty($showID)) throw new Exception("No show ID in recording's metadata.");
+
+        // Remove info
+        $infoQuery = $this->connection->prepare("DELETE FROM saved_info WHERE `show` = ?");
+        $infoQuery->bind_param("s", $showID);
+        if (!$infoQuery->execute()) {
+            error_log($infoQuery->error);
+            throw new Exception("Failed to remove old default info from database.");
+        }
+
+        // Remove tags
+        $tagsQuery = $this->connection->prepare("DELETE FROM saved_tags WHERE `show` = ?");
+        $tagsQuery->bind_param("s", $showID);
+        if (!$tagsQuery->execute()) {
+            error_log($tagsQuery->error);
+            throw new Exception("Failed to remove old default tags from database.");
+        }
+    }
+
+    /**
+     * Saves the details in the given recording as the default for its show ID.
+     * @param Recording $recording The recording whose details are to be saved.
+     * @throws Exception
+     */
+    private function saveDefaultsToDatabase(Recording $recording) {
+        $null = null;
+
+        $description = $recording->getDescription();
+        $showID      = $recording->getShowID();
+        $image       = $recording->getImage();
+
+        if (is_null($showID) || empty($showID)) throw new Exception("No show ID in recording's metadata.");
+
+        $infoQuery = $this->connection->prepare("INSERT INTO saved_info (description, image, `show`) VALUES (?, ?, ?)");
+        $infoQuery->bind_param("sbi", $description, $null, $showID);
+        $infoQuery->send_long_data(1, $image);
+        if (!$infoQuery->execute()) {
+            error_log($infoQuery->error);
+            throw new Exception("Failed to save default details.");
+        }
+
+        $tagsQuery = $this->connection->prepare("INSERT INTO saved_tags (`show`, tag) VALUES (?, ?)");
+        foreach ($recording->getTags() as $tag) {
+            $tagsQuery->bind_param("ss", $showID, $tag);
+            if (!$tagsQuery->execute()) {
+                error_log($tagsQuery->error);
+                throw new Exception("Failed to save a default tag.");
             }
         }
     }

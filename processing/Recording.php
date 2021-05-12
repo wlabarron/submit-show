@@ -38,6 +38,10 @@ class Recording {
         "technology", "other");
 
     /**
+     * @var string ID representing the show (not this recording specifically, the show as a whole).
+     */
+    private string $showID;
+    /**
      * @var string The name of the show.
      */
     private string $name;
@@ -87,6 +91,13 @@ class Recording {
      * {@code Recording::$LOCATION_WAITING} or {@code Recording::$LOCATION_OFFSITE}.
      */
     private int $location;
+
+    /**
+     * @param string $showID The ID of the show, as a string.
+     */
+    public function setShowID(string $showID): void {
+        $this->showID = $showID;
+    }
 
     /**
      * @param string $name The name of the show.
@@ -235,6 +246,13 @@ class Recording {
             $location !== Recording::$LOCATION_OFFSITE) throw new Exception("Invalid storage location.");
 
         $this->location = $location;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShowID(): string {
+        return $this->showID;
     }
 
     /**
