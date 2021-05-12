@@ -13,12 +13,12 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
     <meta charset="UTF-8">
     <title>Submit Show - <?php echo $config["organisationName"]; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
-          integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
+          integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
+          crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css"
-          integrity="sha256-DVV5cU9pxHH2Rofop3XD3b3rbfrOSIy2nU61DEbYy1Q=" crossorigin="anonymous"/>
+          integrity="sha512-vZpXDvc3snY9J1W8GrnxqDr/+vP1nSTfk8apH1r0wQvOab6fkPhaeqAMlydW68MECAjRR05tu4SOJcwjZgPg5A=="
+          crossorigin="anonymous" />
     <link rel="stylesheet" href="resources/style.css?version=4">
     <style>
         <?php
@@ -97,7 +97,7 @@ audio/mpeg4-generic" required>
           enctype="multipart/form-data"
           onsubmit='// Remove warning when navigating away
                       window.onbeforeunload = null;
-                      $("#submit").html("<i class=\"fas fa-circle-notch fa-spin \"></i> Submitting...");
+                      $("#submit").html("<i class=\"spinner-border\"></i> Submitting...");
                       $("#submit").prop("disabled", true);
                       $("#submit").removeClass("btn-outline-success");
                       $("#submit").addClass("btn-outline-dark");'
@@ -356,7 +356,7 @@ audio/mpeg4-generic" required>
             </div>
             <!-- Submit button behaviour modified by the <form> tag -->
             <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled>
-                <i class="fas fa-circle-notch fa-spin"></i> Uploading...
+                <i class="spinner-border"></i> Uploading...
             </button>
             <p id="uploadingHelpText" class="text-center">You can submit your show once it has uploaded.</p>
         </div>
@@ -385,20 +385,27 @@ audio/mpeg4-generic" required>
         var maxShowFileSize = <?php echo $config["maxShowFileSize"]; ?>;
         var maxShowImageSize = <?php echo $config["maxShowImageSize"]; ?>;
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"
-            integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"
-            integrity="sha256-Xt8pc4G0CdcRvI0nZ2lRpZ4VHng0EoUDMlGcBSQ9HiQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+            integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/js/bootstrap.bundle.min.js"
+            integrity="sha512-DSdiuNZtfUhehZHXtit9Sa/83i06YSnvT8Js8drwdkVCDMk3JwpIxdhf2oRUByUDB3wguN2iAzoTNfxFAuqGyA=="
+            crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bs-custom-file-input/1.3.4/bs-custom-file-input.min.js"
-            integrity="sha256-e0DUqNhsFAzOlhrWXnMOQwRoqrCRlofpWgyhnrIIaPo=" crossorigin="anonymous"></script>
+            integrity="sha512-91BoXI7UENvgjyH31ug0ga7o1Ov41tOzbMM3+RPqFVohn1UbVcjL/f5sl6YSOFfaJp+rF+/IEbOOEwtBONMz+w=="
+            crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
-            integrity="sha256-bqVeqGdJ7h/lYPq6xrPv/YGzMEb6dNxlfiTUHSgRCp8=" crossorigin="anonymous"></script>
+            integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
+            crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"
-            integrity="sha256-+jmym6PChFok5u02khNcYDy5AdfiIN7Y/QCbBqiNgeE=" crossorigin="anonymous"></script>
+            integrity="sha512-ux1VHIyaPxawuad8d1wr1i9l4mTwukRq5B3s8G3nEmdENnKF5wKfOV6MEUH0k/rNT4mFr/yL+ozoDiwhUQekTg=="
+            crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
-            integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.0/flow.min.js"
-            integrity="sha256-pX7VAtlSGK55XgQjYFMvQbIRbHvD3R2Nb3JrdDDmxyk=" crossorigin="anonymous"></script>
+            integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/flow.min.js"
+            integrity="sha512-sl2wYWEDCu3bj5w4kyd6+bglKUxb6IPQbyflpIEJbftwtZYZp7GZQ2erVGsls9BveJIvIVW+hzM+rMQQT9Bn5w=="
+            crossorigin="anonymous"></script>
     <script src="resources/script.js?version=10"></script>
 </body>
 </html>
