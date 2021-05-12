@@ -83,11 +83,6 @@ class Recording {
      */
     private ?string $image = null;
     /**
-     * @var bool {@code true} if this show is a resubmission of one already in the system (i.e. is replacing one already
-     *                        there).
-     */
-    private bool $isResubmission = false;
-    /**
      * @var int The location of this file. One of {@code Recording::$LOCATION_HOLDING}, {@code Recording::$LOCATION_LOCAL}
      * {@code Recording::$LOCATION_WAITING} or {@code Recording::$LOCATION_OFFSITE}.
      */
@@ -228,13 +223,6 @@ class Recording {
     }
 
     /**
-     * @param bool $isResubmission Whether this show is a resubmission of one already in the database.
-     */
-    public function setIsResubmission(bool $isResubmission): void {
-        $this->isResubmission = $isResubmission;
-    }
-
-    /**
      * Set the location of this recording's file.
      * @param int $location One of {@code Recording::$LOCATION_HOLDING}, {@code Recording::$LOCATION_LOCAL}
      * {@code Recording::$LOCATION_WAITING} or {@code Recording::$LOCATION_OFFSITE}.
@@ -340,13 +328,6 @@ class Recording {
      */
     public function getImage(): ?string {
         return $this->image;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isResubmission(): bool {
-        return $this->isResubmission;
     }
 
     /**
