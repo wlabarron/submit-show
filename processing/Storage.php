@@ -54,11 +54,13 @@ abstract class Storage {
     abstract public function offloadFiles();
 
     /**
-     * Retrieve the file at a given location and store it in the temporary directory specified in the config file.
-     * Return the path the file was written to, including the part taken from the config file.
+     * Retrieve the file at a given location and return a path where it is accessible on the local file system. The file
+     * path returned should be to a copy of the file in the temporary folder (as per the config file), which can be safely
+     * deleted at any time.
      * @param string $file The path of the file requested, relative to the storage location.
      * @return string The path where the file has been placed in temporary storage (for example,
      *                {@code /tmp/Presenter Name-Show.m4a}.
+     * @throws Exception
      */
     abstract public function retrieve(string $file): string;
 }
