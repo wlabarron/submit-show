@@ -2,10 +2,7 @@
 $attributes = require './processing/requireAuth.php';
 
 $config = require './processing/config.php';
-$connections = require './processing/databaseConnections.php';
 require './processing/formHandler.php';
-
-$shows = $connections["details"]->query($config["allShowsQuery"]);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,29 +10,19 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
     <meta charset="UTF-8">
     <title>Submit Show - <?php echo $config["organisationName"]; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
-          integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+          integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
           crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css"
           integrity="sha512-vZpXDvc3snY9J1W8GrnxqDr/+vP1nSTfk8apH1r0wQvOab6fkPhaeqAMlydW68MECAjRR05tu4SOJcwjZgPg5A=="
           crossorigin="anonymous" />
     <link rel="stylesheet" href="resources/style.css?version=4">
-    <style>
-        <?php
-            if (isset($showAlertStyling)) {
-                echo $showAlertStyling;
-            }
-        ?>
-    </style>
+    <noscript>
+        <link rel="stylesheet" href="resources/noscript.css">
+    </noscript>
 </head>
 <body>
-<!-- partial:index.partial.html -->
 <noscript>
-    <style>
-        #page-content {
-            display: none;
-        }
-    </style>
     <div class="container">
         <div class="alert alert-danger mt-2" role="alert">
             This page needs JavaScript to work.<br>
@@ -53,6 +40,8 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
             Firefox</a>.
     </div>
 </div>
+
+<!-- TODO Alert display logic -->
 <div class="container" id="submit-success">
     <div class="alert alert-success mt-2" role="alert">
         <strong>Your show was submitted successfully.</strong> Thank you. You can upload another below, if you're so
@@ -76,9 +65,11 @@ $shows = $connections["details"]->query($config["allShowsQuery"]);
         that.
     </div>
 </div>
+
 <div class="container" id="page-content">
     <h1>Submit Show</h1>
     <p>Submit a show for scheduling and automatic upload to Mixcloud.</p>
+
     <div class="form-group" id="showFileInputGroup">
         <label for="showFileInput">Show file</label>
         <div class="custom-file">
@@ -112,9 +103,9 @@ audio/mpeg4-generic" required>
                 <option value="" disabled selected>Choose show name...</option>
                 <optgroup label="Shows">
                     <?php
-                    while ($show = $shows->fetch_assoc()) {
-                        echo "<option value='" . $show["id"] . "'>" . $show["name"] . "</option>";
-                    }
+//                    while ($show = $shows->fetch_assoc()) {
+//                        echo "<option value='" . $show["id"] . "'>" . $show["name"] . "</option>";
+//                    }
                     ?>
                 </optgroup>
                 <optgroup label="Other">
@@ -381,15 +372,14 @@ audio/mpeg4-generic" required>
     </div>
 
     <script>
-        // make some config items available to the JS
         var maxShowFileSize = <?php echo $config["maxShowFileSize"]; ?>;
         var maxShowImageSize = <?php echo $config["maxShowImageSize"]; ?>;
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
             integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
             crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/js/bootstrap.bundle.min.js"
-            integrity="sha512-DSdiuNZtfUhehZHXtit9Sa/83i06YSnvT8Js8drwdkVCDMk3JwpIxdhf2oRUByUDB3wguN2iAzoTNfxFAuqGyA=="
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"
+            integrity="sha512-wV7Yj1alIZDqZFCUQJy85VN+qvEIly93fIQAN7iqDFCPEucLCeNFz4r35FCo9s6WrpdDQPi80xbljXB8Bjtvcg=="
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bs-custom-file-input/1.3.4/bs-custom-file-input.min.js"
             integrity="sha512-91BoXI7UENvgjyH31ug0ga7o1Ov41tOzbMM3+RPqFVohn1UbVcjL/f5sl6YSOFfaJp+rF+/IEbOOEwtBONMz+w=="
