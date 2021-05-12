@@ -14,7 +14,7 @@ class LocalStorage extends Storage {
     /**
      * @inheritDoc
      */
-    public function offloadFile(string $file) {
+    public function offload(string $file) {
         if (file_exists($this->config["waitingUploadsFolder"] . "/" . $file)) {
             if (!rename($this->config["waitingUploadsFolder"] . "/" . $file, $this->config["uploadFolder"] . "/" . $file)) {
                 throw new Exception("Couldn't move file from waiting to local storage.");

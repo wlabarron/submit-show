@@ -38,7 +38,7 @@ class S3Storage extends Storage {
     /**
      * @inheritDoc
      */
-    public function offloadFile(string $file) {
+    public function offload(string $file) {
         try {
             $this->s3Client->putObject([
                 'Bucket'     => $this->config["s3Bucket"],

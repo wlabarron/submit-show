@@ -57,7 +57,7 @@ abstract class Storage {
      * @param string $file The path of the file to offload, relative to the waiting directory specified in the config file.
      * @throws Exception
      */
-    abstract public function offloadFile(string $file);
+    abstract public function offload(string $file);
 
     /**
      * Retrieve the file at a given location and return a path where it is accessible on the local file system. The file
