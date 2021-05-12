@@ -42,4 +42,13 @@ class LocalStorage extends Storage {
             throw new Exception("Couldn't find specified file in uploads folder.");
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(string $file) {
+        if (!unlink($file)) {
+            throw new Exception("Couldn't delete local file.");
+        }
+    }
 }

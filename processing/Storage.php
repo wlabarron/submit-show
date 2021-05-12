@@ -88,4 +88,11 @@ abstract class Storage {
      * @throws Exception
      */
     abstract public function retrieve(string $file): string;
+
+    /**
+     * Permanently delete the specified file.
+     * @param string $file The path of the file to delete.
+     * @throws Exception
+     */
+    abstract public function delete(string $file);
 }

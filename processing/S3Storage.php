@@ -73,4 +73,19 @@ class S3Storage extends Storage {
             throw new Exception("Couldn't retrieve file from S3.");
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(string $file) {
+        try {
+            $this->config->deleteObject(array(
+                'Bucket' => $this->config["s3Bucket"],
+                'Key'    => $file
+            ));
+        } catch (S3Exception $e) {
+            error_log($e->getMessage());
+            throw new Exception("Couldn't delete file from S3.");
+        }
+    }
 }
