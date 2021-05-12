@@ -1,39 +1,5 @@
 <?php
 
-
-/**
- * Moves a show file from the holding directory to a more permanent storage location, and returns what that location is.
- * @throws Exception If the show file can't be found in the holding directory or can't be moved to its new home.
- */
-function moveShowFileFromHolding() {
-    $config = require __DIR__ . '/config.php';
-
-    if (is_null($this->fileName)) throw new Exception("File can't be moved as no file name stored in the show data object yet.");
-
-    // if the file exists in the holding folder of uploaded files
-    if (file_exists($config["holdingDirectory"] . "/" . $this->fileName)) {
-        // if S3 is configured
-        if (!empty($config["s3Endpoint"])) {
-            // The show is waiting to go to S3
-            $this->fileLocation = showData::$LOCATION_WAITING;
-            $moveTarget = $config["waitingUploadsFolder"];
-        } else {
-            // The show is staying locally on this server
-            $this->fileLocation = showData::$LOCATION_LOCAL;
-            $moveTarget = $config["uploadFolder"];
-        }
-
-        // move the folder from the holding location to its target
-        if (!rename($config["holdingDirectory"] . "/" . $this->fileName, $moveTarget . "/" . $this->fileName)) {
-            throw new Exception("Couldn't move " . $this->fileName . " from holding directory to " . $this->fileLocation);
-        }
-    } else {
-        // Can't find the uploaded show file in the holding folder
-        throw new Exception("Can't find uploaded show file in the holding folder. Was looking for " .
-            $this->fileName . ".");
-    }
-}
-
 /**
  * Checks if the uploaded image meets the given criteria, and if so, returns the image as a blob.
  * @param $fileUpload object The image file upload object POSTed to the server (like {@code $_FILES["image"]}).

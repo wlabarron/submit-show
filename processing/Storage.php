@@ -15,7 +15,17 @@ abstract class Storage {
      * @throws Exception
      */
     public function moveToWaiting(string $file) {
-        // TODO
+        if (is_null($file)) throw new Exception("No file name provided.");
+
+        $config = require __DIR__ . '/config.php';
+
+        if (file_exists($config["holdingDirectory"] . "/" . $file)) {
+            if (!rename($config["holdingDirectory"] . "/" . $file, $config["waitingUploadsFolder"] . "/" . $file)) {
+                throw new Exception("Couldn't move file from holding to waiting.");
+            }
+        } else {
+            throw new Exception("Couldn't find specified file in holding folder.");
+        }
     }
 
     /**
