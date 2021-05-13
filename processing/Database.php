@@ -382,4 +382,22 @@ class Database {
         $query->bind_param("i", Storage::$LOCATION_WAITING);
         return $query->get_result()->fetch_assoc();
     }
+
+    /**
+     * Logs an action to the database, but only if a user ID is provided.
+     * @param string $userID The user who completed the action.
+     * @param string $actionType The action completed.
+     * @param string $actionDetail Details of the action.
+     * @throws Exception
+     */
+    public function log(string $userID, string $actionType, string $actionDetail) {
+        if (!empty($userID)) {
+            $query = $this->connection->prepare("INSERT INTO log (user, action_type, action_detail) VALUES (?, ?, ?)");
+            $query->bind_param("sss", $userID, $actionType, $actionDetail);
+            if (!$query->execute()) {
+                error_log($query->error);
+                throw new Exception("Couldn't log info to the database.");
+            }
+        }
+    }
 }

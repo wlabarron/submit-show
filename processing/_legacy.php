@@ -26,24 +26,3 @@ function handleImageUpload(object $fileUpload) {
         $this->image = file_get_contents($fileUpload['tmp_name']);
     }
 }
-
-function logToDatabase($userID, $actionType, $actionDetail) {
-    if (!empty($userID)) {
-        $connections = require "databaseConnections.php";
-        $logQuery = $connections["submissions"]->prepare("INSERT INTO log (user, action_type, action_detail) VALUES (?, ?, ?)");
-        $logQuery->bind_param("sss", $userID, $actionType, $actionDetail);
-        if (!$logQuery->execute()) {
-            logWithLevel("error", "Failed to log user action to database. Details:\n" . $logQuery->error);
-        }
-    }
-}
-
-
-
-
-notificationEmail($show["notification-email"],
-            $show["title"] . " published",
-            "Hello!\n\n" .
-            "\"" . $show["title"] . "\" was just published to Mixcloud. Here's the link: " . shortenURL("https://www.mixcloud.com" . $response["result"]["key"]) . "\n\n" .
-            "Thank you!\n\n" .
-            "If you'd prefer not to receive these emails in future, leave the notification box unticked when you submit your show.");
