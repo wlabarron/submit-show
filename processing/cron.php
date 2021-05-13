@@ -7,7 +7,12 @@ use submitShow\Database;
 if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
     require __DIR__ . "/../vendor/autoload.php";
     $config   = require 'config.php';
-    $storage  = Storage::getProvider();
+    try {
+        $storage = Storage::getProvider();
+    } catch (Exception $e) {
+        error_log("Failed to get a storage provider instance.");
+        exit();
+    }
     $database = new Database();
 
     $showsDueToPublish = $database->getShowsForPublication();

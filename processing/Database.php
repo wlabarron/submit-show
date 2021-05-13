@@ -376,16 +376,10 @@ class Database {
 
     /**
      * @return array|null An array with details of shows which are in the waiting location, or null if no shows are waiting.
-     * @throws Exception
      */
     public function getShowsToOffload(): ?array {
         $query = $this->connection->prepare("SELECT * FROM submissions WHERE `file-location` = ?");
         $query->bind_param("i", Storage::$LOCATION_WAITING);
-        if (!$query->execute()) {
-            error_log($query->error);
-            throw new Exception("Couldn't get shows to offload.");
-        } else {
-            return $query->get_result()->fetch_assoc();
-        }
+        return $query->get_result()->fetch_assoc();
     }
 }
