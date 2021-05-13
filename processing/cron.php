@@ -71,7 +71,7 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
  */
 function publishShow(array $show, array $config, Storage $storage, Database $database) {
     if ($show["file_location"] == Storage::$LOCATION_WAITING) {
-        $path = $config["waitingUploadsFolder"] . "/" . $show["file"];
+        $path = $config["waitingDirectory"] . "/" . $show["file"];
     } else {
         $path = $storage->retrieve($show["file"]);
     }

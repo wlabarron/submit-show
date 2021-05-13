@@ -10,13 +10,10 @@ class Link {
     static function shorten(string $url): string {
         $config = require 'config.php';
 
-        // if YOURLS is not configured, just return the URL
-        if (empty($config["yourlsSignature"])) {
-            return $url;
-        } else {
+        if ($config["yourls"]["enabled"]) {
             // Turn the signature into a time-limited version
             $timestamp = time();
-            $signature = hash('sha512', $timestamp . $config["yourlsSignature"]);
+            $signature = hash('sha512', $timestamp . $config["yourls"]["signature"]);
 
             // Set up the request
             $ch = curl_init($config["yourlsApiUrl"]);
@@ -39,6 +36,8 @@ class Link {
             // Return the short URL
             $data = json_decode($data);
             return $data->shorturl;
+        } else {
+            return $url;
         }
     }
 }

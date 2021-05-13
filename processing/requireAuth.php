@@ -5,12 +5,12 @@ use OneLogin\Saml2\Auth;
 $config = require 'config.php';
 
 // if simpleSAMLphp is set up, require authentication
-if (($config["saml"])) {
+if (($config["samlEnabled"])) {
     session_start();
 
-    require_once __DIR__ . '/../vendor/autoload.php';
-    require_once __DIR__ . '/../auth/settings.php';
-    $auth = new Auth($samlSettings);
+    require(dirname(__DIR__) . '/vendor/autoload.php');
+    $config = require __DIR__ . '/config.php';
+    $auth = new Auth($config["samlSettings"]);
 
     // If not signed in, sign in
     if (!isset($_SESSION['samlNameId'])) $auth->login();

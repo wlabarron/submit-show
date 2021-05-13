@@ -32,8 +32,8 @@ class LocalStorage extends Storage {
 
         $config = require __DIR__ . '/config.php';
 
-        if (file_exists($config["uploadFolder"] . "/" . $file)) {
-            if (!copy($config["uploadFolder"] . "/" . $file, $config["tempDirectory"] . "/" . $file)) {
+        if (file_exists($config["localStorage"]["uploadsFolder"] . "/" . $file)) {
+            if (!copy($config["localStorage"]["uploadsFolder"] . "/" . $file, $config["tempDirectory"] . "/" . $file)) {
                 throw new Exception("Couldn't move file from local to temporary storage.");
             }
 

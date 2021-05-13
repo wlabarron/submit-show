@@ -13,16 +13,16 @@ class Email {
 
         try {
             $mail->isSMTP();
-            $mail->Host     = $config["smtpServer"];
-            $mail->Port     = $config["smtpPort"];
-            $mail->SMTPAuth = $config["smtpAuth"];
-            if ($config["smtpAuth"]) {
-                $mail->Username   = $config["smtpUsername"];
-                $mail->Password   = $config["smtpPassword"];
-                $mail->SMTPSecure = $config["smtpAuth"];
+            $mail->Host     = $config["smtp"]["server"];
+            $mail->Port     = $config["smtp"]["port"];
+            $mail->SMTPAuth = $config["smtp"]["auth"];
+            if ($config["smtp"]["auth"]) {
+                $mail->Username   = $config["smtp"]["username"];
+                $mail->Password   = $config["smtp"]["password"];
+                $mail->SMTPSecure = $config["smtp"]["auth"];
             }
 
-            $mail->setFrom($config["smtpSendAddress"], $config["smtpSendName"]);
+            $mail->setFrom($config["smtp"]["sendAddress"], $config["smtp"]["sendName"]);
 
             $mail->addAddress($recipient);
 

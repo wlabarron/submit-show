@@ -53,7 +53,7 @@ abstract class Storage {
         $config = require __DIR__ . '/config.php';
 
         if (file_exists($config["holdingDirectory"] . "/" . $file)) {
-            if (!rename($config["holdingDirectory"] . "/" . $file, $config["waitingUploadsFolder"] . "/" . $file)) {
+            if (!rename($config["holdingDirectory"] . "/" . $file, $config["waitingDirectory"] . "/" . $file)) {
                 throw new Exception("Couldn't move file from holding to waiting.");
             }
         } else {
