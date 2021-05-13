@@ -1,91 +1,208 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+
 return array(
     // Name of group, to use in titles etc
     'organisationName' => '',
 
-    // Show details database
-    'detailsServer' => 'localhost',
-    'detailsUser' => '',
-    'detailsPassword' => '',
-    'detailsDatabaseName' => '',
-
-    // Query which returns a show's name and presenter in the columns "name" and "presenter" where the ID is ?
-    'oneShowQuery' => 'SELECT name, presenter FROM shows WHERE intID = ?',
-    // Query which returns all show IDs, names, and presenters in columns "id", "name", "presenter"
-    'allShowsQuery' => 'SELECT intID AS id, name, presenter FROM shows ORDER BY name ASC',
-
     // Show submissions database
-    'submissionsServer' => 'localhost',
-    'submissionsUser' => '',
-    'submissionsPassword' => '',
-    'submissionsDatabaseName' => '',
+    'database' => array(
+        'server'   => 'localhost:3306',
+        'database' => '',
+        'user'     => '',
+        'password' => '',
+    ),
 
     // Max size in bytes for an uploaded show file. Mixcloud's maximum is 4294967296 bytes.
-    'maxShowFileSize' => '4294967296',
-    'maxShowFileSizeFriendly' => '4GB', // friendly way to write the max size, used in alerts
+    'maxShowFileSize' => '1000000000',
+    'maxShowFileSizeFriendly' => '1GB', // friendly way to write the max size, used in alerts
 
     // Max size in bytes for an uploaded show cover image. Mixcloud's maximum is 10485760 bytes.
-    'maxShowImageSize' => '10485760',
-    'maxShowImageSizeFriendly' => '10MB', // friendly way to write the max size, used in alerts
+    'maxShowImageSize' => '5000000',
+    'maxShowImageSizeFriendly' => '5MB', // friendly way to write the max size, used in alerts
 
-    // Folder where show files will be stored
-    'uploadFolder' => '',
-    // Folder for temporary storage of uploading chunks
-    'tempDirectory' => '',
-    // Folder for holding uploads before the user submits the form
-    'holdingDirectory' => '',
+    // Path to a directory which can be used for temporary storage. No trailing slash.
+    'tempDirectory' => '/tmp',
 
-    // S3 storage details (if using local storage, leave as empty strings)
-    's3Endpoint' => '',
-    's3Region' => '',
-    's3Bucket' => '',
-    's3AccessKey' => '',
-    's3Secret' => '',
-    // Files are stored here while they are waiting to be transferred to S3
-    'waitingUploadsFolder' => '',
+    // Path to a directory where recordings are stored after they've been uploaded and before the form is submitted.
+    // No trailing slash.
+    'holdingDirectory' => '/tmp',
 
-    // How long a show should be kept in storage after being published to Mixcloud - format at https://www.php.net/manual/en/datetime.formats.relative.php
-    'retentionPeriod' => '',
+    // Path to a directory where shows can be stored after the form has been submitted but before they've been moved
+    // to a final storage location. No trailing slash.
+    'waitingDirectory' => '/waiting',
+
+    // The storage provider where recordings should be saved.
+    // Options:
+    //            "local": A local directory.
+    //            "s3"   : An S3-compatible storage location.
+    'storageProvider' => "",
+
+    'localStorage' => array (
+        // Path to a directory where recording files can be permanently stored. No trailing slash.
+        // Ignored if storage provider isn't "local".
+        'uploadsFolder' => '/uploads'
+    ),
+
+    's3Storage' => array (
+        // S3 storage details. Ignored if storage provider isn't "s3".
+        'endpoint' => '',
+        'region' => '',
+        'bucket' => '',
+        'accessKey' => '',
+        'secret' => '',
+    ),
+
+     // How long a show should be kept in storage after being published to Mixcloud -
+     // format at https://www.php.net/manual/en/datetime.formats.relative.php
+    'retentionPeriod' => '1 day',
 
     // Text appended to the description of every upload. Use '{n}' for a new line.
     'fixedDescription' => '',
 
-    // Access token for Mixcloud account - https://www.mixcloud.com/developers/.
-    // Leave blank to prevent shows being published to Mixcloud. In that case, they'll all sit in a queue waiting until
-    // an access token is provided, at which point they'll all be published.
+    // Access token for Mixcloud account - https://www.mixcloud.com/developers/
     'mixcloudAccessToken' => '',
 
-    // YOURLS details if you'd like to get shortened URLs in notification emails
-    // Leave signature as empty string to disable link shortening
-    'yourlsApiUrl' => 'http://sho.rt/yourls-api.php',
-    'yourlsSignature' => '',
+    // Details for YOURLS API if you wish to have short URLs in publication notification emails.
+    // See https://github.com/YOURLS/YOURLS/wiki/PasswordlessAPI.
+    'yourls' => array (
+        'enabled'     => false,
+        'apiEndpoint' => 'https://sho.rt/yourls-api.php',
+        'signature'   => '',
+    ),
 
-    // Enable or disable SAML authentication -- configure in auth/settings.php
-    'saml' => false,
+    // SMTP server details, used for sending notification emails.
+    'smtp' => array (
+        'server'      => '',
+        'port'        => '465',
+        'auth'        => true,
+        'encryption'  => PHPMailer::ENCRYPTION_SMTPS, // PHPMailer::ENCRYPTION_SMTPS or PHPMailer::ENCRYPTION_STARTTLS;
+        'username'    => '', // to log in to email account. Usually same as send address.
+        'password'    => '',
+        'sendAddress' => '', // Email address to send as. Usually same as username,
+        'sendName'    => '', // Name to send as.
+        'recipient'   => '', // Recipient of notifications whenever there's a show submitted.
+    ),
 
-    // Details for notification emails
-    'smtpServer' => '',
-    'smtpPort' => '',
-    'smtpAuth' => true,
-    'smtpEncryption' => '', // "ssl" or "tls"
-    'smtpUsername' => '',
-    'smtpPassword' => '',
-    'smtpSendAddress' => '',
-    'smtpSendName' => '',
-    // recipient for notifications when a show is submitted -
-    // probably a mailing list for your scheduling team so they know a show has arrived
-    'smtpRecipient' => ''
+    // Enable or disable SAML authentication.
+    'samlEnabled'  => false,
+    'samlSettings' => array(
+                          // Modified from https://github.com/onelogin/php-saml/blob/master/settings_example.php.
 
-    // Logging level
-    /// Logs are written to the standard PHP error log, as defined in the ini file.
-    /// true to log that message type, otherwise false
-    'loggingLevel' => array (
-        "fatal"    => false,
-        "error"    => false,
-        "warning"  => false,
-        "info"     => false,
-        "debug"    => false,
-        "trace"    => false
-    )
+                          // If 'strict' is True, then the PHP Toolkit will reject unsigned
+                          // or unencrypted messages if it expects them signed or encrypted
+                          // Also will reject the messages if not strictly follow the SAML
+                          // standard: Destination, NameId, Conditions ... are validated too.
+                          'strict' => true,
+
+                          // Enable debug mode (to print errors)
+                          'debug' => false,
+
+                          // The base URL where this app is installed, with trailing slash.
+                          'baseurl' => "https://submit.yoursite.com/",
+
+                          // Service Provider Data that we are deploying
+                          'sp' => array(
+                              // Identifier of the SP entity  (must be a URI)
+                              'entityId' => $baseURL . 'auth/metadata.php',
+                              // Specifies info about where and how the <AuthnResponse> message MUST be
+                              // returned to the requester, in this case our SP.
+                              'assertionConsumerService' => array(
+                                  // URL Location where the <Response> from the IdP will be returned
+                                  'url' => $baseURL . 'auth/acs.php',
+                                  // SAML protocol binding to be used when returning the <Response>
+                                  // message.  Onelogin Toolkit supports for this endpoint the
+                                  // HTTP-POST binding only
+                                  'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+                              ),
+                              // Specifies info about where and how the <Logout Response> message MUST be
+                              // returned to the requester, in this case our SP.
+                              'singleLogoutService' => array(
+                                  // URL Location where the <Response> from the IdP will be returned
+                                  'url' => $baseURL . 'auth/slo.php',
+                                  // SAML protocol binding to be used when returning the <Response>
+                                  // message.  Onelogin Toolkit supports for this endpoint the
+                                  // HTTP-Redirect binding only
+                                  'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                              ),
+                              // Specifies constraints on the name identifier to be used to
+                              // represent the requested subject.
+                              // Take a look on lib/Saml2/Constants.php to see the NameIdFormat supported
+                              'NameIDFormat' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+
+                              // Usually x509cert and privateKey of the SP are provided by files placed at
+                              // the certs folder. But we can also provide them with the following parameters
+                              'x509cert' => '',
+                              'privateKey' => '',
+
+                              /*
+                               * Key rollover
+                               * If you plan to update the SP x509cert and privateKey
+                               * you can define here the new x509cert and it will be
+                               * published on the SP metadata so Identity Providers can
+                               * read them and get ready for rollover.
+                               */
+                              // 'x509certNew' => '',
+                          ),
+
+                          // Identity Provider Data that we want connect with our SP
+                          'idp' => array(
+                              // Identifier of the IdP entity  (must be a URI)
+                              'entityId' => '',
+                              // SSO endpoint info of the IdP. (Authentication Request protocol)
+                              'singleSignOnService' => array(
+                                  // URL Target of the IdP where the SP will send the Authentication Request Message
+                                  'url' => '',
+                                  // SAML protocol binding to be used when returning the <Response>
+                                  // message.  Onelogin Toolkit supports for this endpoint the
+                                  // HTTP-Redirect binding only
+                                  'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                              ),
+                              // SLO endpoint info of the IdP.
+                              'singleLogoutService' => array(
+                                  // URL Location of the IdP where the SP will send the SLO Request
+                                  'url' => '',
+                                  // URL location of the IdP where the SP will send the SLO Response (ResponseLocation)
+                                  // if not set, url for the SLO Request will be used
+                                  'responseUrl' => '',
+                                  // SAML protocol binding to be used when returning the <Response>
+                                  // message.  Onelogin Toolkit supports for this endpoint the
+                                  // HTTP-Redirect binding only
+                                  'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                              ),
+                              // Public x509 certificate of the IdP
+                              'x509cert' => '',
+                              /*
+                               *  Instead of use the whole x509cert you can use a fingerprint in
+                               *  order to validate the SAMLResponse, but we don't recommend to use
+                               *  that method on production since is exploitable by a collision
+                               *  attack.
+                               *  (openssl x509 -noout -fingerprint -in "idp.crt" to generate it,
+                               *   or add for example the -sha256 , -sha384 or -sha512 parameter)
+                               *
+                               *  If a fingerprint is provided, then the certFingerprintAlgorithm is required in order to
+                               *  let the toolkit know which Algorithm was used. Possible values: sha1, sha256, sha384 or sha512
+                               *  'sha1' is the default value.
+                               */
+                              // 'certFingerprint' => '',
+                              // 'certFingerprintAlgorithm' => 'sha1',
+
+                              /* In some scenarios the IdP uses different certificates for
+                               * signing/encryption, or is under key rollover phase and more
+                               * than one certificate is published on IdP metadata.
+                               * In order to handle that the toolkit offers that parameter.
+                               * (when used, 'x509cert' and 'certFingerprint' values are
+                               * ignored).
+                               */
+                              // 'x509certMulti' => array(
+                              //      'signing' => array(
+                              //          0 => '<cert1-string>',
+                              //      ),
+                              //      'encryption' => array(
+                              //          0 => '<cert2-string>',
+                              //      )
+                              // ),
+                          ),
+   )
 );
-?>

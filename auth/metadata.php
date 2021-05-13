@@ -8,10 +8,10 @@
 use OneLogin\Saml2\Auth;
 
 require(dirname(__DIR__) . '/vendor/autoload.php');
-require_once('settings.php');
+$config = require (dirname(__DIR__) . '/processing/config.php');
 
 try {
-    $auth = new Auth($samlSettings);
+    $auth = new Auth($config["samlSettings"]);
     $settings = $auth->getSettings();
     $metadata = $settings->getSPMetadata();
     $errors = $settings->validateMetadata($metadata);

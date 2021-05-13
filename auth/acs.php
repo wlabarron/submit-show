@@ -11,8 +11,8 @@ use OneLogin\Saml2\Utils;
 session_start();
 
 require(dirname(__DIR__) . '/vendor/autoload.php');
-require_once('settings.php');
-$auth = new Auth($samlSettings);
+$config = require (dirname(__DIR__) . '/processing/config.php');
+$auth = new Auth($config["samlSettings"]);
 
 if (isset($_SESSION) && isset($_SESSION['AuthNRequestID'])) {
     $requestID = $_SESSION['AuthNRequestID'];
