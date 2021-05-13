@@ -2,6 +2,7 @@
 
 /**
  *  SP Assertion Consumer Service Endpoint
+ *  Modified from https://github.com/onelogin/php-saml/tree/master/endpoints.
  */
 
 use OneLogin\Saml2\Auth;

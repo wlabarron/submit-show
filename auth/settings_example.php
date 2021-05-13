@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Settings for SAML login.
+ * Modified from https://github.com/onelogin/php-saml/blob/master/settings_example.php.
+ */
+
 // Base URL where this app is installed, with trailing '/'
 $baseURL = "https://submit.yoursite.com/";
 
