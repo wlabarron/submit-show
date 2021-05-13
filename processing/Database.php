@@ -6,19 +6,21 @@ namespace submitShow;
 
 use Exception;
 use mysqli;
+use Storage;
 
 class Database {
     private mysqli $connection;
+    private array $config;
 
     /**
      * Construct a new Database object, connecting to the data store specified in the config file.
      * @throws Exception If a connection to the data store can't be made.
      */
     public function __construct() {
-        $config = require "config.php";
+        $this->config = require "config.php";
 
         // Connect to database, set charset and throw exception if connection failed.
-        $this->connection = new mysqli($config["database"]["server"], $config["database"]["user"], $config["database"]["password"], $config["database"]["database"]);
+        $this->connection = new mysqli($this->config["database"]["server"], $this->config["database"]["user"], $this->config["database"]["password"], $this->config["database"]["database"]);
         $this->connection->query("SET NAMES 'utf8'");
         if ($this->connection->connect_error) {
             error_log("Failed to connect to database: " . $this->connection->connect_error);
@@ -101,8 +103,8 @@ class Database {
         if (is_null($location))    throw new Exception("No location in recording object.");
         if (is_null($end))         throw new Exception("No end time in recording object.");
 
-        $insertSubmissionQuery = $this->connection->prepare("INSERT INTO submissions (file_location, file, title, description, image, `end-datetime`, `notification-email`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?)");
-        $insertSubmissionQuery->bind_param("ssssbis", $location, $file, $publicationName, $description, $null, $end, $publicationAlertEmail);
+        $insertSubmissionQuery = $this->connection->prepare("INSERT INTO submissions (`file-location`, file, title, description, image, `end-datetime`, `notification-email`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?)");
+        $insertSubmissionQuery->bind_param("isssbis", $location, $file, $publicationName, $description, $null, $end, $publicationAlertEmail);
         $insertSubmissionQuery->send_long_data(4, $image);
 
         if (!$insertSubmissionQuery->execute()) {
@@ -124,6 +126,29 @@ class Database {
     }
 
     /**
+     * Delete a submission and its tags.
+     * @param int $id The ID of the submission to delete.
+     * @throws Exception
+     */
+    public function deleteSubmission(int $id) {
+        // remove the tags associated with the existing submission
+        $tagsQuery = $this->connection->prepare("DELETE FROM tags WHERE submission = ?");
+        $tagsQuery->bind_param("i", $id);
+        if (!$tagsQuery->execute()) {
+            error_log($tagsQuery->error);
+            throw new Exception("Failed to remove tags for existing submission.");
+        }
+
+        // remove existing submission details
+        $infoQuery = $this->connection->prepare("DELETE FROM submissions WHERE id = ?");
+        $infoQuery->bind_param("i", $id);
+        if (!$infoQuery->execute()) {
+            error_log($infoQuery->error);
+            throw new Exception("Failed to remove info for existing submission.");
+        }
+    }
+
+    /**
      * If there is another show in the database with the same file name, delete its record from the database. If there
      * is no pre-existing show, then this function does nothing (so is safe to call anyway).
      * @param Recording $recording The recording to check for duplicates of.
@@ -132,21 +157,7 @@ class Database {
     private function deletePreviousSubmission(Recording $recording) {
         $oldID = $this->getPreviousSubmissionID($recording);
         if (!is_null($oldID)) {
-            // remove the tags associated with the existing submission
-            $tagsQuery = $this->connection->prepare("DELETE FROM tags WHERE submission = ?");
-            $tagsQuery->bind_param("i", $oldID);
-            if (!$tagsQuery->execute()) {
-                error_log($tagsQuery->error);
-                throw new Exception("Failed to remove tags for existing submission.");
-            }
-
-            // remove existing submission details
-            $infoQuery = $this->connection->prepare("DELETE FROM submissions WHERE id = ?");
-            $infoQuery->bind_param("i", $oldID);
-            if (!$infoQuery->execute()) {
-                error_log($infoQuery->error);
-                throw new Exception("Failed to remove info for existing submission.");
-            }
+            $this->deleteSubmission($oldID);
         }
     }
 
@@ -288,6 +299,93 @@ class Database {
             return $result["image"];
         } else {
             return null;
+        }
+    }
+
+    /**
+     * @return array|null An array with details of shows due to publish, or null if no shows are due.
+     */
+    public function getShowsForPublication(): ?array {
+        $query = $this->connection->query("SELECT * FROM submissions WHERE `end-datetime` < CURRENT_TIMESTAMP AND `deletion-datetime` IS NULL");
+        return $query->fetch_assoc();
+    }
+
+    /**
+     * Gets all tags associated with the given submission ID.
+     * @param int $id The ID of the submission whose tags you want.
+     * @return array An array of tags. Note that this could be an empty array if there are no tags.
+     * @throws Exception
+     */
+    public function getSubmissionTags(int $id): array {
+        $query = $this->connection->prepare("SELECT tag FROM tags WHERE `submission` = ? ORDER BY id");
+        $query->bind_param("i", $id);
+        if (!$query->execute()) {
+            error_log($query->error);
+            throw new Exception("Failed query for submission tags.");
+        }
+
+        $result = mysqli_fetch_all(mysqli_stmt_get_result($query));
+        $tags = array();
+
+        for ($i = 0; $i < sizeof($result); $i++) {
+            array_push($tags, $result[$i][0]);
+        }
+
+        return $tags;
+    }
+
+    /**
+     * Mark a submission in the database for deletion after the period specified in the config file.
+     * @throws Exception
+     */
+    public function markSubmissionForDeletion(int $id) {
+        $deletionTime = date_create();
+        date_add($deletionTime, date_interval_create_from_date_string($this->config["retentionPeriod"]));
+        $deletionTime = $deletionTime->getTimestamp();
+        
+        $query = $this->connection->prepare("UPDATE submissions SET `deletion-datetime` = FROM_UNIXTIME(?) WHERE id = ?");
+        $query->bind_param("ii", $deletionTime, $id);
+        if (!$query->execute()) {
+            error_log($query->error);
+            throw new Exception("Couldn't mark submission for deletion.");
+        }
+    }
+
+    /**
+     * @return array|null An array with details of shows due to be deleted, or null if no shows are due.
+     */
+    public function getExpiredSubmissions(): ?array {
+        $query = $this->connection->query("SELECT * FROM submissions WHERE `deletion-datetime` < CURRENT_TIMESTAMP");
+        return $query->fetch_assoc();
+    }
+
+    /**
+     * @param int $id The database ID of the submission to update.
+     * @param int $location The new location of the show. One of {@code Storage::$LOCATION_HOLDING},
+     *                      {@code Storage::$LOCATION_WAITING} or {@code Storage::$LOCATION_MAIN}.
+     * @throws Exception
+     */
+    public function updateLocation(int $id, int $location) {
+        $query = $this->connection->prepare("UPDATE submissions SET `file-location` = ? WHERE id = ?");
+        $query->bind_param("ii", $location, $id);
+        if (!$query->execute()) {
+            error_log($query->error);
+            throw new Exception("Couldn't update submission location.");
+        }
+    }
+
+    /**
+     * @return array|null An array with details of shows which are in the waiting location, or null if no shows are waiting.
+     * @throws Exception
+     */
+    public function getShowsToOffload(): ?array {
+        $query = $this->connection->prepare("SELECT * FROM submissions WHERE `file-location` = ?");
+        $query->bind_param("i", Storage::$LOCATION_WAITING);
+        if (!$query->execute()) {
+            error_log($query->error);
+            throw new Exception("Couldn't get shows to offload.");
+        } else {
+            return $query->get_result()->fetch_assoc();
         }
     }
 }

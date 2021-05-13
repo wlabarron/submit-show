@@ -71,8 +71,8 @@ class Recording {
      */
     private ?string $image = null;
     /**
-     * @var int The location of this file. One of {@code Storage::$LOCATION_HOLDING}, {@code Storage::$LOCATION_LOCAL}
-     * {@code Storage::$LOCATION_WAITING} or {@code Storage::$LOCATION_OFFSITE}.
+     * @var int The location of this file. One of {@code Storage::$LOCATION_HOLDING},
+     * {@code Storage::$LOCATION_WAITING} or {@code Storage::$LOCATION_MAIN}.
      */
     private int $location;
 
@@ -219,15 +219,14 @@ class Recording {
 
     /**
      * Set the location of this recording's file.
-     * @param int $location One of {@code Storage::$LOCATION_HOLDING}, {@code Storage::$LOCATION_LOCAL}
-     * {@code Storage::$LOCATION_WAITING} or {@code Storage::$LOCATION_OFFSITE}.
+     * @param int $location One of {@code Storage::$LOCATION_HOLDING},
+     * {@code Storage::$LOCATION_WAITING} or {@code Storage::$LOCATION_MAIN}.
      * @throws Exception If the specified location is invalid.
      */
     public function setLocation(int $location): void {
         if ($location !== Storage::$LOCATION_HOLDING &&
-            $location !== Storage::$LOCATION_LOCAL   &&
             $location !== Storage::$LOCATION_WAITING &&
-            $location !== Storage::$LOCATION_OFFSITE) throw new Exception("Invalid storage location.");
+            $location !== Storage::$LOCATION_MAIN) throw new Exception("Invalid storage location.");
 
         $this->location = $location;
     }

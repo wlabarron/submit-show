@@ -6,17 +6,13 @@ abstract class Storage {
      */
     public static int $LOCATION_HOLDING = 0;
     /**
-     * @var int File is stored locally.
+     * @var int File is waiting to be moved to main storage.
      */
-    public static int $LOCATION_LOCAL = 1;
+    public static int $LOCATION_WAITING = 1;
     /**
-     * @var int File is waiting to be moved to offsite storage.
+     * @var int File is stored in the main location (specified in config file).
      */
-    public static int $LOCATION_WAITING = 2;
-    /**
-     * @var int File is stored in an offsite location (specified in config file).
-     */
-    public static int $LOCATION_OFFSITE = 3;
+    public static int $LOCATION_MAIN = 2;
 
     /**
      * Storage constructor. This should create a connection to the storage system, as appropriate, so that subsequent
