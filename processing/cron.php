@@ -118,7 +118,7 @@ function publishShow(array $show, array $config, Storage $storage, Database $dat
             Email::send($show["notification-email"],
                 $show["title"] . " published",
                 "Hello!\n\n" .
-                "\"" . $show["title"] . "\" was just published to Mixcloud. Here's the link: " . shortenURL("https://www.mixcloud.com" . $response["result"]["key"]) . "\n\n" .
+                "\"" . $show["title"] . "\" was just published to Mixcloud. Here's the link: " . Link::shorten("https://www.mixcloud.com" . $response["result"]["key"]) . "\n\n" .
                 "Thank you!\n\n" .
                 "If you'd prefer not to receive these emails in future, leave the notification box unticked when you submit your show.");
         }
