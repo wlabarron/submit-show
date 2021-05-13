@@ -1,5 +1,7 @@
 <?php
 
+header('Cache-Control: max-age=0, private, no-cache');
+
 $database = new submitShow\Database();
 
 if (isset($_GET["show"]) && !empty($_GET["show"])) {
