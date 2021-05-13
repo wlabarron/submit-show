@@ -1,8 +1,7 @@
 <?php
 $attributes = require './processing/requireAuth.php';
-
-$config = require './processing/config.php';
-require './processing/formHandler.php';
+$config     = require './processing/config.php';
+require       'processing/formHandler.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -83,65 +82,51 @@ audio/mpeg4-generic" required>
         </div>
     </div>
 
-    <form action="/index.php"
+    <form action="index.php"
           method="POST"
-          enctype="multipart/form-data"
-          onsubmit='// Remove warning when navigating away
-                      window.onbeforeunload = null;
-                      $("#submit").html("<i class=\"spinner-border\"></i> Submitting...");
-                      $("#submit").prop("disabled", true);
-                      $("#submit").removeClass("btn-outline-success");
-                      $("#submit").addClass("btn-outline-dark");'
-    >
+          enctype="multipart/form-data">
+
         <input type="hidden" name="showFileUploadName" id="showFileUploadName">
-        <input type="hidden" name="name" id="hiddenShowName">
 
         <div class="form-group">
-            <label for="showNameInput">Show name</label>
-            <select class="form-control" id="showNameInput" aria-describedby="showNameHelp" name="name"
-                    onchange="handleSpecialShowInput()" required>
+            <label for="nameDropdown">Show name</label>
+            <select class="form-control" id="nameDropdown" aria-describedby="nameDropdownHelp" name="name" required>
                 <option value="" disabled selected>Choose show name...</option>
-                <optgroup label="Shows">
-                    <?php
-//                    while ($show = $shows->fetch_assoc()) {
-//                        echo "<option value='" . $show["id"] . "'>" . $show["name"] . "</option>";
-//                    }
-                    ?>
-                </optgroup>
+                <optgroup label="Shows" id="nameOptionGroup"></optgroup>
                 <optgroup label="Other">
                     <option value='special'>One-off or Special Show</option>
                 </optgroup>
             </select>
-            <small id="showNameHelp" class="form-text text-muted">
+            <small id="nameDropdown" class="form-text text-muted">
                 Show missing? Please report it to technical staff.
             </small>
         </div>
 
-        <div id="specialShowDetails">
+        <div class="hidden" id="nameAndPresenterEntryFields">
             <div class="form-group">
-                <label for="specialShowName">Show name</label>
-                <input type="text" class="form-control" id="specialShowName" aria-describedby="specialShowNameHelp"
-                       name="specialShowName" maxlength="50">
-                <small id="specialShowNameHelp" class="form-text text-muted">
+                <label for="name">Show name</label>
+                <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" maxlength="50">
+                <small id="nameHelp" class="form-text text-muted">
                     Enter the name of the show.
                 </small>
             </div>
+
             <div class="form-group">
-                <label for="specialShowPresenter">Show presenter</label>
-                <input type="text" class="form-control" id="specialShowPresenter"
-                       aria-describedby="specialShowPresenterHelp" name="specialShowPresenter" maxlength="50">
-                <small id="specialShowPresenterHelp" class="form-text text-muted">
+                <label for="presenter">Show presenter</label>
+                <input type="text" class="form-control" id="presenter" aria-describedby="presenterHelp" name="presenter"
+                       maxlength="50">
+                <small id="presenter" class="form-text text-muted">
                     Enter the show's presenter.
                 </small>
             </div>
         </div>
 
         <div class="form-group bootstrap-timepicker timepicker">
-            <label for="broadcast-date">Original broadcast date</label>
-            <input type="text" class="form-control make-disabled-input-appear-normal" id="broadcast-date"
-                   aria-describedby="broadcastDateHelp" name="date" required maxlength="30" readonly
+            <label for="date">Original broadcast date</label>
+            <input type="text" class="form-control make-disabled-input-appear-normal" id="date"
+                   aria-describedby="dateHelp" name="date" required maxlength="30" readonly
                    placeholder="Choose a date...">
-            <small id="broadcastDateHelp" class="form-text text-muted">
+            <small id="dateHelp" class="form-text text-muted">
                 Enter the date this show was first broadcast (or when it will be broadcasted for the first time, as
                 appropriate).
             </small>
@@ -151,45 +136,45 @@ audio/mpeg4-generic" required>
             Hang on! Make sure you've filled in all the fields above.
         </div>
 
-        <div class="alert alert-warning mt-2" role="alert" id="show-file-oversized">
+        <div class="alert alert-warning mt-2 hidden" role="alert" id="error-ShowFileOversized">
             <strong>The show file you chose is too big.</strong> The maximum size
             is <?php echo $config["maxShowFileSizeFriendly"]; ?>.
             Please try again with a smaller version of the file. If you're not sure how to do this, please contact
             technical staff. Thank you.
         </div>
 
-        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" onclick="uploadAndContinue()"
-                type="button">Upload and Continue
+        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="button">Upload and Continue
         </button>
 
         <div id="detailsForm">
             <hr>
             <div class="form-group">
-                <label for="broadcast-time">Original broadcast end time</label>
-                <input type="text" class="form-control" id="broadcast-time" aria-describedby="broadcastEndTimeHelp"
-                       name="endTime" step="300" placeholder="Type or choose a time..." required
+                <label for="end">Original broadcast end time</label>
+                <input type="text" class="form-control" id="end" aria-describedby="endHelp"
+                       name="end" step="300" placeholder="Type or choose a time..." required
                        data-toggle="tooltip" data-trigger="focus" data-placement="top"
                        title="Enter the show's end time, not the start.">
-                <small id="broadcastEndTimeHelp" class="form-text text-muted">
+                <small id="endHelp" class="form-text text-muted">
                     Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
                     to-the-minute - if your show's time slot is noon-2pm, you'd enter 2pm here, even if you finished at
                     1:56pm.
                 </small>
             </div>
             <div class="form-group form-check">
-                <input class="form-check-input" type="checkbox" value="true" id="endedOnFollowingDay"
-                       name="endedOnFollowingDay" aria-describedby="endedOnFollowingDayHelp">
-                <label class="form-check-label" for="endedOnFollowingDay">
+                <input class="form-check-input" type="checkbox" value="true" id="endNextDay"
+                       name="endNextDay" aria-describedby="endNextDayHelp">
+                <label class="form-check-label" for="endNextDay">
                     Show end time is on the day after the broadcast date.
                 </label>
-                <small id="endedOnFollowingDayHelp" class="form-text text-muted">
+                <small id="endNextDayHelp" class="form-text text-muted">
                     Tick this box if the show ran over midnight.
                 </small>
             </div>
             <hr>
             <div class="form-group">
                 <label for="showImageInput">Show cover image</label>
-                <div id="defaultImageDisplay">
+
+                <div id="defaultImage">
                     <div class="pl-5">
                         Saved photo:
                         <div class="col-md-5">
@@ -197,89 +182,53 @@ audio/mpeg4-generic" required>
                         </div>
                     </div>
                     <select class="form-control"
-                            id="imageSelection"
-                            aria-label="Choose how to proceed with the cover image"
-                            name="imageSelection"
-                            onchange="changeShowImageSelection();">
+                            id="imageSource"
+                            name="imageSource"
+                            aria-label="Choose how to proceed with the cover image">
                         <option value="saved">Use saved photo for this show</option>
                         <option value="upload" selected>Upload new photo</option>
                         <option value="none">Don't use a photo</option>
                     </select>
                 </div>
             </div>
-            <div class="bs-custom-file custom-file" id="imageFileUploader">
-                <input type="file" class="custom-file-input" id="showImageInput" name="image"
-                       onchange="checkShowCoverImageSize()">
-                <label class="custom-file-label" for="showImageInput" aria-describedby="showImageInputHelp">Choose
-                    file</label>
-                <div class="alert alert-warning mt-2 show-image-oversized" role="alert">
+
+            <div class="bs-custom-file custom-file" id="imageUploader">
+                <input type="file" class="custom-file-input" id="image" name="image">
+                <label class="custom-file-label" for="image" aria-describedby="imageHelp">Choose file</label>
+                <div class="alert alert-warning mt-2 hidden imageOversized" role="alert">
                     <strong>The image you chose is too big.</strong> The maximum size
                     is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                     Please try again with a smaller version of the file. If you're not sure how to do this, please
                     contact technical staff. Thank you.
                 </div>
-                <small id="showImageInputHelp" class="form-text text-muted">
+                <small id="imageHelp" class="form-text text-muted">
                     You can upload JPG or PNG files up to <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                 </small>
             </div>
+
             <hr>
+
             <div class="form-group">
-                <label for="descriptionInput">Description</label>
-                <textarea class="form-control joint-input-top" id="descriptionInput" rows="3"
-                          maxlength="<?php echo 999 - strlen($config["fixedDescription"]); ?>"
+                <label for="description">Description</label>
+                <textarea class="form-control joint-input-top" id="description" rows="3"
+                          maxlength="<?php echo 995 - strlen($config["fixedDescription"]); ?>"
                           name="description"
                           aria-describedby="descriptionHelp"></textarea>
-                <textarea class="form-control joint-input-bottom" type="text" readonly
-                          aria-label="Fixed description text"><?php echo str_replace("{n}", "&#13;", $config["fixedDescription"]); ?></textarea>
+                <textarea class="form-control joint-input-bottom" readonly aria-label="Fixed description text">
+                    <?php echo str_replace("{n}", "&#13;", $config["fixedDescription"]); ?>
+                </textarea>
                 <small id="descriptionHelp" class="form-text text-muted">
                     Describe what happened in your show or enter your tagline. This is a good place to include a link,
                     for example, if you had a guest on your show you may want to link to their website.
                 </small>
             </div>
+
             <hr>
+
             <div class="form-group">
                 <label>Tags</label>
                 <select class="form-control" id="tag1" aria-label="Tag" aria-describedby="tagsHelp" name="tag1">
                     <option value="" disabled selected>Choose primary tag...</option>
-                    <option value="ambient">Ambient</option>
-                    <option value="bass">Bass</option>
-                    <option value="beats">Beats</option>
-                    <option value="chillout">Chillout</option>
-                    <option value="classical">Classical</option>
-                    <option value="deep house">Deep House</option>
-                    <option value="drum &amp; bass">Drum &amp; Bass</option>
-                    <option value="dub">Dub</option>
-                    <option value="dubstep">Dubstep</option>
-                    <option value="edm">EDM</option>
-                    <option value="electronica">Electronica</option>
-                    <option value="funk">Funk</option>
-                    <option value="garage">Garage</option>
-                    <option value="hip hop">Hip Hop</option>
-                    <option value="house">House</option>
-                    <option value="indie">Indie</option>
-                    <option value="jazz">Jazz</option>
-                    <option value="pop">Pop</option>
-                    <option value="rap">Rap</option>
-                    <option value="reggae">Reggae</option>
-                    <option value="r&amp;b">R&amp;B</option>
-                    <option value="rock">Rock</option>
-                    <option value="soul">Soul</option>
-                    <option value="tech house">Tech House</option>
-                    <option value="techno">Techno</option>
-                    <option value="trance">Trance</option>
-                    <option value="trap">Trap</option>
-                    <option value="world">World</option>
-                    <option value="business">Business</option>
-                    <option value="comedy">Comedy</option>
-                    <option value="education">Education</option>
-                    <option value="lifestyle">Lifestyle</option>
-                    <option value="interview">Interview</option>
-                    <option value="news">News</option>
-                    <option value="politics">Politics</option>
-                    <option value="science">Science</option>
-                    <option value="sport">Sport</option>
-                    <option value="technology">Technology</option>
-                    <option value="other">Other</option>
                 </select>
                 <input type="text" class="form-control joint-input-top" aria-label="Tag" aria-describedby="tagsHelp"
                        id="tag2" name="tag2" maxlength="20">
@@ -294,7 +243,9 @@ audio/mpeg4-generic" required>
                     type up to four more into the boxes.
                 </small>
             </div>
+
             <hr>
+
             <?php
             if (isset($_SESSION['samlUserdata']["email"][0]) && !empty($_SESSION['samlUserdata']["email"][0])) {
                 echo '<div class="form-group form-check">
@@ -320,36 +271,42 @@ audio/mpeg4-generic" required>
                         <hr>';
             }
             ?>
+
             <div id="saveFormDefaultsSection">
                 <div class="form-group form-check">
                     <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults"
                            name="saveAsDefaults"
                            checked>
-                    <label class="form-check-label" for="saveAsDefaults" aria-describedby="saveHelp">
+                    <label class="form-check-label" for="saveAsDefaults" aria-describedby="saveAsDefaultsHelp">
                         Save these values as the defaults for this show
                     </label>
-                    <small id="saveHelp" class="form-text text-muted">
+                    <small id="saveAsDefaultsHelp" class="form-text text-muted">
                         If this box is ticked, next time you choose this show from the "Show name" list, the image,
                         description, and tags you've chosen here will appear automatically.
                     </small>
                 </div>
                 <hr>
             </div>
+
             <p class="text-center">This show will be sent to the scheduling team <strong>immediately</strong> for replay
                 or broadcast, as appropriate.<br>
                 This show will published to Mixcloud <strong>as soon as possible after the "end" date and time specified
                     above</strong>.</p>
-            <div class="alert alert-warning mt-2 show-image-oversized" role="alert">
+
+            <div class="alert alert-warning mt-2 hidden imageOversized" role="alert">
                 <strong>The image you chose is too big.</strong> The maximum size
                 is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                 Please try again with a smaller version of the file. If you're not sure how to do this, please contact
                 technical staff. Thank you.
             </div>
+
             <!-- Submit button behaviour modified by the <form> tag -->
             <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled>
                 <i class="spinner-border"></i> Uploading...
             </button>
+
             <p id="uploadingHelpText" class="text-center">You can submit your show once it has uploaded.</p>
+
         </div>
     </form>
 
@@ -365,15 +322,15 @@ audio/mpeg4-generic" required>
                     Something went wrong uploading your show file. Sorry about that. Please try again.
                 </div>
                 <div class="modal-footer">
-                    <a href="/index.php" class="btn btn-primary">Retry</a>
+                    <a href="index.php" class="btn btn-primary">Retry</a>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        var maxShowFileSize = <?php echo $config["maxShowFileSize"]; ?>;
-        var maxShowImageSize = <?php echo $config["maxShowImageSize"]; ?>;
+        const maxShowFileSize  = <?php echo $config["maxShowFileSize"]; ?>;
+        const maxShowImageSize = <?php echo $config["maxShowImageSize"]; ?>;
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
             integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
