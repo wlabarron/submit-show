@@ -7,11 +7,13 @@ const showFileUploader = new Flow({
 let showUploaded        = false;
 let imageValid          = true;
 
+const form                        = document.getElementById("form");
 const nameDropdown                = document.getElementById("nameDropdown");
 const nameOptionGroup             = document.getElementById("nameOptionGroup");
 const nameAndPresenterEntryFields = document.getElementById("nameAndPresenterEntryFields");
 const name                        = document.getElementById("name");
 const presenter                   = document.getElementById("presenter");
+const dateInput                   = document.getElementById("date");
 const imageSource                 = document.getElementById("imageSource");
 const imageUploader               = document.getElementById("imageUploader");
 const image                       = document.getElementById("image");
@@ -110,7 +112,6 @@ nameDropdown.addEventListener("change", function () {
 });
 
 document.getElementById("uploadAndContinueButton").addEventListener("click", function () {
-    const date      = document.getElementById("date");
     const invalid   = document.getElementById("error-InitialFormInvalid");
 
     // validate the input
@@ -139,7 +140,7 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
             query: {
                 name: name.value,
                 presenter: presenter.value,
-                date: date.value
+                date: dateInput.value
             },
             permanentErrors: [404, 406, 415, 500, 501]
         });
@@ -171,7 +172,7 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
         nameDropdown.disabled = true;
         name.disabled         = true;
         presenter.disabled    = true;
-        date.disabled         = true;
+        dateInput.disabled    = true;
 
         if (nameDropdown.value === "special") {
             // This is a special show, so hide all the options to do with default values.
@@ -181,10 +182,11 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
             // This isn't a one-off show, so we can go and fetch the default data.
             fetch("/resources/default/data.php?show=" + nameDropdown.value)
                 .then(function(response) {
-                    return response.json()
+                    if (response.ok) return response.json()
+                    else return null
                 })
                 .then(function(data) {
-                    if (data.ok) { // There is default data
+                    if (data) { // There is default data
                         document.getElementById("description").value = data.description;
 
                         if (data.tags[0])
@@ -251,4 +253,21 @@ image.addEventListener("change", function () {
             element.classList.add("hidden");
         }
     }
+})
+
+form.addEventListener("submit", function () {
+    // Remove warning for navigating away
+    window.onbeforeunload = null;
+
+    // Disable submit button to prevent resubmission
+    submitButton.disabled  = true;
+    submitButton.innerHTML = '<i class="spinner-border"></i> Submitting...'
+    submitButton.classList.remove("btn-outline-success");
+    submitButton.classList.add("btn-outline-dark");
+
+    // Re-enable the disabled fields, so they are submitted along with everything else
+    nameDropdown.disabled = false;
+    name.disabled         = false;
+    presenter.disabled    = false;
+    dateInput.disabled    = false;
 })

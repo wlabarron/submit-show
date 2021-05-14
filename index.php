@@ -85,7 +85,8 @@ audio/mpeg4-generic" required>
 
     <form action="index.php"
           method="POST"
-          enctype="multipart/form-data">
+          enctype="multipart/form-data"
+          id="form">
 
         <input type="hidden" name="fileName" id="fileName">
 
@@ -312,7 +313,6 @@ audio/mpeg4-generic" required>
             </button>
 
             <p id="uploadingHelpText" class="text-center">You can submit your show once it has uploaded.</p>
-
         </div>
     </form>
 
