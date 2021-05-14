@@ -31,7 +31,7 @@ require       'processing/Recording.php';
         </div>
     </div>
 </noscript>
-<!-- TODO Alert display logic -->
+
 <div class="container hidden" id="files-unsupported">
     <div class="alert alert-danger mt-2" role="alert">
         Your browser doesn't support some of the technologies this uploader needs. Swap to another one, such as an
@@ -41,7 +41,7 @@ require       'processing/Recording.php';
             Firefox</a>.
     </div>
 </div>
-
+<!-- TODO Alert display logic -->
 <div class="container hidden" id="submit-success">
     <div class="alert alert-success mt-2" role="alert">
         <strong>Your show was submitted successfully.</strong> Thank you. You can upload another below, if you're so
@@ -147,7 +147,7 @@ audio/mpeg4-generic" required>
         <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="button">Upload and Continue
         </button>
 
-        <div id="detailsForm">
+        <div id="detailsForm" class="hidden">
             <hr>
             <div class="form-group">
                 <label for="end">Original broadcast end time</label>
