@@ -242,28 +242,28 @@ class Database {
 
     /**
      * Gets the default show details from the database.
-     * @param string $showID The show ID to get info about.
+     * @param int $showID The show ID to get info about.
      * @return array An array with 2 keys: {@code description} is the show's default description. {@code tags} is an
      *               array of default tags.
      * @throws Exception
      */
-    public function getDefaults(string $showID): array {
+    public function getDefaults(int $showID): array {
         $infoQuery = $this->connection->prepare("SELECT * FROM saved_info WHERE `show` = ?");
         $tagsQuery = $this->connection->prepare("SELECT tag FROM saved_tags WHERE `show` = ? ORDER BY id");
 
-        $infoQuery->bind_param("s", $showID);
-        $tagsQuery->bind_param("s", $showID);
+        $infoQuery->bind_param("i", $showID);
+        $tagsQuery->bind_param("i", $showID);
 
         if (!$infoQuery->execute()) {
             error_log($infoQuery->error);
             throw new Exception("Failed query for default show info.");
         }
+        $details = mysqli_fetch_assoc(mysqli_stmt_get_result($infoQuery));
+
         if (!$tagsQuery->execute()) {
             error_log($tagsQuery->error);
             throw new Exception("Failed query for default show tags.");
         }
-
-        $details = mysqli_fetch_assoc(mysqli_stmt_get_result($infoQuery));
         $tags    = mysqli_fetch_all(mysqli_stmt_get_result($tagsQuery));
 
         if (!empty($details["description"])) {

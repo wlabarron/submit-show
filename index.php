@@ -174,7 +174,7 @@ audio/mpeg4-generic" required>
             <div class="form-group">
                 <label for="showImageInput">Show cover image</label>
 
-                <div id="defaultImage">
+                <div id="defaultImageSection" class="hidden">
                     <div class="pl-5">
                         Saved photo:
                         <div class="col-md-5">
@@ -185,7 +185,7 @@ audio/mpeg4-generic" required>
                             id="imageSource"
                             name="imageSource"
                             aria-label="Choose how to proceed with the cover image">
-                        <option value="saved">Use saved photo for this show</option>
+                        <option value="default">Use saved photo for this show</option>
                         <option value="upload" selected>Upload new photo</option>
                         <option value="none">Don't use a photo</option>
                     </select>
@@ -195,7 +195,7 @@ audio/mpeg4-generic" required>
             <div class="bs-custom-file custom-file" id="imageUploader">
                 <input type="file" class="custom-file-input" id="image" name="image">
                 <label class="custom-file-label" for="image" aria-describedby="imageHelp">Choose file</label>
-                <div class="alert alert-warning mt-2 hidden imageOversized" role="alert">
+                <div class="alert alert-warning mt-2 hidden error-imageOversized" role="alert">
                     <strong>The image you chose is too big.</strong> The maximum size
                     is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                     Please try again with a smaller version of the file. If you're not sure how to do this, please
@@ -299,7 +299,7 @@ audio/mpeg4-generic" required>
                 This show will published to Mixcloud <strong>as soon as possible after the "end" date and time specified
                     above</strong>.</p>
 
-            <div class="alert alert-warning mt-2 hidden imageOversized" role="alert">
+            <div class="alert alert-warning mt-2 hidden error-imageOversized" role="alert">
                 <strong>The image you chose is too big.</strong> The maximum size
                 is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                 Please try again with a smaller version of the file. If you're not sure how to do this, please contact

@@ -150,36 +150,50 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
         presenter.disabled    = true;
         date.disabled         = true;
 
-        // TODO Default images and descriptions
-        // // if this is a special show
-        // if ($("#showNameInput").val() === "special") {
-        //     // hide and uncheck the option to save defaults
-        //     $("#saveFormDefaultsSection").slideUp();
-        //     $("#saveFormDefaultsSection").prop("checked", false)
-        //     // show details form
-        //     $("#detailsForm").slideDown();
-        // }
-        // // get show details for the form
-        // $.getJSON("/processing/getSavedShowInfo.php?show=" + $("#showNameInput").val(), function (data) {
-        //     // fill form data
-        //     $("#descriptionInput").val(data.description);
-        //     // fill each tag which exists
-        //     for (var i = 0; i < data.tags.length; i++) {
-        //         $("#tag" + (i + 1)).val(data.tags[i]);
-        //     }
-        //
-        //     // show details form
-        //     $("#detailsForm").slideDown();
-        //
-        //     // if an image exists, mark it as such
-        //     if (data.imageExists) {
-        //         // show the default image display section and load in the image
-        //         $("#defaultImageDisplay").slideDown();
-        //         $("#imageSelection").val("saved");
-        //         $("#imageFileUploader").slideUp();
-        //         $("#defaultImage").attr("src", "/processing/getSavedShowImage.php?show=" + $("#showNameInput").val());
-        //     }
-        // });
+        if (nameDropdown.value === "special") {
+            // This is a special show, so hide all the options to do with default values.
+            document.getElementById("defaultImage").classList.add("hidden");
+            document.getElementById("saveFormDefaultsSection").classList.add("hidden");
+        } else {
+            // This isn't a one-off show, so we can go and fetch the default data.
+            fetch("/resources/default/data.php?show=" + nameDropdown.value)
+                .then(function(response) {
+                    return response.json()
+                })
+                .then(function(data) {
+                    if (data.ok) { // There is default data
+                        document.getElementById("description").value = data.description;
+
+                        if (data.tags[0])
+                            document.getElementById("tag1").value = data.tags[0];
+                        if (data.tags[1])
+                            document.getElementById("tag2").value = data.tags[1];
+                        if (data.tags[2])
+                            document.getElementById("tag3").value = data.tags[2];
+                        if (data.tags[3])
+                            document.getElementById("tag4").value = data.tags[3];
+                        if (data.tags[4])
+                            document.getElementById("tag5").value = data.tags[4];
+                    }
+                })
+
+            fetch("/resources/default/image.php?show=" + nameDropdown.value,
+                {
+                    // Only get headers, since we just need the HTTP status for now to see if an image exists.
+                    method: "HEAD"
+                }
+            )
+                .then(function(data) {
+                    if (data.ok) { // Default image exists
+                        document.getElementById("defaultImageSection").classList.remove("hidden");
+                        document.getElementById("defaultImage").src = "/resources/default/image.php?show=" + nameDropdown.value;
+                        document.getElementById("imageSource").value = "default";
+                    }
+                });
+        }
+
+        // Display the rest of the form.
+        document.getElementById("detailsForm").classList.remove("hidden");
     } else {
         // Display an error if the form so far is invalid
         invalid.classList.remove("hidden");
@@ -187,63 +201,53 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
     }
 });
 
-// The show file has not been uploaded yet
-let showUploaded = false;
-// The image provided is valid
-let imageValid = true;
-function updateStatusOfFormSubmitButton() {
-    // If the image is valid and the file has been uploaded, allow form submission. Otherwise, disable the button
-    if (showUploaded && imageValid) {
-        $('#submit').prop("disabled", false);
-        $("#uploadingHelpText").slideUp();
-        $("#submit").text("Submit Show");
-        $("#submit").prop('disabled', false);
-        $("#submit").addClass("btn-outline-success");
-        $("#submit").removeClass("btn-outline-dark");
+const imageSource   = document.getElementById("imageSource");
+const imageUploader = document.getElementById("imageUploader");
+imageSource.addEventListener("change", function () {
+    if (imageSource.value === "upload") {
+        imageUploader.classList.remove("hidden");
     } else {
-        $('#submit').prop("disabled", true);
+        imageUploader.classList.add("hidden");
     }
-}
+})
 
-function checkShowCoverImageSize() {
-    $(".show-image-oversized").slideUp();
+const image       = document.getElementById("image");
+const imageErrors = document.getElementsByClassName("error-imageOversized");
+image.addEventListener("change", function () {
     // if image is too large
-    if (document.getElementById("showImageInput").files[0].size > maxShowImageSize) {
+    if (image.files[0].size > maxShowImageSize) {
         // prevent form submission and show warning
         imageValid = false;
         updateStatusOfFormSubmitButton();
-        $(".show-image-oversized").slideDown();
+
+        for (const element of imageErrors) {
+            element.classList.remove("hidden");
+        }
     } else {
         // permit form submission
         imageValid = true;
         updateStatusOfFormSubmitButton();
-        $(".show-image-oversized").slideUp();
-    }
-}
 
-function handleSpecialShowInput() {
-    // if we've chosen a special one off show from dropdown
-    if ($("#showNameInput").val() === "special") {
-        // show the extra inputs
-        $("#specialShowDetails").slideDown();
-        // extra inputs are required
-        $("#specialShowName").prop("required", true);
-        $("#specialShowPresenter").prop("required", false);
+        for (const element of imageErrors) {
+            element.classList.add("hidden");
+        }
+    }
+})
+
+let showUploaded        = false;
+let imageValid          = true;
+const submitButton      = document.getElementById("submit");
+const uploadingHelpText = document.getElementById("uploadingHelpText");
+function updateStatusOfFormSubmitButton() {
+    // If the image is valid and the file has been uploaded, allow form submission. Otherwise, disable the button
+    if (showUploaded && imageValid) {
+        submitButton.disabled = false;
+        submitButton.innerText = "Submit Show";
+        submitButton.classList.add("btn-outline-success");
+        submitButton.classList.remove("btn-outline-dark");
+        submitButton.style.marginBottom = "1rem"; // reduce page reflow from removing uploading help text
+        uploadingHelpText.classList.add("hidden");
     } else {
-        // hide, empty, and make not-required the extra inputs
-        $("#specialShowDetails").slideUp();
-        $("#specialShowName").val("");
-        $("#specialShowName").prop("required", false);
-        $("#specialShowPresenter").val("");
-        $("#specialShowPresenter").prop("required", false);
+        submitButton.disabled = true;
     }
 }
-
-function changeShowImageSelection() {
-    if ($("#imageSelection").val() === "upload") {
-        $("#imageFileUploader").slideDown();
-    } else {
-        $("#imageFileUploader").slideUp();
-    }
-}
-
