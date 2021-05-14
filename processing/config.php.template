@@ -1,6 +1,7 @@
 <?php
 
 use PHPMailer\PHPMailer\PHPMailer;
+require __DIR__ . "/../vendor/autoload.php";
 
 return array(
     // Name of group, to use in titles etc
