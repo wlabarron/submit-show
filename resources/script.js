@@ -212,6 +212,7 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
                         document.getElementById("defaultImageSection").classList.remove("hidden");
                         document.getElementById("defaultImage").src = "/resources/default/image.php?show=" + nameDropdown.value;
                         document.getElementById("imageSource").value = "default";
+                        imageUploader.classList.add("hidden");
                     }
                 });
         }

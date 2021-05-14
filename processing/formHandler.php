@@ -31,10 +31,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $recording->setEnd($_POST["end"]);
         $recording->setFileExtension($_POST["fileName"]);
 
-        if (!empty($_POST["imageSelection"])) {
-            switch ($_POST["imageSelection"]) {
+        if (!empty($_POST["imageSource"])) {
+            switch ($_POST["imageSource"]) {
                 case "upload":
-                    // TODO Handle image upload
+                    // If they actually have uploaded an image
+                    if (!empty($_FILES["image"]["name"])) {
+                        // Get and check the image's file type
+                        // TODO better image type checking
+                        $fileType = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
+                        $allowTypes = array('jpg', 'png', 'jpeg');
+                        if (!in_array(strtolower($fileType), $allowTypes))
+                            throw new Exception("Uploaded image format not permitted.");
+
+                        // Check the image's size
+                        if ($_FILES["image"]["size"] > $config["maxShowImageSize"])
+                            throw new Exception("Uploaded image too large.");
+
+                        // Return the image data as a blob
+                        $recording->setImage(file_get_contents($_FILES["image"]['tmp_name']));
+                    }
                     break;
                 case "default":
                     $recording->setImage(
