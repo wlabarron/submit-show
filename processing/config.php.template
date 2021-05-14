@@ -3,6 +3,9 @@
 use PHPMailer\PHPMailer\PHPMailer;
 require __DIR__ . "/../vendor/autoload.php";
 
+// The base URL where this app is installed, with trailing slash.
+$baseURL = "https://submit.yoursite.com/";
+
 return array(
     // Name of group, to use in titles etc
     'organisationName' => '',
@@ -101,7 +104,7 @@ return array(
                           'debug' => false,
 
                           // The base URL where this app is installed, with trailing slash.
-                          'baseurl' => "https://submit.yoursite.com/",
+                          'baseurl' => $baseURL,
 
                           // Service Provider Data that we are deploying
                           'sp' => array(
