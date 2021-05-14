@@ -25,7 +25,7 @@ return array(
         // be the URL of an API endpoint elsewhere on the internet (in which case, watch out for CORS errors).
         'url'          => 'shows.json',
         // Each JSON object can have any number of keys. Let the system know the name of the key for a unique integer ID,
-        // a string name of the show, and a string presenter name,
+        // a string name of the show, and a string presenter name.
         'idKey'        => 'id',
         'nameKey'      => 'name',
         'presenterKey' => 'presenter',
