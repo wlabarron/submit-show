@@ -44,8 +44,14 @@ $flowConfig = new Config();
 $flowConfig->setTempDir($config["tempDirectory"]);
 $request = new Request();
 
-$recording->setFileExtension($request->getFileName());
-$extension = $recording->getExtension();
+try {
+    $recording->setFileExtension($request->getFileName());
+    $extension = $recording->getExtension();
+} catch (Exception $exception) {
+    error_log($exception->getMessage());
+    http_response_code(500);
+    exit;
+}
 
 if ($extension !== "mp3" &&
     $extension !== "m4a" &&

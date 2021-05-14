@@ -24,9 +24,9 @@ class Recording {
     private array $config;
 
     /**
-     * @var string ID representing the show (not this recording specifically, the show as a whole).
+     * @var int ID representing the show (not this recording specifically, the show as a whole).
      */
-    private string $showID;
+    private int $showID;
     /**
      * @var string The name of the show.
      */
@@ -86,10 +86,10 @@ class Recording {
     }
 
     /**
-     * @param string $showID The ID of the show, as a string.
+     * @param int $showID The ID of the show.
      * @throws Exception If the show ID is empty.
      */
-    public function setShowID(string $showID): void {
+    public function setShowID(int $showID): void {
         if (empty($showID)) throw new Exception("Show ID was empty.");
         $this->showID = $showID;
     }
@@ -216,8 +216,10 @@ class Recording {
     /**
      * Takes a full file name and takes everything after the last `.` as the file extension.
      * @param string $file The file name of the recording.
+     * @throws Exception If parameters are empty.
      */
     public function setFileExtension(string $file): void {
+        if (empty($file)) throw new Exception("No file name provided to get extension from.");
         $split = explode(".", $file);
         $this->extension = end($split);
     }
@@ -259,7 +261,7 @@ class Recording {
     public function getPublicationName(): string {
         if (empty($this->name)) throw new Exception("No show name stored before requesting publication name.");
         if (empty($this->presenter)) throw new Exception("No presenter name stored before requesting publication name.");
-        if (empty($this->start)) throw new Exception("No start date  stored before requesting publication name.");
+        if (empty($this->start)) throw new Exception("No start date stored before requesting publication name.");
 
         // If the presenter's name is not in the show's name
         if (stristr($this->name, $this->presenter) == false) {

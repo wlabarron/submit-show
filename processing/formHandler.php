@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $database  = new Database();
         $storage   = Storage::getProvider();
 
-        $recording->setShowID($_POST["id"]);
+        $recording->setShowID(intval($_POST["id"]));
         $recording->setName($_POST["name"]);
         $recording->setPresenter($_POST["presenter"]);
         $recording->setStart($_POST["date"]);
