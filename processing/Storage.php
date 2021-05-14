@@ -50,7 +50,7 @@ abstract class Storage {
      * @throws Exception
      */
     public function moveToWaiting(string $file) {
-        if (is_null($file)) throw new Exception("No file name provided.");
+        if (empty($file)) throw new Exception("No file name provided.");
 
         $config = require __DIR__ . '/config.php';
 

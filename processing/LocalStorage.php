@@ -28,7 +28,7 @@ class LocalStorage extends Storage {
      * @inheritDoc
      */
     public function retrieve(string $file): string {
-        if (is_null($file)) throw new Exception("No file name provided.");
+        if (empty($file)) throw new Exception("No file name provided.");
 
         $config = require __DIR__ . '/config.php';
 

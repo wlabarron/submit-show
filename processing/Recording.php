@@ -99,7 +99,7 @@ class Recording {
      * @throws Exception If validation fails -- the exception message will explain what was wrong.
      */
     public function setName(string $name): void {
-        if (is_null($name) || strlen($name) == 0) throw new Exception("Show name was empty");
+        if (empty($name)) throw new Exception("Show name was empty");
         if (strlen($name) > 50) throw new Exception("Show name was too long (max length is 50 characters).");
         $this->name = $name;
     }
@@ -109,7 +109,7 @@ class Recording {
      * @throws Exception If validation fails -- the exception message will explain what was wrong.
      */
     public function setPresenter(string $presenter): void {
-        if (is_null($presenter) || strlen($presenter) == 0) throw new Exception("Presenter name was empty");
+        if (empty($presenter)) throw new Exception("Presenter name was empty");
         if (strlen($presenter) > 50) throw new Exception("Presenter name was too long (max length is 50 characters).");
         $this->presenter = $presenter;
     }
@@ -140,7 +140,7 @@ class Recording {
      * @throws Exception If the date provided is invalid.
      */
     public function setStart(string $start): void {
-        if (is_null($start)) throw new Exception("No date provided.");
+        if (empty($start)) throw new Exception("No date provided.");
 
         $start = date("jS F Y", strtotime($start));
 
@@ -156,8 +156,8 @@ class Recording {
      * @throws Exception If validation fails.
      */
     public function setEnd(string $time, bool $nextDay = false): void {
-        if (is_null($this->start)) throw new Exception("No start date stored before calculating end date time.");
-        if (is_null($time)) throw new Exception("No time provided.");
+        if (empty($this->start)) throw new Exception("No start date stored before calculating end date time.");
+        if (empty($time)) throw new Exception("No time provided.");
 
         // Get the datetime the show ended at
         $endDateTime = strtotime($this->start . " " . $time);
@@ -179,7 +179,7 @@ class Recording {
      * @throws Exception If the description is too long.
      */
     public function setDescription(?string $description): void {
-        if (is_null($description)) $this->description = null;
+        if (empty($description)) $this->description = null;
 
         // Check description length
         if (strlen($description) > (995 - strlen($this->config["fixedDescription"]))) {
@@ -195,6 +195,8 @@ class Recording {
      * @throws Exception If the email address is of an invalid format.
      */
     public function setSubmissionAlertEmail(?string $submissionAlertEmail): void {
+        if (empty($submissionAlertEmail)) return;
+
         if (!filter_var($submissionAlertEmail, FILTER_VALIDATE_EMAIL)) throw new Exception("Receipt email address of invalid format.");
 
         $this->submissionAlertEmail = $submissionAlertEmail;
@@ -205,6 +207,8 @@ class Recording {
      * @throws Exception If the email address is of an invalid format.
      */
     public function setPublicationAlertEmail(?string $publicationAlertEmail): void {
+        if (empty($publicationAlertEmail)) return;
+
         if (!filter_var($publicationAlertEmail, FILTER_VALIDATE_EMAIL)) throw new Exception("Receipt email address of invalid format.");
         $this->publicationAlertEmail = $publicationAlertEmail;
     }
@@ -253,9 +257,9 @@ class Recording {
      * @throws Exception If prerequisite data is not set before calling the function.
      */
     public function getPublicationName(): string {
-        if (!isset($this->name)) throw new Exception("No show name stored before requesting publication name.");
-        if (!isset($this->presenter)) throw new Exception("No presenter name stored before requesting publication name.");
-        if (!isset($this->start)) throw new Exception("No start date  stored before requesting publication name.");
+        if (empty($this->name)) throw new Exception("No show name stored before requesting publication name.");
+        if (empty($this->presenter)) throw new Exception("No presenter name stored before requesting publication name.");
+        if (empty($this->start)) throw new Exception("No start date  stored before requesting publication name.");
 
         // If the presenter's name is not in the show's name
         if (stristr($this->name, $this->presenter) == false) {
@@ -315,10 +319,10 @@ class Recording {
      * @throws Exception If prerequisite data is missing or invalid.
      */
     public function getFileName(): string {
-        if (is_null($this->name)) throw new Exception("No show name stored before requesting file name.");
-        if (is_null($this->presenter)) throw new Exception("No presenter name stored before requesting file name.");
-        if (is_null($this->start)) throw new Exception("No start date stored before requesting file name.");
-        if (is_null($this->extension)) throw new Exception("No file extension stored before requesting file name.");
+        if (empty($this->name)) throw new Exception("No show name stored before requesting file name.");
+        if (empty($this->presenter)) throw new Exception("No presenter name stored before requesting file name.");
+        if (empty($this->start)) throw new Exception("No start date stored before requesting file name.");
+        if (empty($this->extension)) throw new Exception("No file extension stored before requesting file name.");
 
         // Put the date into the correct format
         $date = date("ymd", strtotime($this->start));

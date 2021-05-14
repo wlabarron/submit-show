@@ -60,6 +60,8 @@ class S3Storage extends Storage {
      * @inheritDoc
      */
     public function retrieve(string $file): string {
+        if (empty($file)) throw new Exception("No file name provided.");
+
         try {
             $this->s3Client->getObject(array(
                 'Bucket' => $this->config["s3Bucket"],
