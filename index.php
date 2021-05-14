@@ -1,7 +1,11 @@
 <?php
+
+use submitShow\Recording;
+
 $attributes = require './processing/requireAuth.php';
 $config     = require './processing/config.php';
 require       'processing/formHandler.php';
+require       'processing/Recording.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,9 +15,6 @@ require       'processing/formHandler.php';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
           integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
-          crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css"
-          integrity="sha512-vZpXDvc3snY9J1W8GrnxqDr/+vP1nSTfk8apH1r0wQvOab6fkPhaeqAMlydW68MECAjRR05tu4SOJcwjZgPg5A=="
           crossorigin="anonymous" />
     <link rel="stylesheet" href="resources/style.css?version=4">
     <noscript>
@@ -30,7 +31,8 @@ require       'processing/formHandler.php';
         </div>
     </div>
 </noscript>
-<div class="container" id="files-unsupported">
+<!-- TODO Alert display logic -->
+<div class="container hidden" id="files-unsupported">
     <div class="alert alert-danger mt-2" role="alert">
         Your browser doesn't support some of the technologies this uploader needs. Swap to another one, such as an
         up-to-date version of Firefox, then try there.<br>
@@ -40,14 +42,13 @@ require       'processing/formHandler.php';
     </div>
 </div>
 
-<!-- TODO Alert display logic -->
-<div class="container" id="submit-success">
+<div class="container hidden" id="submit-success">
     <div class="alert alert-success mt-2" role="alert">
         <strong>Your show was submitted successfully.</strong> Thank you. You can upload another below, if you're so
         inclined, or leave the page.
     </div>
 </div>
-<div class="container" id="submit-fail">
+<div class="container hidden" id="submit-fail">
     <div class="alert alert-danger mt-2" role="alert">
         <strong>Something went wrong submitting your show.</strong> Please report this to technical staff, including the
         date and time you tried to upload your show. If your show is due to broadcast imminently, please submit your
@@ -55,7 +56,7 @@ require       'processing/formHandler.php';
         by alternative means. Sorry about that.
     </div>
 </div>
-<div class="container" id="submit-invalid">
+<div class="container hidden" id="submit-invalid">
     <div class="alert alert-danger mt-2" role="alert">
         <strong>Something was wrong with the submitted info, but we're not sure what.</strong> Please try again, and if
         the problem persists, please report this to technical staff, including the date and time you tried to upload
@@ -86,11 +87,11 @@ audio/mpeg4-generic" required>
           method="POST"
           enctype="multipart/form-data">
 
-        <input type="hidden" name="showFileUploadName" id="showFileUploadName">
+        <input type="hidden" name="fileName" id="fileName">
 
         <div class="form-group">
             <label for="nameDropdown">Show name</label>
-            <select class="form-control" id="nameDropdown" aria-describedby="nameDropdownHelp" name="name" required>
+            <select class="form-control" id="nameDropdown" aria-describedby="nameDropdownHelp" name="id" required>
                 <option value="" disabled selected>Choose show name...</option>
                 <optgroup label="Shows" id="nameOptionGroup"></optgroup>
                 <optgroup label="Other">
@@ -121,18 +122,17 @@ audio/mpeg4-generic" required>
             </div>
         </div>
 
-        <div class="form-group bootstrap-timepicker timepicker">
+        <div class="form-group">
             <label for="date">Original broadcast date</label>
-            <input type="text" class="form-control make-disabled-input-appear-normal" id="date"
-                   aria-describedby="dateHelp" name="date" required maxlength="30" readonly
-                   placeholder="Choose a date...">
+            <input type="date" class="form-control" id="date" aria-describedby="dateHelp" name="date" required
+                   placeholder="YYYY-MM-DD">
             <small id="dateHelp" class="form-text text-muted">
                 Enter the date this show was first broadcast (or when it will be broadcasted for the first time, as
                 appropriate).
             </small>
         </div>
 
-        <div class="alert alert-warning" role="alert" id="initial-form-invalid">
+        <div class="alert alert-warning hidden" role="alert" id="error-InitialFormInvalid">
             Hang on! Make sure you've filled in all the fields above.
         </div>
 
@@ -150,14 +150,14 @@ audio/mpeg4-generic" required>
             <hr>
             <div class="form-group">
                 <label for="end">Original broadcast end time</label>
-                <input type="text" class="form-control" id="end" aria-describedby="endHelp"
+                <input type="time" class="form-control" id="end" aria-describedby="endHelp"
                        name="end" step="300" placeholder="Type or choose a time..." required
                        data-toggle="tooltip" data-trigger="focus" data-placement="top"
                        title="Enter the show's end time, not the start.">
                 <small id="endHelp" class="form-text text-muted">
                     Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
-                    to-the-minute - if your show's time slot is noon-2pm, you'd enter 2pm here, even if you finished at
-                    1:56pm.
+                    to-the-minute - if your show's time slot is 12:00 - 14:00, you'd enter 14:00 here, even if you
+                    finished at 13:56.
                 </small>
             </div>
             <div class="form-group form-check">
@@ -214,9 +214,9 @@ audio/mpeg4-generic" required>
                           maxlength="<?php echo 995 - strlen($config["fixedDescription"]); ?>"
                           name="description"
                           aria-describedby="descriptionHelp"></textarea>
-                <textarea class="form-control joint-input-bottom" readonly aria-label="Fixed description text">
-                    <?php echo str_replace("{n}", "&#13;", $config["fixedDescription"]); ?>
-                </textarea>
+                <textarea class="form-control joint-input-bottom" readonly aria-label="Fixed description text"><?php
+                     echo str_replace("{n}", "&#13;", $config["fixedDescription"]);
+                    ?></textarea>
                 <small id="descriptionHelp" class="form-text text-muted">
                     Describe what happened in your show or enter your tagline. This is a good place to include a link,
                     for example, if you had a guest on your show you may want to link to their website.
@@ -229,6 +229,12 @@ audio/mpeg4-generic" required>
                 <label>Tags</label>
                 <select class="form-control" id="tag1" aria-label="Tag" aria-describedby="tagsHelp" name="tag1">
                     <option value="" disabled selected>Choose primary tag...</option>
+                    <?php
+                        foreach (Recording::$PRIMARY_TAG_OPTIONS as $tag) {
+
+                            echo '<option value="' . $tag . '">' . $tag. '</option>';
+                        }
+                    ?>
                 </select>
                 <input type="text" class="form-control joint-input-top" aria-label="Tag" aria-describedby="tagsHelp"
                        id="tag2" name="tag2" maxlength="20">
@@ -311,7 +317,7 @@ audio/mpeg4-generic" required>
     </form>
 
     <!-- Modal if show file upload fails -->
-    <div class="modal fade" id="showFileUploadFailAlert" data-backdrop="static" tabindex="-1" role="dialog"
+    <div class="modal fade" id="error-UploadFail" data-backdrop="static" tabindex="-1" role="dialog"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -329,8 +335,12 @@ audio/mpeg4-generic" required>
     </div>
 
     <script>
-        const maxShowFileSize  = <?php echo $config["maxShowFileSize"]; ?>;
-        const maxShowImageSize = <?php echo $config["maxShowImageSize"]; ?>;
+        const showJSON          = "<?php echo $config["showData"]["url"]; ?>";
+        const showIdKey         = "<?php echo $config["showData"]["idKey"]; ?>";
+        const showNameKey       = "<?php echo $config["showData"]["nameKey"]; ?>";
+        const showPresenterKey  = "<?php echo $config["showData"]["presenterKey"]; ?>";
+        const maxShowFileSize   = <?php echo $config["maxShowFileSize"]; ?>;
+        const maxShowImageSize  = <?php echo $config["maxShowImageSize"]; ?>;
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
             integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
@@ -340,12 +350,6 @@ audio/mpeg4-generic" required>
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bs-custom-file-input/1.3.4/bs-custom-file-input.min.js"
             integrity="sha512-91BoXI7UENvgjyH31ug0ga7o1Ov41tOzbMM3+RPqFVohn1UbVcjL/f5sl6YSOFfaJp+rF+/IEbOOEwtBONMz+w=="
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
-            integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"
-            integrity="sha512-ux1VHIyaPxawuad8d1wr1i9l4mTwukRq5B3s8G3nEmdENnKF5wKfOV6MEUH0k/rNT4mFr/yL+ozoDiwhUQekTg=="
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
             integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="

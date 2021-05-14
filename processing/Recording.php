@@ -15,11 +15,11 @@ class Recording {
      *
      * @var string[] An array of valid primary tags on Mixcloud.
      */
-    public static array $PRIMARY_TAG_OPTIONS = array("ambient", "bass", "beats", "chillout", "classical", "deep house",
-        "drum &amp; bass", "dub", "dubstep", "edm", "electronica", "funk", "garage", "hip hop", "house", "indie",
-        "jazz", "pop", "rap", "reggae", "r&amp;b", "rock", "soul", "tech house", "techno", "trance", "trap", "world",
-        "business", "comedy", "education", "lifestyle", "interview", "news", "politics", "science", "sport",
-        "technology", "other");
+    public static array $PRIMARY_TAG_OPTIONS = array("Ambient", "Bass", "Beats", "Chillout", "Classical", "Deep House",
+        "Drum &amp; Bass", "Dub", "Dubstep", "EDM", "Electronica", "Funk", "Garage", "Hip Hop", "House", "Indie",
+        "Jazz", "Pop", "Rap", "Reggae", "R&amp;B", "Rock", "Soul", "Tech House", "Techno", "Trance", "Trap", "World",
+        "Business", "Comedy", "Education", "Lifestyle", "Interview", "News", "Politics", "Science", "Sport",
+        "Technology", "Other");
 
     /**
      * @var string ID representing the show (not this recording specifically, the show as a whole).
@@ -113,14 +113,14 @@ class Recording {
         if (sizeof($this->tags) >= 6) throw new Exception("Tags array is full");
 
         if (!empty($tag)) {
-            $tag = strtolower($tag);
-
             if (strlen($tag) > 20) throw new Exception("Tag was too long.");
 
             // If this is the first tag being added and it's not a default tag, throw exception
             if (sizeof($this->tags) == 0 && !in_array($tag, Recording::$PRIMARY_TAG_OPTIONS)) {
                 throw new Exception("First tag isn't a default tag, but it should be.");
             }
+
+            $tag = strtolower($tag);
 
             $this->tags[] = $tag;
         }

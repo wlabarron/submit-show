@@ -17,31 +17,20 @@ body {
   border-top-right-radius: 0;
 }
 
-.datepicker {
-  text-align: center;
-}
-
 hr {
   margin: 3rem 0;
 }
 
-.datepicker td {
-  padding: 3px 6px;
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border-width: .15em;
+  margin-bottom: 4px;
+  vertical-align: middle;
 }
 
-.make-disabled-input-appear-normal {
-  background-color: #FFF !important;
-}
-
-#detailsForm,
-#initial-form-invalid,
-#files-unsupported,
-#defaultImageDisplay,
-#submit-fail,
-#submit-invalid,
-#submit-success,
-#show-file-oversized,
-.show-image-oversized,
-#specialShowDetails {
+.hidden,
+.show-image-oversized {
   display: none;
+  transition: all 300ms;
 }

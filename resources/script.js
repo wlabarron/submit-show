@@ -1,42 +1,205 @@
-$(document).ready(function () {
-    // Initialise form input methods
-  bsCustomFileInput.init(".bs-custom-file input[type='file']");
-  autosize($('textarea'));
+// First show file uploader object, only used for file picking
+const showFileUploader = new Flow({
+    singleFile: true,
+    chunkSize: 10000000,
+});
 
-    $('#broadcast-date').datepicker({
-        format: "DD, d MM yyyy",
-        assumeNearbyYear: true,
-        todayBtn: "linked",
-        autoclose: true,
-        todayHighlight: true
+function populateShowNameSelect() {
+    const nameOptionGroup = document.getElementById("nameOptionGroup");
+
+    fetch(showJSON)
+        .then(function(response) {
+            return response.json()
+        })
+        .then(function(shows) {
+            for (const show of shows) {
+                const option = document.createElement("option");
+                option.value     = show[showIdKey];
+                option.innerText = show[showNameKey];
+                option.dataset.presenter = show[showPresenterKey];
+
+                nameOptionGroup.appendChild(option);
+            }
+        })
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Enable custom file picker
+    bsCustomFileInput.init(".bs-custom-file input[type='file']");
+
+    // Resize text areas as they're filled with content
+    autosize($('textarea'));
+
+    // Warn the user before they navigate away
+    window.onbeforeunload = function () { return true;};
+
+    // Enable tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    // Set file browser area
+    showFileUploader.assignBrowse(document.getElementById('showFileInput'));
+
+    // If the uploader isn't supported, hide the page content and show error
+    if (!showFileUploader.support) {
+        document.getElementById("page-content").classList.add("hidden");
+        document.getElementById("page-files-unsupported").classList.remove("hidden");
+    }
+
+    // When a file is added, show its name on the page
+    showFileUploader.on('fileAdded', function(file) {
+        const error         = document.getElementById("error-ShowFileOversized");
+        const goButton      = document.getElementById("uploadAndContinueButton");
+        const fileLabel     = document.getElementById("custom-file-label");
+        const fileNameField = document.getElementById("fileName")
+
+        if (file.size > maxShowFileSize) {
+            goButton.disabled = true;
+            error.classList.remove("hidden");
+        } else {
+            goButton.disabled = false;
+            error.classList.add("hidden");
+
+            fileLabel.innerText = file.name;
+            fileNameField.value = file.name;
+        }
     });
 
-    $('#broadcast-time').timepicker({
-        timeFormat: 'h:mm p',
-        startHour: new Date().getHours(),
-        startMinutes: 0,
-        interval: 15,
-        dropdown: true,
-    });
+    populateShowNameSelect();
+});
 
-    // Enable prompt if the user tries to navigate away
-    window.onbeforeunload = function () {
-        return true;
-    };
+const name      = document.getElementById("name");
+const presenter = document.getElementById("presenter");
+const nameDropdown = document.getElementById("nameDropdown");
+const nameAndPresenterEntryFields = document.getElementById("nameAndPresenterEntryFields");
+nameDropdown.addEventListener("change", function () {
+    if (nameDropdown.value === "special") {
+        name.value = "";
+        presenter.value = "";
+        nameAndPresenterEntryFields.classList.remove("hidden");
+    } else {
+        nameAndPresenterEntryFields.classList.add("hidden");
+        name.value      = nameDropdown.selectedOptions[0].innerText;
+        presenter.value = nameDropdown.selectedOptions[0].dataset.presenter;
+    }
+});
 
-    // enable tooltips
-    $('[data-toggle="tooltip"]').tooltip();
+document.getElementById("uploadAndContinueButton").addEventListener("click", function () {
+    const date      = document.getElementById("date");
+    const invalid   = document.getElementById("error-InitialFormInvalid");
+
+    // validate the input
+    let inputValid = true;
+    if (showFileUploader.files.length !== 1) {
+        // More than one file selected
+        inputValid = false;
+    } else if (name.value === "") {
+        // No name entered
+        inputValid = false;
+    } else if (presenter.value === "") {
+        // No presenter name entered
+        inputValid = false;
+    } else if (isNaN(Date.parse(date.value))) {
+        // Invalid or no date entered
+        inputValid = false
+    }
+
+    if (inputValid) {
+        // Create a new uploader, with a query including the current form data
+        const uploader = new Flow({
+            target: 'upload.php',
+            uploadMethod: 'POST',
+            singleFile: true,
+            chunkSize: 10000000,
+            query: {
+                name: name.value,
+                presenter: presenter.value,
+                date: date.value
+            },
+            permanentErrors: [404, 406, 415, 500, 501]
+        });
+
+        // Add the files from our temporary uploader
+        uploader.addFile(showFileUploader.files[0].file);
+
+        // Display error if something goes wrong in the file upload
+        uploader.on('fileError', function () {
+            $('#error-UploadFail').modal('show');
+            // Remove warning when navigating away
+            window.onbeforeunload = null;
+        });
+
+        // Activate the submit button when the upload succeeds
+        uploader.on('fileSuccess', function () {
+            showUploaded = true;
+            updateStatusOfFormSubmitButton();
+        });
+
+        // start upload
+        uploader.upload();
+
+        // disable the inputs we've used so far, hide the file uploader, show the rest of the form
+        document.getElementById("showFileInputGroup").classList.add("hidden");
+        document.getElementById("uploadAndContinueButton").classList.add("hidden");
+        invalid.classList.add("hidden");
+
+        nameDropdown.disabled = true;
+        name.disabled         = true;
+        presenter.disabled    = true;
+        date.disabled         = true;
+
+        // TODO Default images and descriptions
+        // // if this is a special show
+        // if ($("#showNameInput").val() === "special") {
+        //     // hide and uncheck the option to save defaults
+        //     $("#saveFormDefaultsSection").slideUp();
+        //     $("#saveFormDefaultsSection").prop("checked", false)
+        //     // show details form
+        //     $("#detailsForm").slideDown();
+        // }
+        // // get show details for the form
+        // $.getJSON("/processing/getSavedShowInfo.php?show=" + $("#showNameInput").val(), function (data) {
+        //     // fill form data
+        //     $("#descriptionInput").val(data.description);
+        //     // fill each tag which exists
+        //     for (var i = 0; i < data.tags.length; i++) {
+        //         $("#tag" + (i + 1)).val(data.tags[i]);
+        //     }
+        //
+        //     // show details form
+        //     $("#detailsForm").slideDown();
+        //
+        //     // if an image exists, mark it as such
+        //     if (data.imageExists) {
+        //         // show the default image display section and load in the image
+        //         $("#defaultImageDisplay").slideDown();
+        //         $("#imageSelection").val("saved");
+        //         $("#imageFileUploader").slideUp();
+        //         $("#defaultImage").attr("src", "/processing/getSavedShowImage.php?show=" + $("#showNameInput").val());
+        //     }
+        // });
+    } else {
+        // Display an error if the form so far is invalid
+        invalid.classList.remove("hidden");
+        $("#initial-form-invalid").slideDown();
+    }
 });
 
 // The show file has not been uploaded yet
-var showUploaded = false;
+let showUploaded = false;
 // The image provided is valid
-var imageValid = true;
-
+let imageValid = true;
 function updateStatusOfFormSubmitButton() {
     // If the image is valid and the file has been uploaded, allow form submission. Otherwise, disable the button
     if (showUploaded && imageValid) {
         $('#submit').prop("disabled", false);
+        $("#uploadingHelpText").slideUp();
+        $("#submit").text("Submit Show");
+        $("#submit").prop('disabled', false);
+        $("#submit").addClass("btn-outline-success");
+        $("#submit").removeClass("btn-outline-dark");
     } else {
         $('#submit').prop("disabled", true);
     }
@@ -84,142 +247,3 @@ function changeShowImageSelection() {
     }
 }
 
-// first show file uploader object, only used for file picking
-var showFileUploader = new Flow({
-    singleFile: true,
-    chunkSize: 10000000,
-});
-
-// second file uploader, used to send the file and defined later
-var uploader;
-
-// Set file browser area
-showFileUploader.assignBrowse(document.getElementById('showFileInput'));
-
-// If the uploader isn't supported, hide the page content and show the rror
-if(!showFileUploader.support) {
-    $("#page-content").hide();
-    $("#files-unsupported").show();
-}
-
-// When a file is added, show its name on the page
-showFileUploader.on('fileAdded', function(file) {
-    $("#show-file-oversized").slideUp();
-    if (file.size > maxShowFileSize) {
-        $('#uploadAndContinueButton').prop("disabled", true);
-        $("#show-file-oversized").slideDown();
-    } else {
-        $('#uploadAndContinueButton').prop("disabled", false);
-        $("#custom-file-label").text(file.name);
-        $("#showFileUploadName").val(file.name);
-    }
-});
-
-// Function used when "upload and continue" is clicked, to proceed through the form
-function uploadAndContinue() {
-    var inputValid = true;
-
-    // validate the input
-    if (showFileUploader.files.length !== 1) { // only one file
-        inputValid = false;
-    } else if ($("#showNameInput :selected").val() == "") { // name picked
-        inputValid = false;
-    } else if (isNaN(Date.parse($("#broadcast-date").val()))) { // date entered
-        inputValid = false
-    } else if ($("#showNameInput").val() === "special") { // if this is a one-off show
-        if ($("#specialShowName").val() == "") {
-            inputValid = false;
-        } else if ($("#specialShowPresenter").val() == "") {
-            inputValid = false;
-        }
-    }
-
-    if (inputValid) {
-        // create a new uploader, with a query including the current form data
-        uploader = new Flow({
-            target: '/processing/showFileUpload.php',
-            uploadMethod: 'POST',
-            singleFile: true,
-            chunkSize: 10000000,
-            query: {
-                showName: $("#showNameInput :selected").val(),
-                specialShowName: $("#specialShowName").val(),
-                specialShowPresenter: $("#specialShowPresenter").val(),
-                broadcastDate: $("#broadcast-date").val()
-            },
-            permanentErrors: [404, 406, 415, 500, 501]
-        });
-
-        // add the files from our temporary uploader
-        uploader.addFile(showFileUploader.files[0].file);
-
-        // show error if something goes wrong in the file upload
-        uploader.on('fileError', function(file, message){
-            $('#showFileUploadFailAlert').modal('show');
-            // Remove warning when navigating away
-            window.onbeforeunload = null;
-        });
-
-        // activate the submit button when the upload succeeds
-        uploader.on('fileSuccess', function(file) {
-            showUploaded = true;
-            updateStatusOfFormSubmitButton();
-            $("#uploadingHelpText").slideUp();
-            $("#submit").text("Submit Show");
-            $("#submit").prop('disabled', false);
-            $("#submit").addClass("btn-outline-success");
-            $("#submit").removeClass("btn-outline-dark");
-        });
-
-        // start upload
-        uploader.upload();
-
-        // copy the show name from the dropdown into a hidden input so it's POSTed when submitting the form, since in a
-        // moment we'll disable the dropdown
-        $("#hiddenShowName").val($("#showNameInput :selected").val());
-
-        // disable the inputs we've used so far, hide the file uploader, show the rest of the form
-        $("#showFileInputGroup").slideUp();
-        $("#initial-form-invalid").slideUp();
-        $("#showNameInput").prop('disabled', true);
-        $("#specialShowName").prop('readonly', true);
-        $("#specialShowPresenter").prop('readonly', true);
-        $("#uploadAndContinueButton").slideUp();
-        // destroy the datepicker so it can't be modified now, and stop re-styling it to look normal
-        $('#broadcast-date').datepicker('destroy');
-        $('#broadcast-date').removeClass("make-disabled-input-appear-normal")
-
-        // if this is a special show
-        if ($("#showNameInput").val() === "special") {
-            // hide and uncheck the option to save defaults
-            $("#saveFormDefaultsSection").slideUp();
-            $("#saveFormDefaultsSection").prop("checked", false)
-            // show details form
-            $("#detailsForm").slideDown();
-        }
-        // get show details for the form
-        $.getJSON("/processing/getSavedShowInfo.php?show=" + $("#showNameInput").val(), function (data) {
-            // fill form data
-            $("#descriptionInput").val(data.description);
-            // fill each tag which exists
-            for (var i = 0; i < data.tags.length; i++) {
-                $("#tag" + (i + 1)).val(data.tags[i]);
-            }
-
-            // show details form
-            $("#detailsForm").slideDown();
-
-            // if an image exists, mark it as such
-            if (data.imageExists) {
-                // show the default image display section and load in the image
-                $("#defaultImageDisplay").slideDown();
-                $("#imageSelection").val("saved");
-                $("#imageFileUploader").slideUp();
-                $("#defaultImage").attr("src", "/processing/getSavedShowImage.php?show=" + $("#showNameInput").val());
-            }
-        });
-    } else {
-        // show an error if the form so far is invalid
-        $("#initial-form-invalid").slideDown();
-    }
-}
