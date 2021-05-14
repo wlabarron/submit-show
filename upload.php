@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date      = Input::sanitise($_GET["date"]);
 } else {
     // Invalid request type.
-    header("HTTP/1.0 406 Not Acceptable", true, 406);
+    http_response_code(406);
     exit();
 }
 
@@ -36,7 +36,7 @@ try {
     $recording->setStart($date);
 } catch (Exception $exception) {
     error_log("Invalid show metadata: " . $exception->getMessage());
-    header("HTTP/1.0 406 Not Acceptable", true, 406);
+    http_response_code(406);
     exit;
 }
 
@@ -52,11 +52,11 @@ if ($extension !== "mp3" &&
     $extension !== "mp4" &&
     $extension !== "aac") {
     // cancel upload
-    header("HTTP/1.0 406 Not Acceptable", true, 406);
+    http_response_code(406);
     exit;
 } else if ($request->getTotalSize() > $config["maxShowFileSize"]) { // if the file is too large
     // cancel upload
-    header("HTTP/1.0 406 Not Acceptable", true, 406);
+    http_response_code(406);
     exit;
 }
 
