@@ -8,6 +8,8 @@ class Email {
         require __DIR__ . "/../vendor/autoload.php";
         $config = require 'config.php';
 
+        if (!$config["smtp"]["enabled"]) return;
+
         // Instantiation and passing `true` enables exceptions
         $mail = new PHPMailer(true);
 

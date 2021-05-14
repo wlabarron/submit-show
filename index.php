@@ -264,7 +264,7 @@ audio/mpeg4-generic" required>
             <hr>
 
             <?php
-            if (isset($_SESSION['samlUserdata']["email"][0]) && !empty($_SESSION['samlUserdata']["email"][0])) {
+            if ($config["smtp"]["enabled"] && isset($_SESSION['samlUserdata']["email"][0]) && !empty($_SESSION['samlUserdata']["email"][0])) {
                 echo '<div class="form-group form-check">
                             <input class="form-check-input" type="checkbox" value="true" id="notifyOnSubmit"
                                    name="notifyOnSubmit">

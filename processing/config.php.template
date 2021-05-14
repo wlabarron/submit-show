@@ -91,6 +91,7 @@ return array(
 
     // SMTP server details, used for sending notification emails.
     'smtp' => array (
+        'enabled'     => false,
         'server'      => '',
         'port'        => '465',
         'auth'        => true,
