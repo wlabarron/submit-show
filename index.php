@@ -41,30 +41,27 @@ require_once  'processing/Recording.php';
             Firefox</a>.
     </div>
 </div>
-<!-- TODO Alert display logic -->
-<div class="container hidden" id="submit-success">
-    <div class="alert alert-success mt-2" role="alert">
-        <strong>Your show was submitted successfully.</strong> Thank you. You can upload another below, if you're so
-        inclined, or leave the page.
-    </div>
-</div>
-<div class="container hidden" id="submit-fail">
-    <div class="alert alert-danger mt-2" role="alert">
-        <strong>Something went wrong submitting your show.</strong> Please report this to technical staff, including the
-        date and time you tried to upload your show. If your show is due to broadcast imminently, please submit your
-        show
-        by alternative means. Sorry about that.
-    </div>
-</div>
-<div class="container hidden" id="submit-invalid">
-    <div class="alert alert-danger mt-2" role="alert">
-        <strong>Something was wrong with the submitted info, but we're not sure what.</strong> Please try again, and if
-        the problem persists, please report this to technical staff, including the date and time you tried to upload
-        your
-        show. If your show is due to broadcast imminently, please submit your show by alternative means. Sorry about
-        that.
-    </div>
-</div>
+
+<?php
+if (isset($uploadSuccess) && $uploadSuccess) {
+    echo '<div class="container">
+               <div class="alert alert-success mt-2" role="alert">
+                    <strong>Your show was submitted successfully.</strong> Thank you. You can upload another below, 
+                    if you\'re so inclined, or leave the page.
+               </div>
+          </div>';
+}
+if (isset($uploadInvalid) && $uploadInvalid) {
+    echo '<div class="container">
+               <div class="alert alert-danger mt-2" role="alert">
+                    <strong>Something was wrong with the submitted info, but we\'re not sure what.</strong> Please 
+                    try again, and if the problem persists, please report this to technical staff, including the 
+                    date and time you tried to upload your show. If your show is due to broadcast imminently, 
+                    please submit your show by alternative means. Sorry about that.
+               </div>
+          </div>';
+}
+?>
 
 <div class="container" id="page-content">
     <h1>Submit Show</h1>

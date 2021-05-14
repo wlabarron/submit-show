@@ -117,10 +117,10 @@ class Recording {
     /**
      * Adds a tag to the tags array for this show. The first tag should be one of {@code Recording::$PRIMARY_TAG_OPTIONS}.
      * Each tag can be a maximum of 20 characters long.
-     * @param string $tag The tag to add.
+     * @param ?string $tag The tag to add.
      * @throws Exception If validation fails -- the exception message will explain what was wrong.
      */
-    public function addTag(string $tag): void {
+    public function addTag(?string $tag): void {
         if (sizeof($this->tags) >= 6) throw new Exception("Tags array is full");
 
         if (!empty($tag)) {
@@ -245,8 +245,6 @@ class Recording {
     public function getShowID(): string {
         return $this->showID;
     }
-
-
 
     /**
      * Get a nicely-formatted title of the show to publish to Mixcloud. Ensure a show name, presenter, and start time

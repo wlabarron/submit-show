@@ -49,7 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         $recording->setDescription($_POST["description"]);
-        $recording->addTag($_POST["tag1"]);
+        if (isset($_POST["tag1"])) // suppress warning since this isn't sent at all if no tag selected
+            $recording->addTag($_POST["tag1"]);
         $recording->addTag($_POST["tag2"]);
         $recording->addTag($_POST["tag3"]);
         $recording->addTag($_POST["tag4"]);
@@ -70,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $database->saveRecording($recording);
 
-        // TODO Display success message
+        $uploadSuccess = true;
 
         if (!empty($_SESSION['samlNameId']))
             $database->log($_SESSION['samlNameId'], "submission", $recording->getPublicationName());
@@ -86,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $recording->getPublicationName() . ".", $recording->getSubmissionAlertEmail());
         }
     } catch (Exception $e) {
-        // TODO Display error message
+        $uploadInvalid = true;
         // TODO Multiple catch blocks for different problems
         error_log("Failed to handle submitted form: " . $e->getMessage());
     }
