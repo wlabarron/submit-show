@@ -1,4 +1,6 @@
 // First show file uploader object, only used for file picking
+// noinspection JSUnresolvedVariable
+
 const showFileUploader = new Flow({
     singleFile: true,
     chunkSize: 10000000,

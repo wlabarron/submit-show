@@ -29,8 +29,7 @@ hr {
   vertical-align: middle;
 }
 
-.hidden,
-.show-image-oversized {
+.hidden {
   display: none;
   transition: all 300ms;
 }

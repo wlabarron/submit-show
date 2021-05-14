@@ -77,6 +77,7 @@ try {
 // set the path to upload to
 $uploadPath = $config["holdingDirectory"] . "/" . $fileName;
 
+// If this is the final chunk of the file
 if (Basic::save($uploadPath, $flowConfig, $request)) {
     $removingMetadataLocation = $config["holdingDirectory"] . "/meta-" . $fileName;
 
@@ -96,7 +97,5 @@ if (Basic::save($uploadPath, $flowConfig, $request)) {
     } catch (Exception $e) {
         error_log("Failed to log file upload action from " . $_SESSION["samlNameId"] . ".");
     }
-} else {
-    // This is not a final chunk or request is invalid, continue to upload.
 }
 

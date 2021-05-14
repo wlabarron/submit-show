@@ -9,8 +9,7 @@ class Input {
         // Replace angle brackets and HTML characters with code
         $input = htmlspecialchars($input, ENT_QUOTES);
         // Add slashes to make sure it reaches the database properly
-        $input = addslashes($input);
         // Send the data back to the program
-        return $input;
+        return addslashes($input);
     }
 }
