@@ -4,9 +4,22 @@ const showFileUploader = new Flow({
     chunkSize: 10000000,
 });
 
-function populateShowNameSelect() {
-    const nameOptionGroup = document.getElementById("nameOptionGroup");
+let showUploaded        = false;
+let imageValid          = true;
 
+const nameDropdown                = document.getElementById("nameDropdown");
+const nameOptionGroup             = document.getElementById("nameOptionGroup");
+const nameAndPresenterEntryFields = document.getElementById("nameAndPresenterEntryFields");
+const name                        = document.getElementById("name");
+const presenter                   = document.getElementById("presenter");
+const imageSource                 = document.getElementById("imageSource");
+const imageUploader               = document.getElementById("imageUploader");
+const image                       = document.getElementById("image");
+const imageErrors                 = document.getElementsByClassName("error-imageOversized");
+const submitButton                = document.getElementById("submit");
+const uploadingHelpText           = document.getElementById("uploadingHelpText");
+
+function populateShowNameSelect() {
     fetch(showJSON)
         .then(function(response) {
             return response.json()
@@ -21,6 +34,20 @@ function populateShowNameSelect() {
                 nameOptionGroup.appendChild(option);
             }
         })
+}
+
+function updateStatusOfFormSubmitButton() {
+    // If the image is valid and the file has been uploaded, allow form submission. Otherwise, disable the button
+    if (showUploaded && imageValid) {
+        submitButton.disabled = false;
+        submitButton.innerText = "Submit Show";
+        submitButton.classList.add("btn-outline-success");
+        submitButton.classList.remove("btn-outline-dark");
+        submitButton.style.marginBottom = "1rem"; // reduce page reflow from removing uploading help text
+        uploadingHelpText.classList.add("hidden");
+    } else {
+        submitButton.disabled = true;
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -70,10 +97,6 @@ document.addEventListener("DOMContentLoaded", function() {
     populateShowNameSelect();
 });
 
-const name      = document.getElementById("name");
-const presenter = document.getElementById("presenter");
-const nameDropdown = document.getElementById("nameDropdown");
-const nameAndPresenterEntryFields = document.getElementById("nameAndPresenterEntryFields");
 nameDropdown.addEventListener("change", function () {
     if (nameDropdown.value === "special") {
         name.value = "";
@@ -201,8 +224,6 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
     }
 });
 
-const imageSource   = document.getElementById("imageSource");
-const imageUploader = document.getElementById("imageUploader");
 imageSource.addEventListener("change", function () {
     if (imageSource.value === "upload") {
         imageUploader.classList.remove("hidden");
@@ -211,8 +232,6 @@ imageSource.addEventListener("change", function () {
     }
 })
 
-const image       = document.getElementById("image");
-const imageErrors = document.getElementsByClassName("error-imageOversized");
 image.addEventListener("change", function () {
     // if image is too large
     if (image.files[0].size > maxShowImageSize) {
@@ -233,21 +252,3 @@ image.addEventListener("change", function () {
         }
     }
 })
-
-let showUploaded        = false;
-let imageValid          = true;
-const submitButton      = document.getElementById("submit");
-const uploadingHelpText = document.getElementById("uploadingHelpText");
-function updateStatusOfFormSubmitButton() {
-    // If the image is valid and the file has been uploaded, allow form submission. Otherwise, disable the button
-    if (showUploaded && imageValid) {
-        submitButton.disabled = false;
-        submitButton.innerText = "Submit Show";
-        submitButton.classList.add("btn-outline-success");
-        submitButton.classList.remove("btn-outline-dark");
-        submitButton.style.marginBottom = "1rem"; // reduce page reflow from removing uploading help text
-        uploadingHelpText.classList.add("hidden");
-    } else {
-        submitButton.disabled = true;
-    }
-}
