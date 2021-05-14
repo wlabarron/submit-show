@@ -162,7 +162,7 @@ audio/mpeg4-generic" required>
             <div class="form-group">
                 <label for="end">Original broadcast end time</label>
                 <input type="time" class="form-control" id="end" aria-describedby="endHelp"
-                       name="end" step="300" placeholder="Type or choose a time..." required
+                       name="end" placeholder="Type or choose a time..." required
                        data-toggle="tooltip" data-trigger="focus" data-placement="top"
                        title="Enter the show's end time, not the start.">
                 <small id="endHelp" class="form-text text-muted">
