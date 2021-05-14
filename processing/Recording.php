@@ -21,6 +21,8 @@ class Recording {
         "Business", "Comedy", "Education", "Lifestyle", "Interview", "News", "Politics", "Science", "Sport",
         "Technology", "Other");
 
+    private array $config;
+
     /**
      * @var string ID representing the show (not this recording specifically, the show as a whole).
      */
@@ -75,6 +77,13 @@ class Recording {
      * {@code Storage::$LOCATION_WAITING} or {@code Storage::$LOCATION_MAIN}.
      */
     private int $location;
+
+    /**
+     * Recording constructor.
+     */
+    public function __construct() {
+        $this->config = require __DIR__ . "/config.php";
+    }
 
     /**
      * @param string $showID The ID of the show, as a string.
@@ -170,17 +179,14 @@ class Recording {
      * @throws Exception If the description is too long.
      */
     public function setDescription(?string $description): void {
-        $config = require __DIR__ . '/config.php';
-
-        if (is_null($description)) $this->description = $config["fixedDescription"];
+        if (is_null($description)) $this->description = null;
 
         // Check description length
-        if (strlen($description) > (995 - strlen($config["fixedDescription"]))) {
+        if (strlen($description) > (995 - strlen($this->config["fixedDescription"]))) {
             throw new Exception("Description too long when combined with fixed description in config file.");
         }
 
-        // Combined fixed description with passed description. Replace "{n}" in the fixed description with line breaks.
-        $this->description = $description . "\n\n" . str_replace("{n}", "\n", $config["fixedDescription"]);
+        $this->description = $description;
     }
 
     /**
@@ -278,10 +284,16 @@ class Recording {
     }
 
     /**
+     * @param bool $complete Set to false if you only want the part of the description which applies to this recording,
+     *                       i.e. excluding the fixed section from the config file. true by default.
      * @return string|null
      */
-    public function getDescription(): ?string {
-        return $this->description;
+    public function getDescription(bool $complete = true): ?string {
+        if ($complete) {
+            return $this->description  . "\n\n" . str_replace("{n}", "\n", $this->config["fixedDescription"]);
+        } else {
+            return $this->description;
+        }
     }
 
     /**

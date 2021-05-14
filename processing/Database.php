@@ -215,8 +215,7 @@ class Database {
     private function saveDefaultsToDatabase(Recording $recording) {
         $null = null;
 
-        // TODO This description will include the "standard" section from the config file, but it shouldn't.
-        $description = $recording->getDescription();
+        $description = $recording->getDescription(false);
         $showID      = $recording->getShowID();
         $image       = $recording->getImage();
 
