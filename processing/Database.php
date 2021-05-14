@@ -47,8 +47,8 @@ class Database {
         $query->execute();
         $result = $query->get_result()->fetch_assoc();
 
-        if (!empty($result) && sizeof($result) > 0) {
-            return $result[0]["id"];
+        if (!empty($result)) {
+            return $result["id"];
         } else {
             return null;
         }

@@ -1,7 +1,7 @@
 <?php
 
-
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class Email {
     static function send($recipient, $subject, $body, $cc = null) {
@@ -21,7 +21,7 @@ class Email {
             if ($config["smtp"]["auth"]) {
                 $mail->Username   = $config["smtp"]["username"];
                 $mail->Password   = $config["smtp"]["password"];
-                $mail->SMTPSecure = $config["smtp"]["auth"];
+                $mail->SMTPSecure = $config["smtp"]["encryption"];
             }
 
             $mail->setFrom($config["smtp"]["sendAddress"], $config["smtp"]["sendName"]);
