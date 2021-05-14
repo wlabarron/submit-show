@@ -78,8 +78,10 @@ class Recording {
 
     /**
      * @param string $showID The ID of the show, as a string.
+     * @throws Exception If the show ID is empty.
      */
     public function setShowID(string $showID): void {
+        if (empty($showID)) throw new Exception("Show ID was empty.");
         $this->showID = $showID;
     }
 
@@ -120,8 +122,6 @@ class Recording {
                 throw new Exception("First tag isn't a default tag, but it should be.");
             }
 
-            $tag = strtolower($tag);
-
             $this->tags[] = $tag;
         }
     }
@@ -142,11 +142,11 @@ class Recording {
 
     /**
      * You must call {@code setStart()} before this.
-     * @param int $time The end time of the show, as a string like "13:00".
+     * @param string $time The end time of the show, as a string like "13:00".
      * @param bool $nextDay {@code true} if the show finished the day after it started (i.e. ran over midnight).
      * @throws Exception If validation fails.
      */
-    public function setEnd(int $time, bool $nextDay = false): void {
+    public function setEnd(string $time, bool $nextDay = false): void {
         if (is_null($this->start)) throw new Exception("No start date stored before calculating end date time.");
         if (is_null($time)) throw new Exception("No time provided.");
 
@@ -204,10 +204,12 @@ class Recording {
     }
 
     /**
-     * @param string $extension The file extension used by the recording.
+     * Takes a full file name and takes everything after the last `.` as the file extension.
+     * @param string $file The file name of the recording.
      */
-    public function setFileExtension(string $extension): void {
-        $this->extension = $extension;
+    public function setFileExtension(string $file): void {
+        $split = explode(".", $file);
+        $this->extension = end($split);
     }
 
     /**
@@ -237,6 +239,8 @@ class Recording {
     public function getShowID(): string {
         return $this->showID;
     }
+
+
 
     /**
      * Get a nicely-formatted title of the show to publish to Mixcloud. Ensure a show name, presenter, and start time
@@ -322,6 +326,13 @@ class Recording {
         $presenter = trim(preg_replace("/\s+/", " ", $presenter));
 
         return $presenter . "-" . $name . " " . $date . "." . $this->extension;
+    }
+
+    /**
+     * @return string The file name extension.
+     */
+    public function getExtension(): string {
+        return $this->extension;
     }
 
     /**

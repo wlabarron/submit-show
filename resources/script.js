@@ -136,7 +136,6 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
             target: 'upload.php',
             uploadMethod: 'POST',
             singleFile: true,
-            chunkSize: 10000000,
             query: {
                 name: name.value,
                 presenter: presenter.value,

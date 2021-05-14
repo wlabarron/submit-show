@@ -29,20 +29,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $recording->setPresenter($_POST["presenter"]);
         $recording->setStart($_POST["date"]);
         $recording->setEnd($_POST["end"]);
+        $recording->setFileExtension($_POST["fileName"]);
 
-        switch ($_POST["imageSelection"]) {
-            case "upload":
-                // TODO Handle image upload
-                break;
-            case "default":
-                $recording->setImage(
-                    $database->getDefaultImage(
-                        $recording->getShowID()
-                    )
-                );
-                break;
-            default:
-                // No image
+        if (!empty($_POST["imageSelection"])) {
+            switch ($_POST["imageSelection"]) {
+                case "upload":
+                    // TODO Handle image upload
+                    break;
+                case "default":
+                    $recording->setImage(
+                        $database->getDefaultImage(
+                            $recording->getShowID()
+                        )
+                    );
+                    break;
+                default:
+                    // No image
+            }
         }
 
         $recording->setDescription($_POST["description"]);
@@ -57,9 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (isset($_POST["notifyOnPublish"]) && $_POST["notifyOnPublish"])
             $recording->setPublicationAlertEmail($_SESSION['samlUserdata']["email"][0]);
 
-        // TODO Rename file
-        // TODO Add file extension to Recording object
-        $storage->moveToWaiting($_POST["fileName"]);
+        $storage->moveToWaiting($recording->getFileName());
+        $recording->setLocation(Storage::$LOCATION_WAITING);
 
         if (isset($_POST["saveAsDefaults"]) && $_POST["saveAsDefaults"])
             $database->saveAsDefault($recording);
@@ -70,7 +72,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // TODO Display success message
 
-        $database->log($_SESSION['samlNameId'], "submission", $recording->getPublicationName());
+        if (!empty($_SESSION['samlNameId']))
+            $database->log($_SESSION['samlNameId'], "submission", $recording->getPublicationName());
 
         // Send notification email
         if ($isResubmission) {
@@ -85,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } catch (Exception $e) {
         // TODO Display error message
         // TODO Multiple catch blocks for different problems
-        error_log("Failed to handle submitted form.");
+        error_log("Failed to handle submitted form: " . $e->getMessage());
     }
 }
 

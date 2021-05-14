@@ -3,55 +3,54 @@ use Flow\Basic;
 use Flow\Config;
 use Flow\Request;
 use submitShow\Database;
+use submitShow\Recording;
 
 require_once 'processing/requireAuth.php';
-$config = require 'processing/config.php';
 require_once 'vendor/autoload.php';
+require_once 'processing/Database.php';
+require_once 'processing/Recording.php';
+require_once 'processing/Input.php';
+$config = require 'processing/config.php';
 
-$database = new Database();
+$database  = new Database();
+$recording = new Recording();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
+// prepare the input from the form
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name      = Input::sanitise($_POST["name"]);
+    $presenter = Input::sanitise($_POST["presenter"]);
+    $date      = Input::sanitise($_POST["date"]);
+} else if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $name      = Input::sanitise($_GET["name"]);
+    $presenter = Input::sanitise($_GET["presenter"]);
+    $date      = Input::sanitise($_GET["date"]);
+} else {
+    // Invalid request type.
     header("HTTP/1.0 406 Not Acceptable", true, 406);
     exit();
 }
 
-if ( // if show name or broadcast date is missing, stop the upload
-    ($_SERVER['REQUEST_METHOD'] === 'POST' &&
-        (is_null($_POST["showName"]) || is_null($_POST["broadcastDate"]))) ||
-    ($_SERVER['REQUEST_METHOD'] === 'GET' &&
-        (is_null($_GET["showName"]) || is_null($_GET["broadcastDate"])))) {
+try {
+    $recording->setName($name);
+    $recording->setPresenter($presenter);
+    $recording->setStart($date);
+} catch (Exception $exception) {
+    error_log("Invalid show metadata: " . $exception->getMessage());
     header("HTTP/1.0 406 Not Acceptable", true, 406);
     exit;
-} else {
-    // prepare the input from the form
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $showID               = Input::sanitise($_POST["showName"]);
-        $specialShowName      = Input::sanitise($_POST["specialShowName"]);
-        $specialShowPresenter = Input::sanitise($_POST["specialShowPresenter"]);
-        $broadcastDate        = Input::sanitise($_POST["broadcastDate"]);
-    } else if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $showID               = Input::sanitise($_GET["showName"]);
-        $specialShowName      = Input::sanitise($_GET["specialShowName"]);
-        $specialShowPresenter = Input::sanitise($_GET["specialShowPresenter"]);
-        $broadcastDate        = Input::sanitise($_GET["broadcastDate"]);
-    }
-
-    // check length of submitted data
-    if (strlen($specialShowName) > 50 ||
-        strlen($specialShowPresenter) > 50 ||
-        strlen($broadcastDate) > 30) {
-        header("HTTP/1.0 406 Not Acceptable", true, 406);
-        exit;
-    }
 }
 
 $flowConfig = new Config();
 $flowConfig->setTempDir($config["tempDirectory"]);
 $request = new Request();
 
-// if the file name doesn't have the expected type of extension
-$fileNameSplit = explode(".", $request->getFileName());
-if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileNameSplit) !== "mp4" && end($fileNameSplit) !== "aac") {
+$recording->setFileExtension($request->getFileName());
+$extension = $recording->getExtension();
+
+if ($extension !== "mp3" &&
+    $extension !== "m4a" &&
+    $extension !== "mp4" &&
+    $extension !== "aac") {
     // cancel upload
     header("HTTP/1.0 406 Not Acceptable", true, 406);
     exit;
@@ -59,20 +58,26 @@ if (end($fileNameSplit) !== "mp3" && end($fileNameSplit) !== "m4a" && end($fileN
     // cancel upload
     header("HTTP/1.0 406 Not Acceptable", true, 406);
     exit;
-} else {
-    // name the file in the correct format
-    $uploadFileName = prepareFileName($showID, $request->getFileName(), $broadcastDate, $specialShowName, $specialShowPresenter);
+}
+
+try {
+    $fileName = $recording->getFileName();
+} catch (Exception $exception) {
+    error_log($exception->getMessage());
+    http_response_code(500);
+    exit;
 }
 
 // set the path to upload to
-$uploadPath = $config["holdingDirectory"] . "/" . $uploadFileName;
+$uploadPath = $config["holdingDirectory"] . "/" . $fileName;
 
 if (Basic::save($uploadPath, $flowConfig, $request)) {
-    $removingMetadataLocation = $config["holdingDirectory"] . "/meta-" . $uploadFileName;
+    $removingMetadataLocation = $config["holdingDirectory"] . "/meta-" . $fileName;
 
     // Remove metadata from uploaded file, put in the show presenter and title instead
     // $metadata[0] is presenter, [1] is title, [2] is file extension
-    $metadata = preg_split("/[-.]/", $uploadFileName, 3);
+    // TODO Use info from Recording object instead
+    $metadata = preg_split("/[-.]/", $fileName, 3);
     shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -metadata title=\"$metadata[1]\" -metadata artist=\"$metadata[0]\" -c:v copy -c:a copy \"$removingMetadataLocation\"");
 
     // move metadata-removed file back to the upload path
@@ -80,7 +85,8 @@ if (Basic::save($uploadPath, $flowConfig, $request)) {
 
     // Log upload completed
     try {
-        $database->log($_SESSION["samlNameId"], "upload", $uploadFileName);
+        if (!empty($_SESSION['samlNameId']))
+            $database->log($_SESSION['samlNameId'], "upload", $fileName);
     } catch (Exception $e) {
         error_log("Failed to log file upload action from " . $_SESSION["samlNameId"] . ".");
     }
