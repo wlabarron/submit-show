@@ -32,8 +32,10 @@ abstract class Storage {
 
         switch ($provider) {
             case "local":
+                require __DIR__ . "/LocalStorage.php";
                 return new LocalStorage();
             case "S3":
+                require __DIR__ . "/S3Storage.php";
                 return new S3Storage();
             default:
                 throw new Exception("Unknown storage provider specified in config file.");

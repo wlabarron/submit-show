@@ -1,76 +1,91 @@
 <?php
 
-use SubmitShow\ShowData;
+
+use submitShow\Database;
+use submitShow\Recording;
 
 require __DIR__ . '/requireAuth.php';
-require __DIR__ . '/config.php';
+require __DIR__ . '/Input.php';
+require __DIR__ . '/Email.php';
+require __DIR__ . '/Recording.php';
+require __DIR__ . '/Database.php';
+require __DIR__ . '/Storage.php';
+
+$config = require __DIR__ . '/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // sanitise input
     foreach ($_POST as $item) {
-        $item = clearUpInput($item);
+        $item = Input::sanitise($item);
     }
 
-    $showData = new ShowData();
     try {
-        // Populate show data object with form information
-        $showData->storeStartDate($_POST["date"]);
-        $showData->storeEndDateTime($_POST["endTime"], $_POST["endedOnFollowingDay"]);
-        $showData->storeDescription($_POST["description"]);
-        $showData->storeEmailAddresses($_POST["notifyOnSubmit"], $_POST["notifyOnPublish"]);
-        $showData->storeShowNameAndIdAndPresenter($_POST["name"], $_POST["specialShowName"], $_POST["specialShowPresenter"]);
-        $showData->storeFileName($_POST["showFileUploadName"]);
-        $showData->addTag($_POST["tag1"]);
-        $showData->addTag($_POST["tag2"]);
-        $showData->addTag($_POST["tag3"]);
-        $showData->addTag($_POST["tag4"]);
-        $showData->addTag($_POST["tag5"]);
+        $recording = new Recording();
+        $database  = new Database();
+        $storage   = Storage::getProvider();
+
+        $recording->setShowID($_POST["id"]);
+        $recording->setName($_POST["name"]);
+        $recording->setPresenter($_POST["presenter"]);
+        $recording->setStart($_POST["date"]);
+        $recording->setEnd($_POST["end"]);
 
         switch ($_POST["imageSelection"]) {
             case "upload":
-                $showData->handleImageUpload($_FILES["image"]);
+                // TODO Handle image upload
                 break;
-            case "saved":
-                $showData->getImageFromDatabase();
+            case "default":
+                $recording->setImage(
+                    $database->getDefaultImage(
+                        $recording->getShowID()
+                    )
+                );
                 break;
             default:
-                throw new Exception("Invalid image type selection.");
+                // No image
         }
 
-        // Move show from its location in the holding folder
-        $showData->moveShowFileFromHolding();
+        $recording->setDescription($_POST["description"]);
+        $recording->addTag($_POST["tag1"]);
+        $recording->addTag($_POST["tag2"]);
+        $recording->addTag($_POST["tag3"]);
+        $recording->addTag($_POST["tag4"]);
+        $recording->addTag($_POST["tag5"]);
 
-        // If the show is a resubmission, remove the old submission
-        $showData->removeOldSubmission();
+        if (isset($_POST["notifyOnSubmit"]) && $_POST["notifyOnSubmit"])
+            $recording->setSubmissionAlertEmail($_SESSION['samlUserdata']["email"][0]);
+        if (isset($_POST["notifyOnPublish"]) && $_POST["notifyOnPublish"])
+            $recording->setPublicationAlertEmail($_SESSION['samlUserdata']["email"][0]);
 
-        // Record this submission to the database
-        $showData->insertSubmission();
+        // TODO Rename file
+        // TODO Add file extension to Recording object
+        $storage->moveToWaiting($_POST["fileName"]);
 
-        // Save this show's details as the defaults, if the user picked that
-        if (isset($_POST["saveAsDefaults"])) {
-            $showData->saveAsDefaults();
-        }
+        if (isset($_POST["saveAsDefaults"]) && $_POST["saveAsDefaults"])
+            $database->saveAsDefault($recording);
 
-        // Show success message
-        $showAlertStyling = "#submit-success {display:block}";
+        $isResubmission = $database->isResubmission($recording);
 
-        // Log submission to the database audit log
-        // TODO Check what value should be logged here
-        logToDatabase($_SESSION['samlNameId'], "submission", $showData->publicationName);
+        $database->saveRecording($recording);
+
+        // TODO Display success message
+
+        $database->log($_SESSION['samlNameId'], "submission", $recording->getPublicationName());
 
         // Send notification email
-        if ($showData->isResubmission()) {
-            notificationEmail($config["smtpRecipient"], $showData->publicationName . " re-submitted",
+        if ($isResubmission) {
+            Email::send($config["smtp"]["recipient"], $recording->getPublicationName() . " re-submitted",
                 "A show which was already in the system has been re-submitted:\n\n" .
-                $showData->publicationName . ".", $showData->submissionAlertEmail);
+                $recording->getPublicationName() . ".", $recording->getSubmissionAlertEmail());
         } else {
-            notificationEmail($config["smtpRecipient"], $showData->publicationName . " submitted",
+            Email::send($config["smtp"]["recipient"], $recording->getPublicationName() . " submitted",
                 "A new show has been submitted:\n\n" .
-                $showData->publicationName . ".", $showData->submissionAlertEmail);
+                $recording->getPublicationName() . ".", $recording->getSubmissionAlertEmail());
         }
     } catch (Exception $e) {
-        $showAlertStyling = "#submit-invalid {display:block}";
-        logWithLevel("info", "Show submission process threw an exception:\n" . $e->getMessage());
+        // TODO Display error message
+        // TODO Multiple catch blocks for different problems
+        error_log("Failed to handle submitted form.");
     }
 }
 
