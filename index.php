@@ -6,6 +6,19 @@ $attributes = require './processing/requireAuth.php';
 $config     = require './processing/config.php';
 require_once  'processing/formHandler.php';
 require_once  'processing/Recording.php';
+
+// There's some config values which need to be available in JS. They're put in at the end of this file, but we'll
+// prepare it here so we can make a hash and add it to the CSP.
+$jsConfig = 'const showJSON          = "' . $config["showData"]["url"] . '";
+             const showIdKey         = "' . $config["showData"]["idKey"] . '";
+             const showNameKey       = "' . $config["showData"]["nameKey"] . '";
+             const showPresenterKey  = "' . $config["showData"]["presenterKey"] . '";
+             const maxShowFileSize   = ' . $config["maxShowFileSize"] . ';
+             const maxShowImageSize  = ' . $config["maxShowImageSize"] . ';';
+$jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
+
+header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com; style-src 'self' cdnjs.cloudflare.com");
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -331,14 +344,7 @@ audio/mpeg4-generic" required>
         </div>
     </div>
 
-    <script>
-        const showJSON          = "<?php echo $config["showData"]["url"]; ?>";
-        const showIdKey         = "<?php echo $config["showData"]["idKey"]; ?>";
-        const showNameKey       = "<?php echo $config["showData"]["nameKey"]; ?>";
-        const showPresenterKey  = "<?php echo $config["showData"]["presenterKey"]; ?>";
-        const maxShowFileSize   = <?php echo $config["maxShowFileSize"]; ?>;
-        const maxShowImageSize  = <?php echo $config["maxShowImageSize"]; ?>;
-    </script>
+    <script><?php echo $jsConfig; ?></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
             integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
             crossorigin="anonymous"></script>
