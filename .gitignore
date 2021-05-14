@@ -4,3 +4,4 @@ processing/config.php
 auth/settings.php
 .htaccess
 vendor
+shows.json
