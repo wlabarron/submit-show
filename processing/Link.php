@@ -16,7 +16,7 @@ class Link {
             $signature = hash('sha512', $timestamp . $config["yourls"]["signature"]);
 
             // Set up the request
-            $ch = curl_init($config["yourlsApiUrl"]);
+            $ch = curl_init($config["yourls"]["apiEndpoint"]);
             curl_setopt($ch, CURLOPT_HEADER, 0);            // No header in the result
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return, do not echo result
             curl_setopt($ch, CURLOPT_POST, 1);              // This is a POST request
