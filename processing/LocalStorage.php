@@ -16,7 +16,7 @@ class LocalStorage extends Storage {
      */
     public function offload(string $file) {
         if (file_exists($this->config["waitingDirectory"] . "/" . $file)) {
-            if (!rename($this->config["waitingDirectory"] . "/" . $file, $this->config["uploadFolder"] . "/" . $file)) {
+            if (!rename($this->config["waitingDirectory"] . "/" . $file, $this->config["localStorage"]["uploadsDirectory"] . "/" . $file)) {
                 throw new Exception("Couldn't move file from waiting to local storage.");
             }
         } else {
@@ -30,14 +30,12 @@ class LocalStorage extends Storage {
     public function retrieve(string $file): string {
         if (empty($file)) throw new Exception("No file name provided.");
 
-        $config = require __DIR__ . '/config.php';
-
-        if (file_exists($config["localStorage"]["uploadsFolder"] . "/" . $file)) {
-            if (!copy($config["localStorage"]["uploadsFolder"] . "/" . $file, $config["tempDirectory"] . "/" . $file)) {
+        if (file_exists($this->config["localStorage"]["uploadsDirectory"] . "/" . $file)) {
+            if (!copy($this->config["localStorage"]["uploadsDirectory"] . "/" . $file, $this->config["tempDirectory"] . "/" . $file)) {
                 throw new Exception("Couldn't move file from local to temporary storage.");
             }
 
-            return $config["tempDirectory"] . "/" . $file;
+            return $this->config["tempDirectory"] . "/" . $file;
         } else {
             throw new Exception("Couldn't find specified file in uploads folder.");
         }
@@ -47,7 +45,7 @@ class LocalStorage extends Storage {
      * @inheritDoc
      */
     public function delete(string $file) {
-        if (!unlink($file)) {
+        if (!unlink($this->config["localStorage"]["uploadsDirectory"] . "/" . $file)) {
             throw new Exception("Couldn't delete local file.");
         }
     }

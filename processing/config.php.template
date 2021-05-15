@@ -59,7 +59,7 @@ return array(
     'localStorage' => array (
         // Path to a directory where recording files can be permanently stored. No trailing slash.
         // Ignored if storage provider isn't "local".
-        'uploadsFolder' => '/uploads'
+        'uploadsDirectory' => '/uploads'
     ),
 
     's3Storage' => array (

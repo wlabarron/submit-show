@@ -4,13 +4,20 @@ use Flow\FileOpenException;
 use Flow\Uploader;
 use submitShow\Database;
 
-if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
-    require __DIR__ . "/../vendor/autoload.php";
-    $config   = require 'config.php';
+require __DIR__ . "/../vendor/autoload.php";
+require __DIR__ . "/Database.php";
+require __DIR__ . "/Email.php";
+require __DIR__ . "/Link.php";
+require __DIR__ . "/Storage.php";
+require __DIR__ . "/Recording.php";
+$config   = require 'config.php';
+
+if (lock($config)) {
     try {
         $storage = Storage::getProvider();
     } catch (Exception $e) {
         error_log("Failed to get a storage provider instance.");
+        unlock($config);
         exit();
     }
     $database = new Database();
@@ -56,9 +63,26 @@ if (mkdir(__DIR__ . '/showSubmissionsCronRunning.lock', 0700)) {
         error_log("Failed to prune upload remnants. Details:\n" . $e->getMessage());
     }
 
-    rmdir(__DIR__ . '/showSubmissionsCronRunning.lock');
+    unlock($config);
 } else {
     error_log("Cron is already running at the moment. It can't be re-run until it's finished.");
+}
+
+/**
+ * Used to prevent this script running in parallel.
+ * @param array config The project config array.
+ * @return bool {@code true} if a lock could be acquired, {@code false} if not. If return false, execution should stop.
+ */
+function lock($config): bool {
+    return (mkdir($config["tempDirectory"] . '/showSubmissionsCronRunning.lock', 0700));
+}
+
+/**
+ * Unlocks this script once execution is finished.
+ * @param array config The project config array.
+ */
+function unlock($config) {
+    rmdir($config["tempDirectory"] . '/showSubmissionsCronRunning.lock');
 }
 
 /**
