@@ -1,8 +1,6 @@
 <?php
 
-
 namespace submitShow;
-
 
 use Exception;
 use mysqli;
@@ -318,11 +316,13 @@ class Database {
     }
 
     /**
-     * @return array|null An array with details of shows due to publish, or null if no shows are due.
+     * @return array An array with details of shows due to publish.
      */
     public function getShowsForPublication(): ?array {
         $query = $this->connection->query("SELECT * FROM submissions WHERE `end-datetime` < CURRENT_TIMESTAMP AND `deletion-datetime` IS NULL");
-        return $query->fetch_assoc();
+        $result = array();
+        while ($row = $query->fetch_assoc()) $result[] = $row;
+        return $result;
     }
 
     /**
@@ -367,11 +367,13 @@ class Database {
     }
 
     /**
-     * @return array|null An array with details of shows due to be deleted, or null if no shows are due.
+     * @return array An array with details of shows due to be deleted.
      */
     public function getExpiredSubmissions(): ?array {
         $query = $this->connection->query("SELECT * FROM submissions WHERE `deletion-datetime` < CURRENT_TIMESTAMP");
-        return $query->fetch_assoc();
+        $result = array();
+        while ($row = $query->fetch_assoc()) $result[] = $row;
+        return $result;
     }
 
     /**
@@ -390,12 +392,13 @@ class Database {
     }
 
     /**
-     * @return array|null An array with details of shows which are in the waiting location, or null if no shows are waiting.
+     * @return array An array with details of shows which are in the waiting location.
      */
-    public function getShowsToOffload(): ?array {
-        $query = $this->connection->prepare("SELECT * FROM submissions WHERE `file-location` = ?");
-        $query->bind_param("i", Storage::$LOCATION_WAITING);
-        return $query->get_result()->fetch_assoc();
+    public function getShowsToOffload(): array {
+        $query  = $this->connection->query("SELECT * FROM submissions WHERE `file-location` = ". Storage::$LOCATION_WAITING);
+        $result = array();
+        while ($row = $query->fetch_assoc()) $result[] = $row;
+        return $result;
     }
 
     /**
