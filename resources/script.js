@@ -15,6 +15,7 @@ const presenter2                  = document.getElementById("form2Presenter");
 const date2                       = document.getElementById("form2Date");
 const fileName2                   = document.getElementById("form2FileName");
 const dateInput                   = document.getElementById("date");
+const description                 = document.getElementById("description");
 const imageSource                 = document.getElementById("imageSource");
 const imageUploader               = document.getElementById("imageUploader");
 const image                       = document.getElementById("image");
@@ -110,13 +111,7 @@ form1.addEventListener("submit", function (event) {
 
     // validate the input
     let inputValid = true;
-    if (name.value === "") {
-        // No name entered
-        inputValid = false;
-    } else if (presenter.value === "") {
-        // No presenter name entered
-        inputValid = false;
-    } else if (isNaN(Date.parse(dateInput.value))) {
+    if (isNaN(Date.parse(dateInput.value))) {
         // Invalid or no date entered
         inputValid = false
     }
@@ -185,7 +180,8 @@ form1.addEventListener("submit", function (event) {
                 })
                 .then(function(data) {
                     if (data) { // There is default data
-                        document.getElementById("description").value = data.description;
+                        description.value = data.description;
+                        autosize.update(description);
 
                         if (data.tags[0])
                             document.getElementById("tag1").value = data.tags[0];

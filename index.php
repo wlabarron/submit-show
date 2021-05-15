@@ -96,7 +96,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
         <div class="form-group">
             <label for="nameDropdown">Show name</label>
-            <select class="form-control" id="nameDropdown" aria-describedby="nameDropdownHelp" name="id" required>
+            <select class="form-select" id="nameDropdown" aria-describedby="nameDropdownHelp" name="id" required>
                 <option value="" disabled selected>Choose show name...</option>
                 <optgroup label="Shows" id="nameOptionGroup"></optgroup>
                 <optgroup label="Other">
@@ -111,7 +111,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         <div class="hidden" id="nameAndPresenterEntryFields">
             <div class="form-group">
                 <label for="name">Show name</label>
-                <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" maxlength="50">
+                <input type="text" class="form-control" id="name" required aria-describedby="nameHelp" name="name" maxlength="50">
                 <small id="nameHelp" class="form-text text-muted">
                     Enter the name of the show.
                 </small>
@@ -119,7 +119,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
             <div class="form-group">
                 <label for="presenter">Show presenter</label>
-                <input type="text" class="form-control" id="presenter" aria-describedby="presenterHelp" name="presenter"
+                <input type="text" class="form-control" id="presenter" required aria-describedby="presenterHelp" name="presenter"
                        maxlength="50">
                 <small id="presenter" class="form-text text-muted">
                     Enter the show's presenter.
@@ -138,7 +138,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         </div>
 
         <div class="alert alert-warning hidden" role="alert" id="error-InitialFormInvalid">
-            Hang on! Make sure you've filled in all the fields above.
+            Hang on! Make sure you've filled in all the fields above correctly.
         </div>
 
         <div class="alert alert-warning mt-2 hidden" role="alert" id="error-ShowFileOversized">
@@ -190,13 +190,13 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             <label for="showImageInput">Show cover image</label>
 
             <div id="defaultImageSection" class="hidden">
-                <div class="pl-5">
+                <div class="ps-5">
                     Saved photo:
                     <div class="col-md-5">
                         <img src="" alt="Previously uploaded cover image." width="100" id="defaultImage"/>
                     </div>
                 </div>
-                <select class="form-control"
+                <select class="form-select"
                         id="imageSource"
                         name="imageSource"
                         aria-label="Choose how to proceed with the cover image">

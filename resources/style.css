@@ -24,7 +24,7 @@ hr {
   margin: 3rem 0;
 }
 
-.form-control {
+.form-control, .form-select {
   margin-top: 0.5rem;
 }
 
