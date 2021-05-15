@@ -2,6 +2,8 @@
 
 header('Cache-Control: max-age=0, private, no-cache');
 
+require __DIR__ . "/../../processing/requireAuth.php";
+
 require __DIR__ . "/../../processing/Database.php";
 
 $database = new submitShow\Database();

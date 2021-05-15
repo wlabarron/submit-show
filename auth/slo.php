@@ -10,9 +10,16 @@ session_start();
 
 require(dirname(__DIR__) . '/vendor/autoload.php');
 $config = require (dirname(__DIR__) . '/processing/config.php');
-$auth = new Auth($config["samlSettings"]);
 
-$auth->processSLO();
+try {
+    $auth = new Auth($config["samlSettings"]);
+    $auth->processSLO();
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    http_response_code(500);
+    exit;
+}
+
 
 $errors = $auth->getErrors();
 

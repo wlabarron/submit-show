@@ -12,7 +12,6 @@ session_start();
 
 require(dirname(__DIR__) . '/vendor/autoload.php');
 $config = require (dirname(__DIR__) . '/processing/config.php');
-$auth = new Auth($config["samlSettings"]);
 
 if (isset($_SESSION) && isset($_SESSION['AuthNRequestID'])) {
     $requestID = $_SESSION['AuthNRequestID'];
@@ -20,7 +19,14 @@ if (isset($_SESSION) && isset($_SESSION['AuthNRequestID'])) {
     $requestID = null;
 }
 
-$auth->processResponse($requestID);
+try {
+    $auth   = new Auth($config["samlSettings"]);
+    $auth->processResponse($requestID);
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    http_response_code(500);
+    exit;
+}
 
 $errors = $auth->getErrors();
 
@@ -36,12 +42,12 @@ if (!$auth->isAuthenticated()) {
     exit();
 }
 
-$_SESSION['samlUserdata'] = $auth->getAttributes();
-$_SESSION['samlNameId'] = $auth->getNameId();
-$_SESSION['samlNameIdFormat'] = $auth->getNameIdFormat();
-$_SESSION['samlNameIdNameQualifier'] = $auth->getNameIdNameQualifier();
+$_SESSION['samlUserdata']              = $auth->getAttributes();
+$_SESSION['samlNameId']                = $auth->getNameId();
+$_SESSION['samlNameIdFormat']          = $auth->getNameIdFormat();
+$_SESSION['samlNameIdNameQualifier']   = $auth->getNameIdNameQualifier();
 $_SESSION['samlNameIdSPNameQualifier'] = $auth->getNameIdSPNameQualifier();
-$_SESSION['samlSessionIndex'] = $auth->getSessionIndex();
+$_SESSION['samlSessionIndex']          = $auth->getSessionIndex();
 unset($_SESSION['AuthNRequestID']);
 if (isset($_POST['RelayState']) && Utils::getSelfURL() != $_POST['RelayState']) {
     $auth->redirectTo($_POST['RelayState']);

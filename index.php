@@ -2,8 +2,8 @@
 
 use submitShow\Recording;
 
-$attributes = require './processing/requireAuth.php';
 $config     = require './processing/config.php';
+require       './processing/promptLogin.php';
 require_once  'processing/formHandler.php';
 require_once  'processing/Recording.php';
 
