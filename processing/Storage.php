@@ -28,13 +28,13 @@ abstract class Storage {
      */
     public static function getProvider(): Storage {
         $config   = require 'config.php';
-        $provider = $config["storageProvider"];
+        $provider = strtolower($config["storageProvider"]);
 
         switch ($provider) {
             case "local":
                 require __DIR__ . "/LocalStorage.php";
                 return new LocalStorage();
-            case "S3":
+            case "s3":
                 require __DIR__ . "/S3Storage.php";
                 return new S3Storage();
             default:

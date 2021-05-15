@@ -64,11 +64,11 @@ return array(
 
     's3Storage' => array (
         // S3 storage details. Ignored if storage provider isn't "s3".
-        'endpoint' => '',
-        'region' => '',
-        'bucket' => '',
+        'endpoint'  => '',
+        'region'    => '',
+        'bucket'    => '',
         'accessKey' => '',
-        'secret' => '',
+        'secret'    => '',
     ),
 
      // How long a show should be kept in storage after being published to Mixcloud -

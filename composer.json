@@ -3,7 +3,7 @@
   "description": "Send a show to your radio station's scheduling team, and Mixcloud.",
     "require": {
       "flowjs/flow-php-server": "^1.0",
-      "aws/aws-sdk-php": "3.147.13",
+      "aws/aws-sdk-php": "^3.181",
       "ext-mysqli": "*",
       "ext-json": "*",
       "ext-gd": "*",

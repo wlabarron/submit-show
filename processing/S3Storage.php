@@ -13,20 +13,21 @@ class S3Storage extends Storage {
      */
     public function __construct() {
         $this->config = require __DIR__ . '/config.php';
-        if (empty($this->config["s3Endpoint"]))  throw new Exception("No S3 endpoint specified.");
-        if (empty($this->config["s3Bucket"]))    throw new Exception("No S3 bucket specified.");
-        if (empty($this->config["s3AccessKey"])) throw new Exception("No S3 access key specified.");
-        if (empty($this->config["s3Secret"]))    throw new Exception("No S3 secret specified.");
+        if (empty($this->config["s3Storage"]["endpoint"]))  throw new Exception("No S3 endpoint specified.");
+        if (empty($this->config["s3Storage"]["region"]))    throw new Exception("No S3 region specified.");
+        if (empty($this->config["s3Storage"]["bucket"]))    throw new Exception("No S3 bucket specified.");
+        if (empty($this->config["s3Storage"]["accessKey"])) throw new Exception("No S3 access key specified.");
+        if (empty($this->config["s3Storage"]["secret"]))    throw new Exception("No S3 secret specified.");
 
         try {
             // create S3 client
             $this->s3Client = new S3Client([
-                'endpoint'    => $this->config["s3Endpoint"],
-                'region'      => $this->config["s3Region"],
+                'endpoint'    => $this->config["s3Storage"]["endpoint"],
+                'region'      => $this->config["s3Storage"]["region"],
                 'version'     => 'latest',
                 'credentials' => [
-                    'key'    => $this->config["s3AccessKey"],
-                    'secret' => $this->config["s3Secret"],
+                    'key'     => $this->config["s3Storage"]["accessKey"],
+                    'secret'  => $this->config["s3Storage"]["secret"],
                 ],
             ]);
         } catch (S3Exception $e) {
@@ -41,15 +42,13 @@ class S3Storage extends Storage {
     public function offload(string $file) {
         try {
             $this->s3Client->putObject([
-                'Bucket'     => $this->config["s3Bucket"],
+                'Bucket'     => $this->config["s3Storage"]["bucket"],
                 'Key'        => $file,
-                'SourceFile' => $this->config["waitingUploadsFolder"] . "/" . $file
+                'SourceFile' => $this->config["waitingDirectory"] . "/" . $file
             ]);
 
             // remove the waiting show from local storage
-            unlink($this->config["waitingUploadsFolder"] . "/" . $file);
-
-            error_log($file . " sent to S3.");
+            unlink($this->config["waitingDirectory"] . "/" . $file);
         } catch (S3Exception $e) {
             error_log($e->getMessage());
             throw new Exception("Couldn't send file to S3.");
@@ -64,8 +63,8 @@ class S3Storage extends Storage {
 
         try {
             $this->s3Client->getObject(array(
-                'Bucket' => $this->config["s3Bucket"],
-                'Key' => $file,
+                'Bucket' => $this->config["s3Storage"]["bucket"],
+                'Key'    => $file,
                 'SaveAs' => $this->config["tempDirectory"] . "/" . $file
             ));
 
@@ -81,8 +80,8 @@ class S3Storage extends Storage {
      */
     public function delete(string $file) {
         try {
-            $this->config->deleteObject(array(
-                'Bucket' => $this->config["s3Bucket"],
+            $this->s3Client->deleteObject(array(
+                'Bucket' => $this->config["s3Storage"]["bucket"],
                 'Key'    => $file
             ));
         } catch (S3Exception $e) {
