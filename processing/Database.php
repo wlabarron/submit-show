@@ -78,6 +78,7 @@ class Database {
         try {
             $this->deletePreviousSubmission($recording);
             $this->saveNewEntry($recording);
+            $this->connection->commit();
         } catch (Exception $ex) {
             error_log("An exception was thrown during saving. Rolling back the database.");
             if (!$this->connection->rollback()) error_log("Failed to rollback database.");
@@ -128,14 +129,21 @@ class Database {
     /**
      * Delete a submission and its tags.
      * @param int $id The ID of the submission to delete.
+     * @param bool $createTransaction Set to false to prevent this deletion operation from starting a database
+     *                                transaction (for example, if the deletion is part of a larger transaction).
      * @throws Exception
      */
-    public function deleteSubmission(int $id) {
+    public function deleteSubmission(int $id, bool $createTransaction = true) {
+        if ($createTransaction)
+            if (!$this->connection->begin_transaction())
+                throw new Exception("Couldn't start database transaction.");
+
         // remove the tags associated with the existing submission
         $tagsQuery = $this->connection->prepare("DELETE FROM tags WHERE submission = ?");
         $tagsQuery->bind_param("i", $id);
         if (!$tagsQuery->execute()) {
             error_log($tagsQuery->error);
+            if (!$this->connection->rollback()) error_log("Failed to rollback database.");
             throw new Exception("Failed to remove tags for existing submission.");
         }
 
@@ -144,8 +152,15 @@ class Database {
         $infoQuery->bind_param("i", $id);
         if (!$infoQuery->execute()) {
             error_log($infoQuery->error);
+
+            if ($createTransaction)
+                if (!$this->connection->rollback())
+                    error_log("Failed to rollback database.");
+
             throw new Exception("Failed to remove info for existing submission.");
         }
+
+        if ($createTransaction) $this->connection->commit();
     }
 
     /**
@@ -172,6 +187,7 @@ class Database {
         try {
             $this->deletePreviousDefaults($recording);
             $this->saveDefaultsToDatabase($recording);
+            $this->connection->commit();
         } catch (Exception $ex) {
             error_log("An exception was thrown during saving defaults. Rolling back the database.");
             if (!$this->connection->rollback()) error_log("Failed to rollback database.");
