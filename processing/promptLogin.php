@@ -10,7 +10,7 @@ use OneLogin\Saml2\Auth;
 $config = require 'config.php';
 
 if (($config["samlEnabled"])) {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
 
     require(dirname(__DIR__) . '/vendor/autoload.php');
     $config = require __DIR__ . '/config.php';

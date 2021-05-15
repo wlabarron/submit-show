@@ -274,7 +274,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                         <label class="form-check-label" for="notifyOnSubmit" aria-describedby="notifyOnSubmitHelp">
                             Email me a receipt when I submit this show
                         </label>
-                        <small id="notifyOnSubmitHelp" class="form-text text-muted">
+                        <small id="notifyOnSubmitHelp" class="form-text text-muted d-flex">
                             If this box is ticked, an email will be sent to ' . $_SESSION['samlUserdata']["email"][0] . ' once you press the Submit button below.
                         </small>
                     </div>
@@ -284,7 +284,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                         <label class="form-check-label" for="notifyOnPublish" aria-describedby="notifyOnPublishHelp">
                             Email me when this show is published to Mixcloud 
                         </label>
-                        <small id="notifyOnPublishHelp" class="form-text text-muted">
+                        <small id="notifyOnPublishHelp" class="form-text text-muted d-flex">
                             If this box is ticked, an email will be sent to ' . $_SESSION['samlUserdata']["email"][0] . ' once this show is published to Mixcloud.
                         </small>
                     </div>

@@ -22,13 +22,15 @@ if (lock($config)) {
     }
     $database = new Database();
 
-    $showsDueToPublish = $database->getShowsForPublication();
-    if ($showsDueToPublish) {
-        foreach ($showsDueToPublish as $show) {
-            try {
-                publishShow($show, $config, $storage, $database);
-            } catch (Exception $e) {
-                error_log($e->getMessage());
+    if (!empty($config["mixcloudAccessToken"])) {
+        $showsDueToPublish = $database->getShowsForPublication();
+        if ($showsDueToPublish) {
+            foreach ($showsDueToPublish as $show) {
+                try {
+                    publishShow($show, $config, $storage, $database);
+                } catch (Exception $e) {
+                    error_log($e->getMessage());
+                }
             }
         }
     }
@@ -37,7 +39,7 @@ if (lock($config)) {
     if ($showsDueToDelete) {
         foreach ($showsDueToDelete as $show) {
             try {
-                deleteShow($show, $storage, $database);
+                deleteShow($show, $config, $storage, $database);
             } catch (Exception $e) {
                 error_log($e->getMessage());
             }
@@ -94,7 +96,7 @@ function unlock($config) {
  * @throws Exception
  */
 function publishShow(array $show, array $config, Storage $storage, Database $database) {
-    if ($show["file_location"] == Storage::$LOCATION_WAITING) {
+    if ($show["file-location"] == Storage::$LOCATION_WAITING) {
         $path = $config["waitingDirectory"] . "/" . $show["file"];
     } else {
         $path = $storage->retrieve($show["file"]);
@@ -152,19 +154,28 @@ function publishShow(array $show, array $config, Storage $storage, Database $dat
 
     // delete the temporary image file, if there was an image
     if (!empty($show["image"])) unlink($config["tempDirectory"] . "/img.png");
-    // delete the copy of the file used for publication
-    unlink($path);
+
+    // If we uploaded a copy of the file, delete it. The copy would be from if the file was uploaded after it has been
+    // offloaded. If the file was in the waiting area, we'll have read it from there, and so have nothing to delete.
+    if ($show["file-location"] != Storage::$LOCATION_WAITING) unlink($path);
 }
 
 /**
  * Deletes the specified submission's file in the storage provider and entry in the database.
  * @param array $show Database record for the recording to publish.
+ * @param array $config Project configuration array.
  * @param Storage $storage Instance of the appropriate storage controller.
  * @param Database $database Instance of the appropriate database connector.
  * @throws Exception
  */
-function deleteShow(array $show, Storage $storage, Database $database) {
-    $storage->delete($show["file"]);
+function deleteShow(array $show, array $config, Storage $storage, Database $database) {
+    if ($show["file-location"] == Storage::$LOCATION_WAITING) {
+        if (!unlink($config["waitingDirectory"] . "/" . $show["file"]))
+            throw new Exception("Couldn't delete file from waiting directory.");
+    } else {
+        $storage->delete($show["file"]);
+    }
+
     $database->deleteSubmission($show["id"]);
 }
 

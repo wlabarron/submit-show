@@ -31,10 +31,9 @@ try {
 $errors = $auth->getErrors();
 
 if (!empty($errors)) {
-    echo '<p>', implode(', ', $errors), '</p>';
-    if ($auth->getSettings()->isDebugActive()) {
-        echo '<p>' . $auth->getLastErrorReason() . '</p>';
-    }
+    echo '<p>Error occurred.</p>';
+    error_log(implode(', ', $errors));
+    error_log($auth->getLastErrorReason());
 }
 
 if (!$auth->isAuthenticated()) {
