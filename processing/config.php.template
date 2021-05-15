@@ -108,6 +108,10 @@ return array(
     'samlSettings' => array(
                           // Modified from https://github.com/onelogin/php-saml/blob/master/settings_example.php.
 
+                          // SAML Name IDs are logged to the `log` column of the database.
+                          // If you set a custom SAML attribute named `email` and if SMTP is enabled above, then options
+                          // to send notification emails to people submitting the form will be available.
+
                           // If 'strict' is True, then the PHP Toolkit will reject unsigned
                           // or unencrypted messages if it expects them signed or encrypted
                           // Also will reject the messages if not strictly follow the SAML
