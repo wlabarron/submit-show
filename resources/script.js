@@ -175,6 +175,7 @@ form1.addEventListener("submit", function (event) {
             // This is a special show, so hide all the options to do with default values.
             document.getElementById("defaultImage").classList.add("hidden");
             document.getElementById("saveFormDefaultsSection").classList.add("hidden");
+            document.getElementById("saveAsDefaults").checked = false;
         } else {
             // This isn't a one-off show, so we can go and fetch the default data.
             fetch("/resources/default/data.php?show=" + nameDropdown.value)

@@ -24,9 +24,10 @@ class Recording {
     private array $config;
 
     /**
-     * @var int ID representing the show (not this recording specifically, the show as a whole).
+     * @var ?int ID representing the show (not this recording specifically, the show as a whole), or null if there is no
+     *           ID (e.g. a one-off show).
      */
-    private int $showID;
+    private ?int $showID;
     /**
      * @var string The name of the show.
      */
@@ -86,12 +87,12 @@ class Recording {
     }
 
     /**
-     * @param int $showID The ID of the show.
+     * @param ?int $showID The ID of the show, or null if there is no ID.
      * @throws Exception If the show ID is empty.
      */
-    public function setShowID(int $showID): void {
-        if (empty($showID)) throw new Exception("Show ID was empty.");
-        $this->showID = $showID;
+    public function setShowID(?int $showID): void {
+        if (empty($showID)) $this->showID = null;
+        else                $this->showID = $showID;
     }
 
     /**
@@ -245,9 +246,9 @@ class Recording {
     }
 
     /**
-     * @return string
+     * @return ?int
      */
-    public function getShowID(): string {
+    public function getShowID(): ?int {
         return $this->showID;
     }
 

@@ -24,7 +24,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $database  = new Database();
         $storage   = Storage::getProvider();
 
-        $recording->setShowID(intval($_POST["id"]));
+        if ($_POST["id"] === "special") $recording->setShowID(null);
+        else                            $recording->setShowID($_POST["id"]);
+
         $recording->setName($_POST["name"]);
         $recording->setPresenter($_POST["presenter"]);
         $recording->setStart($_POST["date"]);
@@ -52,11 +54,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     }
                     break;
                 case "default":
-                    $recording->setImage(
-                        $database->getDefaultImage(
-                            $recording->getShowID()
-                        )
-                    );
+                    if (!empty($recording->getShowID()))
+                        $recording->setImage(
+                            $database->getDefaultImage(
+                                $recording->getShowID()
+                            )
+                        );
                     break;
                 default:
                     // No image
