@@ -354,6 +354,8 @@ class Database {
      * @throws Exception
      */
     public function markSubmissionForDeletion(int $id) {
+        if (empty($this->config["retentionPeriod"])) return;
+
         $deletionTime = date_create();
         date_add($deletionTime, date_interval_create_from_date_string($this->config["retentionPeriod"]));
         $deletionTime = $deletionTime->getTimestamp();
