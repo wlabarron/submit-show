@@ -17,7 +17,7 @@ $jsConfig = 'const showJSON          = "' . $config["showData"]["url"] . '";
              const maxShowImageSize  = ' . $config["maxShowImageSize"] . ';';
 $jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com; style-src 'self' cdnjs.cloudflare.com");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com; style-src 'self' cdnjs.cloudflare.com; img-src 'self' data:");
 
 ?>
 <!DOCTYPE html>
@@ -26,8 +26,8 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     <meta charset="UTF-8">
     <title>Submit Show - <?php echo $config["organisationName"]; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
-          integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
+          integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
           crossorigin="anonymous" />
     <link rel="stylesheet" href="resources/style.css?version=4">
     <noscript>
@@ -39,19 +39,23 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     <div class="container">
         <div class="alert alert-danger mt-2" role="alert">
             This page needs JavaScript to work.<br>
-            You'll need to <a href="https://www.enable-javascript.com/" target="_blank" class="alert-link">enable
-                JavaScript</a>, then come back and refresh the page.
+            You'll need to enable JavaScript, then come back and refresh the page.
         </div>
     </div>
 </noscript>
 
-<div class="container hidden" id="files-unsupported">
+<div class="container hidden" id="error-UploadFail">
+    <div class="alert alert-danger mt-2" role="alert">
+        Something went wrong uploading your show file. Sorry about that. Please
+        <a href="index.php" class="alert-link">try again</a>.
+    </div>
+</div>
+
+<div class="container hidden" id="error-FilesUnsupported">
     <div class="alert alert-danger mt-2" role="alert">
         Your browser doesn't support some of the technologies this uploader needs. Swap to another one, such as an
-        up-to-date version of Firefox, then try there.<br>
-        If you've not got another web browser installed, you can <a href="https://www.mozilla.org/en-GB/firefox/new/"
-                                                                    target="_blank" class="alert-link">download
-            Firefox</a>.
+        up-to-date version of Firefox, then try there.<br> If you've not got another web browser installed, you can
+        <a href="https://www.mozilla.org/en-GB/firefox/new/" target="_blank" class="alert-link">download Firefox</a>.
     </div>
 </div>
 
@@ -81,15 +85,12 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
     <div class="form-group" id="showFileInputGroup">
         <label for="showFileInput">Show file</label>
-        <div class="custom-file">
-            <input type="file" class="custom-file-input" id="showFileInput" aria-describedby="showFileHelp"
-                   name="showFile" accept="audio/mpeg,audio/MPA,audio/mpa-robust,.mp3,.m4a,.mp4,.aac,audio/aac,audio/aacp,audio/3gpp,audio/3gpp2,audio/mp4,audio/mp4a-latm,
+        <input type="file" class="form-control" id="showFileInput" aria-describedby="showFileHelp"
+               name="showFile" accept="audio/mpeg,audio/MPA,audio/mpa-robust,.mp3,.m4a,.mp4,.aac,audio/aac,audio/aacp,audio/3gpp,audio/3gpp2,audio/mp4,audio/mp4a-latm,
 audio/mpeg4-generic" required>
-            <label class="custom-file-label" id="custom-file-label" for="showFileInput">Choose file</label>
-            <small id="showFileHelp" class="form-text text-muted">
-                You can upload MP3 or M4A (AAC) files.
-            </small>
-        </div>
+        <small id="showFileHelp" class="form-text text-muted">
+            You can upload MP3 or M4A (AAC) files.
+        </small>
     </div>
 
     <form action="index.php"
@@ -161,9 +162,7 @@ audio/mpeg4-generic" required>
             <div class="form-group">
                 <label for="end">Original broadcast end time</label>
                 <input type="time" class="form-control" id="end" aria-describedby="endHelp"
-                       name="end" placeholder="Type or choose a time..." required
-                       data-toggle="tooltip" data-trigger="focus" data-placement="top"
-                       title="Enter the show's end time, not the start.">
+                       name="end" placeholder="Type or choose a time..." required>
                 <small id="endHelp" class="form-text text-muted">
                     Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
                     to-the-minute - if your show's time slot is 12:00 - 14:00, you'd enter 14:00 here, even if you
@@ -176,7 +175,7 @@ audio/mpeg4-generic" required>
                 <label class="form-check-label" for="endNextDay">
                     Show end time is on the day after the broadcast date.
                 </label>
-                <small id="endNextDayHelp" class="form-text text-muted">
+                <small id="endNextDayHelp" class="form-text text-muted d-block">
                     Tick this box if the show ran over midnight.
                 </small>
             </div>
@@ -202,9 +201,8 @@ audio/mpeg4-generic" required>
                 </div>
             </div>
 
-            <div class="bs-custom-file custom-file" id="imageUploader">
-                <input type="file" class="custom-file-input" id="image" name="image">
-                <label class="custom-file-label" for="image" aria-describedby="imageHelp">Choose file</label>
+            <div class="form-group" id="imageUploader">
+                <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg">
                 <div class="alert alert-warning mt-2 hidden error-imageOversized" role="alert">
                     <strong>The image you chose is too big.</strong> The maximum size
                     is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
@@ -296,7 +294,7 @@ audio/mpeg4-generic" required>
                     <label class="form-check-label" for="saveAsDefaults" aria-describedby="saveAsDefaultsHelp">
                         Save these values as the defaults for this show
                     </label>
-                    <small id="saveAsDefaultsHelp" class="form-text text-muted">
+                    <small id="saveAsDefaultsHelp" class="form-text text-muted d-block">
                         If this box is ticked, next time you choose this show from the "Show name" list, the image,
                         description, and tags you've chosen here will appear automatically.
                     </small>
@@ -325,34 +323,7 @@ audio/mpeg4-generic" required>
         </div>
     </form>
 
-    <!-- Modal if show file upload fails -->
-    <div class="modal fade" id="error-UploadFail" data-backdrop="static" tabindex="-1" role="dialog"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Upload failed</h5>
-                </div>
-                <div class="modal-body">
-                    Something went wrong uploading your show file. Sorry about that. Please try again.
-                </div>
-                <div class="modal-footer">
-                    <a href="index.php" class="btn btn-primary">Retry</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script><?php echo $jsConfig; ?></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-            integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"
-            integrity="sha512-wV7Yj1alIZDqZFCUQJy85VN+qvEIly93fIQAN7iqDFCPEucLCeNFz4r35FCo9s6WrpdDQPi80xbljXB8Bjtvcg=="
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bs-custom-file-input/1.3.4/bs-custom-file-input.min.js"
-            integrity="sha512-91BoXI7UENvgjyH31ug0ga7o1Ov41tOzbMM3+RPqFVohn1UbVcjL/f5sl6YSOFfaJp+rF+/IEbOOEwtBONMz+w=="
-            crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
             integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
             crossorigin="anonymous"></script>

@@ -6,19 +6,30 @@ body {
 .joint-input-top {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+  margin-top: 0 !important;
 }
 
 .joint-input-middle {
   border-radius: 0;
+  margin-top: 0 !important;
 }
 
 .joint-input-bottom {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  margin-top: 0 !important;
 }
 
 hr {
   margin: 3rem 0;
+}
+
+.form-control {
+  margin-top: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
 }
 
 .spinner-border {

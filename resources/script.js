@@ -1,15 +1,8 @@
-// First show file uploader object, only used for file picking
-// noinspection JSUnresolvedVariable
-
-const showFileUploader = new Flow({
-    singleFile: true,
-    chunkSize: 10000000,
-});
-
 let showUploaded        = false;
 let imageValid          = true;
 
 const form                        = document.getElementById("form");
+const showFileInput               = document.getElementById("showFileInput");
 const nameDropdown                = document.getElementById("nameDropdown");
 const nameOptionGroup             = document.getElementById("nameOptionGroup");
 const nameAndPresenterEntryFields = document.getElementById("nameAndPresenterEntryFields");
@@ -55,11 +48,8 @@ function updateStatusOfFormSubmitButton() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Enable custom file picker
-    bsCustomFileInput.init(".bs-custom-file input[type='file']");
-
     // Resize text areas as they're filled with content
-    autosize($('textarea'));
+    autosize(document.querySelectorAll('textarea'));
 
     // Warn the user before they navigate away
     window.onbeforeunload = function () { return true;};
@@ -70,21 +60,19 @@ document.addEventListener("DOMContentLoaded", function() {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 
-    // Set file browser area
-    showFileUploader.assignBrowse(document.getElementById('showFileInput'));
-
+    const testUploader = new Flow();
     // If the uploader isn't supported, hide the page content and show error
-    if (!showFileUploader.support) {
+    if (!testUploader.support) {
         document.getElementById("page-content").classList.add("hidden");
-        document.getElementById("page-files-unsupported").classList.remove("hidden");
+        document.getElementById("error-FilesUnsupported").classList.remove("hidden");
     }
 
-    // When a file is added, show its name on the page
-    showFileUploader.on('fileAdded', function(file) {
+    // When a file is added
+    showFileInput.addEventListener('change', function () {
         const error         = document.getElementById("error-ShowFileOversized");
         const goButton      = document.getElementById("uploadAndContinueButton");
-        const fileLabel     = document.getElementById("custom-file-label");
         const fileNameField = document.getElementById("fileName")
+        const file          = showFileInput.files[0];
 
         if (file.size > maxShowFileSize) {
             goButton.disabled = true;
@@ -92,8 +80,6 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             goButton.disabled = false;
             error.classList.add("hidden");
-
-            fileLabel.innerText = file.name;
             fileNameField.value = file.name;
         }
     });
@@ -118,16 +104,13 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
 
     // validate the input
     let inputValid = true;
-    if (showFileUploader.files.length !== 1) {
-        // More than one file selected
-        inputValid = false;
-    } else if (name.value === "") {
+    if (name.value === "") {
         // No name entered
         inputValid = false;
     } else if (presenter.value === "") {
         // No presenter name entered
         inputValid = false;
-    } else if (isNaN(Date.parse(date.value))) {
+    } else if (isNaN(Date.parse(dateInput.value))) {
         // Invalid or no date entered
         inputValid = false
     }
@@ -147,11 +130,12 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
         });
 
         // Add the files from our temporary uploader
-        uploader.addFile(showFileUploader.files[0].file);
+        uploader.addFile(showFileInput.files[0]);
 
         // Display error if something goes wrong in the file upload
         uploader.on('fileError', function () {
-            $('#error-UploadFail').modal('show');
+            document.getElementById("page-content").classList.add("hidden");
+            document.getElementById("error-UploadFail").classList.remove("hidden");
             // Remove warning when navigating away
             window.onbeforeunload = null;
         });
@@ -224,7 +208,6 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
     } else {
         // Display an error if the form so far is invalid
         invalid.classList.remove("hidden");
-        $("#initial-form-invalid").slideDown();
     }
 });
 
