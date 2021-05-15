@@ -1,13 +1,19 @@
 let showUploaded        = false;
 let imageValid          = true;
 
-const form                        = document.getElementById("form");
+const form1                        = document.getElementById("form1");
+const form2                        = document.getElementById("form2");
 const showFileInput               = document.getElementById("showFileInput");
 const nameDropdown                = document.getElementById("nameDropdown");
 const nameOptionGroup             = document.getElementById("nameOptionGroup");
 const nameAndPresenterEntryFields = document.getElementById("nameAndPresenterEntryFields");
 const name                        = document.getElementById("name");
 const presenter                   = document.getElementById("presenter");
+const nameDropdown2               = document.getElementById("form2NameDropdown");
+const name2                       = document.getElementById("form2Name");
+const presenter2                  = document.getElementById("form2Presenter");
+const date2                       = document.getElementById("form2Date");
+const fileName2                   = document.getElementById("form2FileName");
 const dateInput                   = document.getElementById("date");
 const imageSource                 = document.getElementById("imageSource");
 const imageUploader               = document.getElementById("imageUploader");
@@ -71,7 +77,6 @@ document.addEventListener("DOMContentLoaded", function() {
     showFileInput.addEventListener('change', function () {
         const error         = document.getElementById("error-ShowFileOversized");
         const goButton      = document.getElementById("uploadAndContinueButton");
-        const fileNameField = document.getElementById("fileName")
         const file          = showFileInput.files[0];
 
         if (file.size > maxShowFileSize) {
@@ -80,7 +85,6 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             goButton.disabled = false;
             error.classList.add("hidden");
-            fileNameField.value = file.name;
         }
     });
 
@@ -99,7 +103,9 @@ nameDropdown.addEventListener("change", function () {
     }
 });
 
-document.getElementById("uploadAndContinueButton").addEventListener("click", function () {
+form1.addEventListener("submit", function (event) {
+    event.preventDefault();
+
     const invalid   = document.getElementById("error-InitialFormInvalid");
 
     // validate the input
@@ -152,12 +158,18 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
         // disable the inputs we've used so far, hide the file uploader, show the rest of the form
         document.getElementById("showFileInputGroup").classList.add("hidden");
         document.getElementById("uploadAndContinueButton").classList.add("hidden");
-        invalid.classList.add("hidden");
-
         nameDropdown.disabled = true;
         name.disabled         = true;
         presenter.disabled    = true;
-        dateInput.disabled    = true;
+        dateInput.disabled    = true
+        invalid.classList.add("hidden");
+
+        // Copy the values of form 1 into hidden fields of form 2, so they're submitted with the rest of the details
+        fileName2.value     = showFileInput.files[0].name;
+        nameDropdown2.value = nameDropdown.value;
+        name2.value         = name.value;
+        presenter2.value    = presenter.value;
+        date2.value         = dateInput.value;
 
         if (nameDropdown.value === "special") {
             // This is a special show, so hide all the options to do with default values.
@@ -204,7 +216,8 @@ document.getElementById("uploadAndContinueButton").addEventListener("click", fun
         }
 
         // Display the rest of the form.
-        document.getElementById("detailsForm").classList.remove("hidden");
+        form2.classList.remove("hidden");
+        document.getElementById("end").focus();
     } else {
         // Display an error if the form so far is invalid
         invalid.classList.remove("hidden");
@@ -240,7 +253,7 @@ image.addEventListener("change", function () {
     }
 })
 
-form.addEventListener("submit", function () {
+form2.addEventListener("submit", function () {
     // Remove warning for navigating away
     window.onbeforeunload = null;
 
@@ -249,10 +262,4 @@ form.addEventListener("submit", function () {
     submitButton.innerHTML = '<i class="spinner-border"></i> Submitting...'
     submitButton.classList.remove("btn-outline-success");
     submitButton.classList.add("btn-outline-dark");
-
-    // Re-enable the disabled fields, so they are submitted along with everything else
-    nameDropdown.disabled = false;
-    name.disabled         = false;
-    presenter.disabled    = false;
-    dateInput.disabled    = false;
 })
