@@ -67,10 +67,9 @@ if (isset($uploadSuccess) && $uploadSuccess) {
 if (isset($uploadInvalid) && $uploadInvalid) {
     echo '<div class="container">
                <div class="alert alert-danger mt-2" role="alert">
-                    <strong>Something was wrong with the submitted info, but we\'re not sure what.</strong> Please 
-                    try again, and if the problem persists, please report this to technical staff, including the 
-                    date and time you tried to upload your show. If your show is due to broadcast imminently, 
-                    please submit your show by alternative means. Sorry about that.
+                    <strong>Something went wrong.</strong> Please try again, and if the problem persists, please report 
+                    this to technical staff, including the  date and time you tried to upload your show. If your show 
+                    is due to broadcast imminently, please submit your show by alternative means. Sorry about that.
                </div>
           </div>';
 }

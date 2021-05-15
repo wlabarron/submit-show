@@ -198,7 +198,6 @@ class Recording {
         if (empty($submissionAlertEmail)) return;
 
         if (!filter_var($submissionAlertEmail, FILTER_VALIDATE_EMAIL)) throw new Exception("Receipt email address of invalid format.");
-
         $this->submissionAlertEmail = $submissionAlertEmail;
     }
 
