@@ -17,7 +17,7 @@ $jsConfig = 'const showJSON          = "' . $config["showData"]["url"] . '";
              const maxShowImageSize  = ' . $config["maxShowImageSize"] . ';';
 $jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com; style-src 'self' cdnjs.cloudflare.com; img-src 'self' data:");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com ajax.cloudflare.com; style-src 'self' cdnjs.cloudflare.com; img-src 'self' data:");
 
 ?>
 <!DOCTYPE html>
