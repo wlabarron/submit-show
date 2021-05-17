@@ -18,7 +18,7 @@ $jsConfig = 'const showJSON                 = "' . $config["showData"]["url"] . 
              const maxShowImageSizeFriendly = "' .  $config["maxShowImageSizeFriendly"] . '";';
 $jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com ajax.cloudflare.com; style-src 'self' cdnjs.cloudflare.com; img-src 'self' data:");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com cdn.jsdelivr.net ajax.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; img-src 'self' data:");
 
 ?>
 <!DOCTYPE html>
@@ -319,6 +319,8 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     </form>
 
     <script><?php echo $jsConfig; ?></script>
+    <script src="https://cdn.jsdelivr.net/npm/time-input-polyfill"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-input-polyfill"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
             integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
             crossorigin="anonymous"></script>
