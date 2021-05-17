@@ -130,9 +130,9 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         <div class="form-group">
             <label for="date">Original broadcast date</label>
             <input type="date" class="form-control" id="date" aria-describedby="dateHelp" name="date" required
-                   placeholder="YYYY-MM-DD">
+                   placeholder="YYYY-MM-DD" min="1970-01-01">
             <small id="dateHelp" class="form-text text-muted">
-                Enter the date this show was first broadcast (or when it will be broadcasted for the first time, as
+                Enter the date this show was first broadcast (or when it will be broadcast for the first time, as
                 appropriate).
             </small>
         </div>
