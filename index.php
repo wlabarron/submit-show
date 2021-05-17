@@ -170,7 +170,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         <div class="form-group">
             <label for="end">Original broadcast end time</label>
             <input type="time" class="form-control" id="end" aria-describedby="endHelp"
-                   name="end" placeholder="Type or choose a time..." required>
+                   name="end" placeholder="HH:MM" required>
             <small id="endHelp" class="form-text text-muted">
                 Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
                 to-the-minute - if your show's time slot is 12:00 - 14:00, you'd enter 14:00 here, even if you
