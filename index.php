@@ -83,7 +83,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     <h1>Submit Show</h1>
     <p>Submit a show for scheduling and automatic upload to Mixcloud.</p>
 
-    <form id="form1">
+    <form id="form1" autocomplete="off">
         <div class="form-group" id="showFileInputGroup">
             <label for="showFileInput">Show file</label>
             <input type="file" class="form-control" id="showFileInput" aria-describedby="showFileHelp"
@@ -156,7 +156,8 @@ if (isset($uploadInvalid) && $uploadInvalid) {
           method="POST"
           enctype="multipart/form-data"
           id="form2"
-          class="hidden">
+          class="hidden"
+          autocomplete="off">
         <input type="hidden" name="fileName" id="form2FileName">
         <input type="hidden" name="id" id="form2NameDropdown">
         <input type="hidden" name="name" id="form2Name">
