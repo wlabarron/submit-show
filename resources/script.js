@@ -137,6 +137,7 @@ form1.addEventListener("submit", function (event) {
         uploader.on('fileError', function () {
             document.getElementById("page-content").hidden = true;
             document.getElementById("error-UploadFail").hidden = false;
+            document.getElementById("error-UploadFail").focus();
             // Remove warning when navigating away
             window.onbeforeunload = null;
         });
