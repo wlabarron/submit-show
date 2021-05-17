@@ -29,7 +29,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
           integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
           crossorigin="anonymous" />
-    <link rel="stylesheet" href="resources/style.css?version=4">
+    <link rel="stylesheet" href="resources/style.css?version=5">
     <noscript>
         <link rel="stylesheet" href="resources/noscript.css">
     </noscript>
@@ -336,6 +336,6 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/flow.min.js"
             integrity="sha512-sl2wYWEDCu3bj5w4kyd6+bglKUxb6IPQbyflpIEJbftwtZYZp7GZQ2erVGsls9BveJIvIVW+hzM+rMQQT9Bn5w=="
             crossorigin="anonymous"></script>
-    <script src="resources/script.js?version=11"></script>
+    <script src="resources/script.js?version=12"></script>
 </body>
 </html>
