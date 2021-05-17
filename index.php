@@ -9,12 +9,13 @@ require_once  'processing/Recording.php';
 
 // There's some config values which need to be available in JS. They're put in at the end of this file, but we'll
 // prepare it here so we can make a hash and add it to the CSP.
-$jsConfig = 'const showJSON          = "' . $config["showData"]["url"] . '";
-             const showIdKey         = "' . $config["showData"]["idKey"] . '";
-             const showNameKey       = "' . $config["showData"]["nameKey"] . '";
-             const showPresenterKey  = "' . $config["showData"]["presenterKey"] . '";
-             const maxShowFileSize   = ' . $config["maxShowFileSize"] . ';
-             const maxShowImageSize  = ' . $config["maxShowImageSize"] . ';';
+$jsConfig = 'const showJSON                 = "' . $config["showData"]["url"] . '";
+             const showIdKey                = "' . $config["showData"]["idKey"] . '";
+             const showNameKey              = "' . $config["showData"]["nameKey"] . '";
+             const showPresenterKey         = "' . $config["showData"]["presenterKey"] . '";
+             const maxShowFileSize          = ' . $config["maxShowFileSize"] . ';
+             const maxShowImageSize         = ' . $config["maxShowImageSize"] . ';
+             const maxShowImageSizeFriendly = "' .  $config["maxShowImageSizeFriendly"] . '";';
 $jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
 
 header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com ajax.cloudflare.com; style-src 'self' cdnjs.cloudflare.com; img-src 'self' data:");
@@ -209,13 +210,8 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         </div>
 
         <div class="form-group" id="imageUploader">
-            <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg">
-            <div class="alert alert-warning mt-2 error-imageOversized" hidden role="alert">
-                <strong>The image you chose is too big.</strong> The maximum size
-                is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
-                Please try again with a smaller version of the file. If you're not sure how to do this, please
-                contact technical staff. Thank you.
-            </div>
+            <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg"
+                   aria-describedby="imageHelp">
             <small id="imageHelp" class="form-text text-muted">
                 You can upload JPG or PNG files up to <?php echo $config["maxShowImageSizeFriendly"]; ?>.
             </small>
@@ -313,13 +309,6 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             or broadcast, as appropriate.<br>
             This show will published to Mixcloud <strong>as soon as possible after the "end" date and time specified
                 above</strong>.</p>
-
-        <div class="alert alert-warning mt-2 error-imageOversized" hidden role="alert">
-            <strong>The image you chose is too big.</strong> The maximum size
-            is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
-            Please try again with a smaller version of the file. If you're not sure how to do this, please contact
-            technical staff. Thank you.
-        </div>
 
         <!-- Submit button behaviour modified by the <form> tag -->
         <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled>

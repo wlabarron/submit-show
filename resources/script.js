@@ -1,6 +1,3 @@
-let showUploaded        = false;
-let imageValid          = true;
-
 const form1                        = document.getElementById("form1");
 const form2                        = document.getElementById("form2");
 const showFileInput               = document.getElementById("showFileInput");
@@ -38,20 +35,6 @@ function populateShowNameSelect() {
                 nameOptionGroup.appendChild(option);
             }
         })
-}
-
-function updateStatusOfFormSubmitButton() {
-    // If the image is valid and the file has been uploaded, allow form submission. Otherwise, disable the button
-    if (showUploaded && imageValid) {
-        submitButton.disabled = false;
-        submitButton.innerText = "Submit Show";
-        submitButton.classList.add("btn-outline-success");
-        submitButton.classList.remove("btn-outline-dark");
-        submitButton.style.marginBottom = "1rem"; // reduce page reflow from removing uploading help text
-        uploadingHelpText.hidden = true;
-    } else {
-        submitButton.disabled = true;
-    }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -144,8 +127,12 @@ form1.addEventListener("submit", function (event) {
 
         // Activate the submit button when the upload succeeds
         uploader.on('fileSuccess', function () {
-            showUploaded = true;
-            updateStatusOfFormSubmitButton();
+            submitButton.disabled = false;
+            submitButton.innerText = "Submit Show";
+            submitButton.classList.add("btn-outline-success");
+            submitButton.classList.remove("btn-outline-dark");
+            submitButton.style.marginBottom = "1rem"; // reduce page reflow from removing uploading help text
+            uploadingHelpText.hidden = true;
         });
 
         // start upload
@@ -229,21 +216,12 @@ imageSource.addEventListener("change", function () {
 image.addEventListener("change", function () {
     // if image is too large
     if (image.files[0].size > maxShowImageSize) {
-        // prevent form submission and show warning
-        imageValid = false;
-        updateStatusOfFormSubmitButton();
-
-        for (const element of imageErrors) {
-            element.hidden = false;
-        }
+        // Field is invalid
+        image.setCustomValidity("Image too big. The maximum size is " + maxShowImageSizeFriendly + ".");
+        image.reportValidity();
     } else {
-        // permit form submission
-        imageValid = true;
-        updateStatusOfFormSubmitButton();
-
-        for (const element of imageErrors) {
-            element.hidden = true;
-        }
+        // Field is valid
+        image.setCustomValidity("");
     }
 })
 
