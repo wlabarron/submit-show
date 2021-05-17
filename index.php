@@ -95,7 +95,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         </div>
 
         <div class="form-group">
-            <label for="nameDropdown">Show name</label>
+            <label for="nameDropdown">Show</label>
             <select class="form-select" id="nameDropdown" aria-describedby="nameDropdownHelp" name="id" required>
                 <option value="" disabled selected>Choose show name...</option>
                 <optgroup label="Shows" id="nameOptionGroup"></optgroup>
