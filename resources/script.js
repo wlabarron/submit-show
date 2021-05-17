@@ -48,7 +48,7 @@ function updateStatusOfFormSubmitButton() {
         submitButton.classList.add("btn-outline-success");
         submitButton.classList.remove("btn-outline-dark");
         submitButton.style.marginBottom = "1rem"; // reduce page reflow from removing uploading help text
-        uploadingHelpText.classList.add("hidden");
+        uploadingHelpText.hidden = true;
     } else {
         submitButton.disabled = true;
     }
@@ -70,8 +70,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const testUploader = new Flow();
     // If the uploader isn't supported, hide the page content and show error
     if (!testUploader.support) {
-        document.getElementById("page-content").classList.add("hidden");
-        document.getElementById("error-FilesUnsupported").classList.remove("hidden");
+        document.getElementById("page-content").hidden = true;
+        document.getElementById("error-FilesUnsupported").hidden = false;
     }
 
     // When a file is added
@@ -82,10 +82,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (file.size > maxShowFileSize) {
             goButton.disabled = true;
-            error.classList.remove("hidden");
+            error.hidden = false;
         } else {
             goButton.disabled = false;
-            error.classList.add("hidden");
+            error.hidden = true;
         }
     });
 
@@ -96,9 +96,9 @@ nameDropdown.addEventListener("change", function () {
     if (nameDropdown.value === "special") {
         name.value = "";
         presenter.value = "";
-        nameAndPresenterEntryFields.classList.remove("hidden");
+        nameAndPresenterEntryFields.hidden = false;
     } else {
-        nameAndPresenterEntryFields.classList.add("hidden");
+        nameAndPresenterEntryFields.hidden = true;
         name.value      = nameDropdown.selectedOptions[0].innerText;
         presenter.value = nameDropdown.selectedOptions[0].dataset.presenter;
     }
@@ -135,8 +135,8 @@ form1.addEventListener("submit", function (event) {
 
         // Display error if something goes wrong in the file upload
         uploader.on('fileError', function () {
-            document.getElementById("page-content").classList.add("hidden");
-            document.getElementById("error-UploadFail").classList.remove("hidden");
+            document.getElementById("page-content").hidden = true;
+            document.getElementById("error-UploadFail").hidden = false;
             // Remove warning when navigating away
             window.onbeforeunload = null;
         });
@@ -151,13 +151,13 @@ form1.addEventListener("submit", function (event) {
         uploader.upload();
 
         // disable the inputs we've used so far, hide the file uploader, show the rest of the form
-        document.getElementById("showFileInputGroup").classList.add("hidden");
-        document.getElementById("uploadAndContinueButton").classList.add("hidden");
+        document.getElementById("showFileInputGroup").hidden = true;
+        document.getElementById("uploadAndContinueButton").hidden = true;
         nameDropdown.disabled = true;
         name.disabled         = true;
         presenter.disabled    = true;
         dateInput.disabled    = true
-        invalid.classList.add("hidden");
+        invalid.hidden = true;
 
         // Copy the values of form 1 into hidden fields of form 2, so they're submitted with the rest of the details
         fileName2.value     = showFileInput.files[0].name;
@@ -168,8 +168,8 @@ form1.addEventListener("submit", function (event) {
 
         if (nameDropdown.value === "special") {
             // This is a special show, so hide all the options to do with default values.
-            document.getElementById("defaultImage").classList.add("hidden");
-            document.getElementById("saveFormDefaultsSection").classList.add("hidden");
+            document.getElementById("defaultImage").hidden = true;
+            document.getElementById("saveFormDefaultsSection").hidden = true;
             document.getElementById("saveAsDefaults").checked = false;
         } else {
             // This isn't a one-off show, so we can go and fetch the default data.
@@ -204,29 +204,25 @@ form1.addEventListener("submit", function (event) {
             )
                 .then(function(data) {
                     if (data.ok) { // Default image exists
-                        document.getElementById("defaultImageSection").classList.remove("hidden");
+                        document.getElementById("defaultImageSection").hidden = false;
                         document.getElementById("defaultImage").src = "/resources/default/image.php?show=" + nameDropdown.value;
                         document.getElementById("imageSource").value = "default";
-                        imageUploader.classList.add("hidden");
+                        imageUploader.hidden = true;
                     }
                 });
         }
 
         // Display the rest of the form.
-        form2.classList.remove("hidden");
+        form2.hidden = false;
         document.getElementById("end").focus();
     } else {
         // Display an error if the form so far is invalid
-        invalid.classList.remove("hidden");
+        invalid.hidden = false;
     }
 });
 
 imageSource.addEventListener("change", function () {
-    if (imageSource.value === "upload") {
-        imageUploader.classList.remove("hidden");
-    } else {
-        imageUploader.classList.add("hidden");
-    }
+    imageUploader.hidden = imageSource.value !== "upload";
 })
 
 image.addEventListener("change", function () {
@@ -237,7 +233,7 @@ image.addEventListener("change", function () {
         updateStatusOfFormSubmitButton();
 
         for (const element of imageErrors) {
-            element.classList.remove("hidden");
+            element.hidden = false;
         }
     } else {
         // permit form submission
@@ -245,7 +241,7 @@ image.addEventListener("change", function () {
         updateStatusOfFormSubmitButton();
 
         for (const element of imageErrors) {
-            element.classList.add("hidden");
+            element.hidden = true;
         }
     }
 })

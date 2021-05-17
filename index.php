@@ -44,14 +44,14 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     </div>
 </noscript>
 
-<div class="container hidden" id="error-UploadFail">
+<div class="container" hidden id="error-UploadFail">
     <div class="alert alert-danger mt-2" role="alert">
         Something went wrong uploading your show file. Sorry about that. Please
         <a href="index.php" class="alert-link">try again</a>.
     </div>
 </div>
 
-<div class="container hidden" id="error-FilesUnsupported">
+<div class="container" hidden id="error-FilesUnsupported">
     <div class="alert alert-danger mt-2" role="alert">
         Your browser doesn't support some of the technologies this uploader needs. Swap to another one, such as an
         up-to-date version of Firefox, then try there.<br> If you've not got another web browser installed, you can
@@ -108,7 +108,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             </small>
         </div>
 
-        <div class="hidden" id="nameAndPresenterEntryFields">
+        <div hidden id="nameAndPresenterEntryFields">
             <div class="form-group">
                 <label for="name">Show name</label>
                 <input type="text" class="form-control" id="name" required aria-describedby="nameHelp" name="name" maxlength="50">
@@ -137,11 +137,11 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             </small>
         </div>
 
-        <div class="alert alert-warning hidden" role="alert" id="error-InitialFormInvalid">
+        <div class="alert alert-warning" hidden role="alert" id="error-InitialFormInvalid">
             Hang on! Make sure you've filled in all the fields above correctly.
         </div>
 
-        <div class="alert alert-warning mt-2 hidden" role="alert" id="error-ShowFileOversized">
+        <div class="alert alert-warning mt-2" hidden role="alert" id="error-ShowFileOversized">
             <strong>The show file you chose is too big.</strong> The maximum size
             is <?php echo $config["maxShowFileSizeFriendly"]; ?>.
             Please try again with a smaller version of the file. If you're not sure how to do this, please contact
@@ -156,8 +156,8 @@ if (isset($uploadInvalid) && $uploadInvalid) {
           method="POST"
           enctype="multipart/form-data"
           id="form2"
-          class="hidden"
-          autocomplete="off">
+          autocomplete="off"
+          hidden>
         <input type="hidden" name="fileName" id="form2FileName">
         <input type="hidden" name="id" id="form2NameDropdown">
         <input type="hidden" name="name" id="form2Name">
@@ -190,7 +190,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         <div class="form-group">
             <label for="showImageInput">Show cover image</label>
 
-            <div id="defaultImageSection" class="hidden">
+            <div id="defaultImageSection" hidden>
                 <div class="ps-5">
                     Saved photo:
                     <div class="col-md-5">
@@ -210,7 +210,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
         <div class="form-group" id="imageUploader">
             <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg">
-            <div class="alert alert-warning mt-2 hidden error-imageOversized" role="alert">
+            <div class="alert alert-warning mt-2 error-imageOversized" hidden role="alert">
                 <strong>The image you chose is too big.</strong> The maximum size
                 is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
                 Please try again with a smaller version of the file. If you're not sure how to do this, please
@@ -314,7 +314,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             This show will published to Mixcloud <strong>as soon as possible after the "end" date and time specified
                 above</strong>.</p>
 
-        <div class="alert alert-warning mt-2 hidden error-imageOversized" role="alert">
+        <div class="alert alert-warning mt-2 error-imageOversized" hidden role="alert">
             <strong>The image you chose is too big.</strong> The maximum size
             is <?php echo $config["maxShowImageSizeFriendly"]; ?>.
             Please try again with a smaller version of the file. If you're not sure how to do this, please contact
