@@ -240,11 +240,10 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
         <div class="form-group">
             <label>Tags</label>
-            <select class="form-control" id="tag1" aria-label="Tag" aria-describedby="tagsHelp" name="tag1">
+            <select class="form-select" id="tag1" aria-label="Tag" aria-describedby="tagsHelp" name="tag1">
                 <option value="" disabled selected>Choose primary tag...</option>
                 <?php
                     foreach (Recording::$PRIMARY_TAG_OPTIONS as $tag) {
-
                         echo '<option value="' . $tag . '">' . $tag. '</option>';
                     }
                 ?>
