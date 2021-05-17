@@ -18,7 +18,7 @@ $jsConfig = 'const showJSON                 = "' . $config["showData"]["url"] . 
              const maxShowImageSizeFriendly = "' .  $config["maxShowImageSizeFriendly"] . '";';
 $jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' cdnjs.cloudflare.com cdn.jsdelivr.net ajax.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; img-src 'self' data:");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/ https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/ https://cdn.jsdelivr.net/npm/time-input-polyfill@1.0.10/ https://cdn.jsdelivr.net/npm/date-input-polyfill@2.14.0/ ajax.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css; img-src 'self' data:");
 
 ?>
 <!DOCTYPE html>
@@ -175,7 +175,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                    name="end" placeholder="HH:MM" required>
             <small id="endHelp" class="form-text text-muted">
                 Enter the time this show ended or will finish when broadcast on air. This doesn't need to be
-                to-the-minute - if your show's time slot is 12:00 - 14:00, you'd enter 14:00 here, even if you
+                to-the-minute; if your show's time slot is 12:00-14:00, you'd enter 14:00 here, even if you
                 finished at 13:56.
             </small>
         </div>
@@ -321,14 +321,18 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     </form>
 
     <script><?php echo $jsConfig; ?></script>
-    <script src="https://cdn.jsdelivr.net/npm/time-input-polyfill"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-input-polyfill"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
-            integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
-            crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/flow.min.js"
             integrity="sha512-sl2wYWEDCu3bj5w4kyd6+bglKUxb6IPQbyflpIEJbftwtZYZp7GZQ2erVGsls9BveJIvIVW+hzM+rMQQT9Bn5w=="
             crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
+            integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
+            crossorigin="anonymous"></script>
     <script src="resources/script.js?version=12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-input-polyfill@2.14.0/date-input-polyfill.dist.js"
+            integrity="sha256-FcR3bJqClBNWiJqgW1E9yEgSRoAqRNcjOfgRfaH0LVw="
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/time-input-polyfill@1.0.10/dist/time-input-polyfill.auto.min.js"
+            integrity="sha256-pPvhG+ZBiZnOJYuw+caBxTfDQONb+EGX0agZ6Fmt0Ns="
+            crossorigin="anonymous"></script>
 </body>
 </html>
