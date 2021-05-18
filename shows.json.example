@@ -1,0 +1,12 @@
+[
+    {
+        "id": 1,
+        "name": "The Breakfast Show",
+        "presenter": "Terry Wogan"
+    },
+    {
+        "id": 2,
+        "name": "The Lunchtime Show",
+        "presenter": "Another Name"
+    }
+]

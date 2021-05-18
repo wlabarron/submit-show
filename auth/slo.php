@@ -1,6 +1,7 @@
 <?php
 /**
  *  SP Single Logout Service Endpoint
+ *  Modified from https://github.com/onelogin/php-saml/tree/master/endpoints.
  */
 
 use OneLogin\Saml2\Auth;
@@ -8,15 +9,22 @@ use OneLogin\Saml2\Auth;
 session_start();
 
 require(dirname(__DIR__) . '/vendor/autoload.php');
-require_once('settings.php');
-$auth = new Auth($samlSettings);
+$config = require (dirname(__DIR__) . '/processing/config.php');
 
-$auth->processSLO();
+try {
+    $auth = new Auth($config["samlSettings"]);
+    $auth->processSLO();
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    http_response_code(500);
+    exit;
+}
+
 
 $errors = $auth->getErrors();
 
 if (empty($errors)) {
-    echo 'Sucessfully logged out';
+    echo 'Successfully logged out';
 } else {
     echo implode(', ', $errors);
 }

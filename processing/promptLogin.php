@@ -1,8 +1,8 @@
 <?php
 
 /**
- * {@code require} this file at the top of the script. If the user isn't logged in, a 403 Forbidden message is returned
- * and execution is stopped.
+ * Prompts a user to log in, if they're not already logged in. {@code require} this file at the top of any scripts
+ * which should prompt for login.
  */
 
 use OneLogin\Saml2\Auth;
@@ -18,11 +18,8 @@ if (($config["samlEnabled"])) {
     try {
         $auth = new Auth($config["samlSettings"]);
 
-        // If not signed in, reject
-        if (!isset($_SESSION['samlNameId'])) {
-            http_response_code(403);
-            exit;
-        }
+        // If not signed in, sign in
+        if (!isset($_SESSION['samlNameId'])) $auth->login();
     } catch (Exception $e) {
         error_log($e->getMessage());
     }

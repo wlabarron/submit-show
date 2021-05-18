@@ -6,42 +6,36 @@ body {
 .joint-input-top {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+  margin-top: 0 !important;
 }
 
 .joint-input-middle {
   border-radius: 0;
+  margin-top: 0 !important;
 }
 
 .joint-input-bottom {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-}
-
-.datepicker {
-  text-align: center;
+  margin-top: 0 !important;
 }
 
 hr {
   margin: 3rem 0;
 }
 
-.datepicker td {
-  padding: 3px 6px;
+.form-control, .form-select {
+  margin-top: 0.5rem;
 }
 
-.make-disabled-input-appear-normal {
-  background-color: #FFF !important;
+.form-group {
+  margin-bottom: 1rem;
 }
 
-#detailsForm,
-#initial-form-invalid,
-#files-unsupported,
-#defaultImageDisplay,
-#submit-fail,
-#submit-invalid,
-#submit-success,
-#show-file-oversized,
-.show-image-oversized,
-#specialShowDetails {
-  display: none;
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border-width: .15em;
+  margin-bottom: 4px;
+  vertical-align: middle;
 }
