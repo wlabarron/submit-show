@@ -29,6 +29,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Submit a show for scheduling and automatic upload to Mixcloud.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
           integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
           crossorigin="anonymous" />
@@ -58,7 +59,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     <div class="alert alert-danger mt-2" role="alert">
         Your browser doesn't support some of the technologies this uploader needs. Swap to another one, such as an
         up-to-date version of Firefox, then try there.<br> If you've not got another web browser installed, you can
-        <a href="https://www.mozilla.org/en-GB/firefox/new/" target="_blank" class="alert-link">download Firefox</a>.
+        <a href="https://www.mozilla.org/en-GB/firefox/new/" target="_blank" class="alert-link" rel="noopener noreferrer">download Firefox</a>.
     </div>
 </div>
 
