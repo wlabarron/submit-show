@@ -140,10 +140,6 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             </small>
         </div>
 
-        <div class="alert alert-warning" hidden role="alert" id="error-InitialFormInvalid">
-            Hang on! Make sure you've filled in all the fields above correctly.
-        </div>
-
         <div class="alert alert-warning mt-2" hidden role="alert" id="error-ShowFileOversized">
             <strong>The show file you chose is too big.</strong> The maximum size
             is <?php echo $config["maxShowFileSizeFriendly"]; ?>.
