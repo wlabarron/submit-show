@@ -163,7 +163,7 @@ form1.addEventListener("submit", function (event) {
             document.getElementById("saveAsDefaults").checked = false;
         } else {
             // This isn't a one-off show, so we can go and fetch the default data.
-            fetch("/resources/default/data.php?show=" + nameDropdown.value)
+            fetch("resources/default/data.php?show=" + nameDropdown.value)
                 .then(function(response) {
                     if (response.ok) return response.json()
                     else return null
@@ -186,7 +186,7 @@ form1.addEventListener("submit", function (event) {
                     }
                 })
 
-            fetch("/resources/default/image.php?show=" + nameDropdown.value,
+            fetch("resources/default/image.php?show=" + nameDropdown.value,
                 {
                     // Only get headers, since we just need the HTTP status for now to see if an image exists.
                     method: "HEAD"
@@ -195,7 +195,7 @@ form1.addEventListener("submit", function (event) {
                 .then(function(data) {
                     if (data.ok) { // Default image exists
                         document.getElementById("defaultImageSection").hidden = false;
-                        document.getElementById("defaultImage").src = "/resources/default/image.php?show=" + nameDropdown.value;
+                        document.getElementById("defaultImage").src = "resources/default/image.php?show=" + nameDropdown.value;
                         document.getElementById("imageSource").value = "default";
                         imageUploader.hidden = true;
                     }
