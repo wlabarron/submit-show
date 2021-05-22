@@ -312,7 +312,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                 above</strong>.</p>
 
         <!-- Submit button behaviour modified by the <form> tag -->
-        <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled>
+        <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" aria-describedby="uploadingHelpText" disabled>
             <i class="spinner-border"></i> Uploading...
         </button>
 
@@ -326,7 +326,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
             integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
             crossorigin="anonymous"></script>
-    <script src="resources/script.js?version=12"></script>
+    <script src="resources/script.js?version=13"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-input-polyfill@2.14.0/date-input-polyfill.dist.js"
             integrity="sha256-FcR3bJqClBNWiJqgW1E9yEgSRoAqRNcjOfgRfaH0LVw="
             crossorigin="anonymous"></script>

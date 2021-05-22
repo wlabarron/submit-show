@@ -131,8 +131,8 @@ form1.addEventListener("submit", function (event) {
             submitButton.innerText = "Submit Show";
             submitButton.classList.add("btn-outline-success");
             submitButton.classList.remove("btn-outline-dark");
-            submitButton.style.marginBottom = "1rem"; // reduce page reflow from removing uploading help text
-            uploadingHelpText.hidden = true;
+            submitButton.style.marginBottom = "1.5rem"; // reduce page reflow from removing uploading help text
+            uploadingHelpText.remove();
         });
 
         // start upload
