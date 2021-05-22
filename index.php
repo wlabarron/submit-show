@@ -106,7 +106,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                     <option value='special'>One-off or Special Show</option>
                 </optgroup>
             </select>
-            <small id="nameDropdown" class="form-text text-muted">
+            <small id="nameDropdownHelp" class="form-text text-muted">
                 Show missing? Please report it to technical staff.
             </small>
         </div>
@@ -124,7 +124,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                 <label for="presenter">Show presenter</label>
                 <input type="text" class="form-control" id="presenter" required aria-describedby="presenterHelp" name="presenter"
                        maxlength="50">
-                <small id="presenter" class="form-text text-muted">
+                <small id="presenterHelp" class="form-text text-muted">
                     Enter the show's presenter.
                 </small>
             </div>
