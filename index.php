@@ -203,7 +203,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                 <select class="form-select"
                         id="imageSource"
                         name="imageSource"
-                        aria-label="Choose how to proceed with the cover image">
+                        aria-label="Choose which cover image to use">
                     <option value="default">Use saved photo for this show</option>
                     <option value="upload" selected>Upload new photo</option>
                     <option value="none">Don't use a photo</option>
