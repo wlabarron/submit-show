@@ -90,13 +90,16 @@ nameDropdown.addEventListener("change", function () {
 form1.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const invalid   = document.getElementById("error-InitialFormInvalid");
-
     // validate the input
     let inputValid = true;
     if (isNaN(Date.parse(dateInput.value))) {
         // Invalid or no date entered
         inputValid = false
+        dateInput.setCustomValidity("Please enter a valid date.");
+        dateInput.reportValidity();
+    } else {
+        dateInput.setCustomValidity("");
+        dateInput.reportValidity();
     }
 
     if (inputValid) {
@@ -131,8 +134,8 @@ form1.addEventListener("submit", function (event) {
             submitButton.innerText = "Submit Show";
             submitButton.classList.add("btn-outline-success");
             submitButton.classList.remove("btn-outline-dark");
-            submitButton.style.marginBottom = "1rem"; // reduce page reflow from removing uploading help text
-            uploadingHelpText.hidden = true;
+            submitButton.style.marginBottom = "1.5rem"; // reduce page reflow from removing uploading help text
+            uploadingHelpText.remove();
         });
 
         // start upload
@@ -145,7 +148,6 @@ form1.addEventListener("submit", function (event) {
         name.disabled         = true;
         presenter.disabled    = true;
         dateInput.disabled    = true
-        invalid.hidden = true;
 
         // Copy the values of form 1 into hidden fields of form 2, so they're submitted with the rest of the details
         fileName2.value     = showFileInput.files[0].name;
@@ -203,9 +205,6 @@ form1.addEventListener("submit", function (event) {
         // Display the rest of the form.
         form2.hidden = false;
         document.getElementById("end").focus();
-    } else {
-        // Display an error if the form so far is invalid
-        invalid.hidden = false;
     }
 });
 
@@ -222,6 +221,7 @@ image.addEventListener("change", function () {
     } else {
         // Field is valid
         image.setCustomValidity("");
+        dateInput.reportValidity()
     }
 })
 
