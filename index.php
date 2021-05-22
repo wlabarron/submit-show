@@ -213,7 +213,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
         <div class="form-group" id="imageUploader">
             <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg"
-                   aria-describedby="imageHelp">
+                   aria-describedby="imageHelp" aria-label="Show cover image">
             <small id="imageHelp" class="form-text text-muted">
                 You can upload JPG or PNG files up to <?php echo $config["maxShowImageSizeFriendly"]; ?>.
             </small>
