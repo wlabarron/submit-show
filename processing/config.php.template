@@ -71,6 +71,20 @@ return array(
         'secret'    => '',
     ),
 
+    // The filename format to use for submitted shows. You can use the `/` character to organise the files into
+    // directories. The following variables are available:
+    //      {s}   Show name
+    //      {p}   Presenter name
+    //      {d}   Date without leading 0
+    //      {dd}  Date with leading 0
+    //      {m}   Month number without leading 0
+    //      {mm}  Month number with leading 0
+    //      {y}   2-digit year (e.g. 21)
+    //      {yy}  4-digit year (e.g. 2021)
+    // The extension of the uploaded file is added automatically (i.e. if a user uploads an MP3, the final file name
+    // will end in `.mp3`).
+    'uploadFileName' => '{p}-{s} {y}{mm}{dd}',
+
     // Set this to `true` to delete the copy of the shows submitted after it's been uploaded to Mixcloud.
     // BEWARE: Changing this setting could have a profound effect on your show archive. Take great care, and make sure
     //         you've always got an up-to-date backup (but you should have that anyway, even if you're not changing
