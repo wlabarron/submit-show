@@ -10,6 +10,7 @@ require_once 'vendor/autoload.php';
 require_once 'processing/Database.php';
 require_once 'processing/Recording.php';
 require_once 'processing/Input.php';
+require_once 'processing/Storage.php';
 $config = require 'processing/config.php';
 
 $database  = new Database();
@@ -76,10 +77,15 @@ try {
 
 // set the path to upload to
 $uploadPath = $config["holdingDirectory"] . "/" . $fileName;
+if (!Storage::createParentDirectories($uploadPath)) {
+    error_log("Failed to create parent directories for  " . $uploadPath);
+    http_response_code(500);
+    exit;
+}
 
 // If this is the final chunk of the file
 if (Basic::save($uploadPath, $flowConfig, $request)) {
-    $removingMetadataLocation = $config["holdingDirectory"] . "/meta-" . $fileName;
+    $removingMetadataLocation = $uploadPath . "-meta." . $extension;
 
     // Remove metadata from uploaded file, put in the show presenter and title instead
     // $metadata[0] is presenter, [1] is title, [2] is file extension
