@@ -253,6 +253,29 @@ class Recording {
     }
 
     /**
+     * @return string
+     */
+    public function getName(): string {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPresenter(): string {
+        return $this->presenter;
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function get6DigitStartDate(): string {
+        if (empty($this->start)) throw new Exception("No start date stored before requesting 6 digit date.");
+        return date("ymd", strtotime($this->start));
+    }
+
+    /**
      * Get a nicely-formatted title of the show to publish to Mixcloud. Ensure a show name, presenter, and start time
      * are set before calling this function.
      * @return string The title to be used on Mixcloud.

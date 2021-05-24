@@ -85,16 +85,17 @@ if (!Storage::createParentDirectories($uploadPath)) {
 
 // If this is the final chunk of the file
 if (Basic::save($uploadPath, $flowConfig, $request)) {
-    $removingMetadataLocation = $uploadPath . "-meta." . $extension;
-
-    // Remove metadata from uploaded file, put in the show presenter and title instead
-    // $metadata[0] is presenter, [1] is title, [2] is file extension
-    // TODO Use info from Recording object instead
-    $metadata = preg_split("/[-.]/", $fileName, 3);
-    shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -metadata title=\"$metadata[1]\" -metadata artist=\"$metadata[0]\" -c:v copy -c:a copy \"$removingMetadataLocation\"");
-
-    // move metadata-removed file back to the upload path
-    rename($removingMetadataLocation, $uploadPath);
+    try {
+        // Write metadata about the show into the file
+        $removingMetadataLocation = $uploadPath . "-meta." . $extension;
+        shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -metadata title=\"" . $recording->getName() . " " . $recording->get6DigitStartDate() . "\" -metadata artist=\"" . $recording->getPresenter() . "\" -c:v copy -c:a copy \"$removingMetadataLocation\"");
+        // move metadata-removed file back to the upload path
+        rename($removingMetadataLocation, $uploadPath);
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        http_response_code(500);
+        exit;
+    }
 
     // Log upload completed
     try {
