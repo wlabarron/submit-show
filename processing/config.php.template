@@ -71,9 +71,22 @@ return array(
         'secret'    => '',
     ),
 
-     // How long a show should be kept in storage after being published to Mixcloud -
-     // format at https://www.php.net/manual/en/datetime.formats.relative.php
-    'retentionPeriod' => '1 day',
+    // Set this to `true` to delete the copy of the shows submitted after it's been uploaded to Mixcloud.
+    // BEWARE: Changing this setting could have a profound effect on your show archive. Take great care, and make sure
+    //         you've always got an up-to-date backup (but you should have that anyway, even if you're not changing
+    //         this setting).
+    //         Before enabling this setting, check what is in the `submissions` table of the database. Anything with a
+    //         `deletion-datetime` in the past relative to your database server time will be deleted the next time the
+    //         cron job runs.
+    //         TAKE BACKUPS. YOU HAVE BEEN WARNED.
+    'deleteStoredCopies' => false,
+    // If `deleteStoredCopies` is true,  this how long a show should be kept in storage after being published to
+    //                                   Mixcloud. After this period, the file is deleted.
+    // If `deleteStoredCopies` is false, this is how long a show's information will be kept in the submissions
+    //                                   database which powers this system. After this period, the reference to the
+    //                                   show is deleted. "3 days" is a sufficient value in most cases.
+    // Format at https://www.php.net/manual/en/datetime.formats.relative.php.
+    'retentionPeriod' => '3 days',
 
     // Text appended to the description of every upload. Use '{n}' for a new line.
     'fixedDescription' => '',
