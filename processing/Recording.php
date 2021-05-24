@@ -321,27 +321,33 @@ class Recording {
      * @throws Exception If prerequisite data is missing or invalid.
      */
     public function getFileName(): string {
-        if (empty($this->name)) throw new Exception("No show name stored before requesting file name.");
+        if (empty($this->name))      throw new Exception("No show name stored before requesting file name.");
         if (empty($this->presenter)) throw new Exception("No presenter name stored before requesting file name.");
-        if (empty($this->start)) throw new Exception("No start date stored before requesting file name.");
+        if (empty($this->start))     throw new Exception("No start date stored before requesting file name.");
         if (empty($this->extension)) throw new Exception("No file extension stored before requesting file name.");
-
-        // Put the date into the correct format
-        $date = date("ymd", strtotime($this->start));
 
         // Decode any encoded special characters
         $name      = htmlspecialchars_decode($this->name, ENT_QUOTES);
         $presenter = htmlspecialchars_decode($this->presenter, ENT_QUOTES);
-
         // Replace special characters in show details with spaces
         $name      = preg_replace("/\W/", " ", $name);
         $presenter = preg_replace("/\W/", " ", $presenter);
-
         // replace multiple spaces with a single space and trim whitespace from ends
         $name      = trim(preg_replace("/\s+/", " ", $name));
         $presenter = trim(preg_replace("/\s+/", " ", $presenter));
 
-        return $presenter . "-" . $name . " " . $date . "." . $this->extension;
+        $replacements = array(
+            '{s}'  => $name,
+            '{p}'  => $presenter,
+            '{d}'  => date("j", strtotime($this->start)),
+            '{dd}' => date("d", strtotime($this->start)),
+            '{m}'  => date("n", strtotime($this->start)),
+            '{mm}' => date("m", strtotime($this->start)),
+            '{y}'  => date("y", strtotime($this->start)),
+            '{yy}' => date("Y", strtotime($this->start)),
+        );
+
+        return strtr($this->config["uploadFileName"], $replacements) . "." . $this->extension;
     }
 
     /**
