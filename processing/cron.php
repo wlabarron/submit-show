@@ -169,11 +169,14 @@ function publishShow(array $show, array $config, Storage $storage, Database $dat
  * @throws Exception
  */
 function deleteShow(array $show, array $config, Storage $storage, Database $database) {
-    if ($show["file-location"] == Storage::$LOCATION_WAITING) {
-        if (!unlink($config["waitingDirectory"] . "/" . $show["file"]))
-            throw new Exception("Couldn't delete file from waiting directory.");
-    } else {
-        $storage->delete($show["file"]);
+    // If old files should be deleted
+    if ($config["deleteStoredCopies"]) {
+        if ($show["file-location"] == Storage::$LOCATION_WAITING) {
+            if (!unlink($config["waitingDirectory"] . "/" . $show["file"]))
+                throw new Exception("Couldn't delete file from waiting directory.");
+        } else {
+            $storage->delete($show["file"]);
+        }
     }
 
     $database->deleteSubmission($show["id"]);
