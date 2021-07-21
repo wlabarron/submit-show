@@ -69,10 +69,16 @@ abstract class Storage {
     public function moveToWaiting(string $file) {
         if (empty($file)) throw new Exception("No file name provided.");
 
-        $config = require __DIR__ . '/config.php';
+        $config          = require __DIR__ . '/config.php';
+        $holdingLocation = $config["holdingDirectory"] . "/" . $file;
+        $targetLocation  = $config["waitingDirectory"] . "/" . $file;
 
-        if (file_exists($config["holdingDirectory"] . "/" . $file)) {
-            if (!rename($config["holdingDirectory"] . "/" . $file, $config["waitingDirectory"] . "/" . $file)) {
+        if (file_exists($holdingLocation)) {
+            if (!Storage::createParentDirectories($targetLocation)) {
+                throw new Exception("Couldn't make parent directories in target location.");
+            }
+
+            if (!rename($holdingLocation, $targetLocation)) {
                 throw new Exception("Couldn't move file from holding to waiting.");
             }
         } else {
