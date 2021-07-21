@@ -10,6 +10,7 @@ require_once 'vendor/autoload.php';
 require_once 'processing/Database.php';
 require_once 'processing/Recording.php';
 require_once 'processing/Input.php';
+require_once 'processing/Storage.php';
 $config = require 'processing/config.php';
 
 $database  = new Database();
@@ -76,19 +77,25 @@ try {
 
 // set the path to upload to
 $uploadPath = $config["holdingDirectory"] . "/" . $fileName;
+if (!Storage::createParentDirectories($uploadPath)) {
+    error_log("Failed to create parent directories for  " . $uploadPath);
+    http_response_code(500);
+    exit;
+}
 
 // If this is the final chunk of the file
 if (Basic::save($uploadPath, $flowConfig, $request)) {
-    $removingMetadataLocation = $config["holdingDirectory"] . "/meta-" . $fileName;
-
-    // Remove metadata from uploaded file, put in the show presenter and title instead
-    // $metadata[0] is presenter, [1] is title, [2] is file extension
-    // TODO Use info from Recording object instead
-    $metadata = preg_split("/[-.]/", $fileName, 3);
-    shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -metadata title=\"$metadata[1]\" -metadata artist=\"$metadata[0]\" -c:v copy -c:a copy \"$removingMetadataLocation\"");
-
-    // move metadata-removed file back to the upload path
-    rename($removingMetadataLocation, $uploadPath);
+    try {
+        // Write metadata about the show into the file
+        $removingMetadataLocation = $uploadPath . "-meta." . $extension;
+        shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -metadata title=\"" . $recording->getName() . " " . $recording->get6DigitStartDate() . "\" -metadata artist=\"" . $recording->getPresenter() . "\" -c:v copy -c:a copy \"$removingMetadataLocation\"");
+        // move metadata-removed file back to the upload path
+        rename($removingMetadataLocation, $uploadPath);
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        http_response_code(500);
+        exit;
+    }
 
     // Log upload completed
     try {

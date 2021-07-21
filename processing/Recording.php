@@ -253,6 +253,29 @@ class Recording {
     }
 
     /**
+     * @return string
+     */
+    public function getName(): string {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPresenter(): string {
+        return $this->presenter;
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function get6DigitStartDate(): string {
+        if (empty($this->start)) throw new Exception("No start date stored before requesting 6 digit date.");
+        return date("ymd", strtotime($this->start));
+    }
+
+    /**
      * Get a nicely-formatted title of the show to publish to Mixcloud. Ensure a show name, presenter, and start time
      * are set before calling this function.
      * @return string The title to be used on Mixcloud.
@@ -321,27 +344,39 @@ class Recording {
      * @throws Exception If prerequisite data is missing or invalid.
      */
     public function getFileName(): string {
-        if (empty($this->name)) throw new Exception("No show name stored before requesting file name.");
+        if (empty($this->name))      throw new Exception("No show name stored before requesting file name.");
         if (empty($this->presenter)) throw new Exception("No presenter name stored before requesting file name.");
-        if (empty($this->start)) throw new Exception("No start date stored before requesting file name.");
+        if (empty($this->start))     throw new Exception("No start date stored before requesting file name.");
         if (empty($this->extension)) throw new Exception("No file extension stored before requesting file name.");
 
-        // Put the date into the correct format
-        $date = date("ymd", strtotime($this->start));
-
         // Decode any encoded special characters
-        $name      = htmlspecialchars_decode($this->name, ENT_QUOTES);
-        $presenter = htmlspecialchars_decode($this->presenter, ENT_QUOTES);
-
+        $name              = htmlspecialchars_decode($this->name, ENT_QUOTES);
+        $presenter         = htmlspecialchars_decode($this->presenter, ENT_QUOTES);
         // Replace special characters in show details with spaces
-        $name      = preg_replace("/\W/", " ", $name);
-        $presenter = preg_replace("/\W/", " ", $presenter);
-
+        $name              = preg_replace("/\W/", " ", $name);
+        $presenter         = preg_replace("/\W/", " ", $presenter);
         // replace multiple spaces with a single space and trim whitespace from ends
-        $name      = trim(preg_replace("/\s+/", " ", $name));
-        $presenter = trim(preg_replace("/\s+/", " ", $presenter));
+        $name              = trim(preg_replace("/\s+/", " ", $name));
+        $presenter         = trim(preg_replace("/\s+/", " ", $presenter));
 
-        return $presenter . "-" . $name . " " . $date . "." . $this->extension;
+        // make a version of the name and presenter name without spaces
+        $nameNoSpaces      = trim(preg_replace("/\s+/", "-", $name));
+        $presenterNoSpaces = trim(preg_replace("/\s+/", "-", $presenter));
+
+        $replacements = array(
+            '{s}'  => $name,
+            '{p}'  => $presenter,
+            '{s-}' => $nameNoSpaces,
+            '{p-}' => $presenterNoSpaces,
+            '{d}'  => date("j", strtotime($this->start)),
+            '{dd}' => date("d", strtotime($this->start)),
+            '{m}'  => date("n", strtotime($this->start)),
+            '{mm}' => date("m", strtotime($this->start)),
+            '{y}'  => date("y", strtotime($this->start)),
+            '{yy}' => date("Y", strtotime($this->start)),
+        );
+
+        return strtr($this->config["uploadFileName"], $replacements) . "." . $this->extension;
     }
 
     /**

@@ -61,14 +61,20 @@ class S3Storage extends Storage {
     public function retrieve(string $file): string {
         if (empty($file)) throw new Exception("No file name provided.");
 
+        $targetLocation = $this->config["tempDirectory"] . "/" . $file;
+
         try {
+            if (!Storage::createParentDirectories($targetLocation)) {
+                throw new Exception("Couldn't make parent directories in target location.");
+            }
+
             $this->s3Client->getObject(array(
                 'Bucket' => $this->config["s3Storage"]["bucket"],
                 'Key'    => $file,
-                'SaveAs' => $this->config["tempDirectory"] . "/" . $file
+                'SaveAs' => $targetLocation
             ));
 
-            return $this->config["tempDirectory"] . "/" . $file;
+            return $targetLocation;
         } catch (S3Exception $e) {
             error_log($e->getMessage());
             throw new Exception("Couldn't retrieve file from S3.");

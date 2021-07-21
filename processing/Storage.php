@@ -43,6 +43,23 @@ abstract class Storage {
     }
 
     /**
+     * Takes a path to a file (such as {@code /var/storage/a/b/file.mp3}) and creates the holding directories
+     * (such as {@code /var/storage/a/b/}) if they don't already exist. This can be used before attempting to write
+     * a file, to ensure the required directories exist.
+     * @param string $path The path to analyse.
+     * @return bool true if the operation is successful or the directories already existed, false otherwise.
+     */
+    public static function createParentDirectories(string $path): bool {
+        $split = explode("/", $path);
+        // Take the last section off the array, since that will be the file name
+        array_pop($split);
+        $directory = implode("/", $split);
+
+        if (is_dir($directory)) return true;
+        else return mkdir($directory, 0775, true);
+    }
+
+    /**
      * Move a file from the holding location (specified in the config file) to a waiting location (again, specified in
      * the config file). This should be a quick, local operation, so that a file moves into semi-permanent storage and
      * is not somewhere it would be deleted and considered an abandoned upload.
@@ -52,10 +69,16 @@ abstract class Storage {
     public function moveToWaiting(string $file) {
         if (empty($file)) throw new Exception("No file name provided.");
 
-        $config = require __DIR__ . '/config.php';
+        $config          = require __DIR__ . '/config.php';
+        $holdingLocation = $config["holdingDirectory"] . "/" . $file;
+        $targetLocation  = $config["waitingDirectory"] . "/" . $file;
 
-        if (file_exists($config["holdingDirectory"] . "/" . $file)) {
-            if (!rename($config["holdingDirectory"] . "/" . $file, $config["waitingDirectory"] . "/" . $file)) {
+        if (file_exists($holdingLocation)) {
+            if (!Storage::createParentDirectories($targetLocation)) {
+                throw new Exception("Couldn't make parent directories in target location.");
+            }
+
+            if (!rename($holdingLocation, $targetLocation)) {
                 throw new Exception("Couldn't move file from holding to waiting.");
             }
         } else {
