@@ -350,18 +350,24 @@ class Recording {
         if (empty($this->extension)) throw new Exception("No file extension stored before requesting file name.");
 
         // Decode any encoded special characters
-        $name      = htmlspecialchars_decode($this->name, ENT_QUOTES);
-        $presenter = htmlspecialchars_decode($this->presenter, ENT_QUOTES);
+        $name              = htmlspecialchars_decode($this->name, ENT_QUOTES);
+        $presenter         = htmlspecialchars_decode($this->presenter, ENT_QUOTES);
         // Replace special characters in show details with spaces
-        $name      = preg_replace("/\W/", " ", $name);
-        $presenter = preg_replace("/\W/", " ", $presenter);
+        $name              = preg_replace("/\W/", " ", $name);
+        $presenter         = preg_replace("/\W/", " ", $presenter);
         // replace multiple spaces with a single space and trim whitespace from ends
-        $name      = trim(preg_replace("/\s+/", " ", $name));
-        $presenter = trim(preg_replace("/\s+/", " ", $presenter));
+        $name              = trim(preg_replace("/\s+/", " ", $name));
+        $presenter         = trim(preg_replace("/\s+/", " ", $presenter));
+
+        // make a version of the name and presenter name without spaces
+        $nameNoSpaces      = trim(preg_replace("/\s+/", "-", $name));
+        $presenterNoSpaces = trim(preg_replace("/\s+/", "-", $presenter));
 
         $replacements = array(
             '{s}'  => $name,
             '{p}'  => $presenter,
+            '{s-}' => $nameNoSpaces,
+            '{p-}' => $presenterNoSpaces,
             '{d}'  => date("j", strtotime($this->start)),
             '{dd}' => date("d", strtotime($this->start)),
             '{m}'  => date("n", strtotime($this->start)),
