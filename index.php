@@ -29,6 +29,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Submit a show for scheduling and automatic upload to Mixcloud.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
           integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
           crossorigin="anonymous" />
@@ -58,7 +59,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     <div class="alert alert-danger mt-2" role="alert">
         Your browser doesn't support some of the technologies this uploader needs. Swap to another one, such as an
         up-to-date version of Firefox, then try there.<br> If you've not got another web browser installed, you can
-        <a href="https://www.mozilla.org/en-GB/firefox/new/" target="_blank" class="alert-link">download Firefox</a>.
+        <a href="https://www.mozilla.org/en-GB/firefox/new/" target="_blank" class="alert-link" rel="noopener noreferrer">download Firefox</a>.
     </div>
 </div>
 
@@ -106,7 +107,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                     <option value='special'>One-off or Special Show</option>
                 </optgroup>
             </select>
-            <small id="nameDropdown" class="form-text text-muted">
+            <small id="nameDropdownHelp" class="form-text text-muted">
                 Show missing? Please report it to technical staff.
             </small>
         </div>
@@ -124,7 +125,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                 <label for="presenter">Show presenter</label>
                 <input type="text" class="form-control" id="presenter" required aria-describedby="presenterHelp" name="presenter"
                        maxlength="50">
-                <small id="presenter" class="form-text text-muted">
+                <small id="presenterHelp" class="form-text text-muted">
                     Enter the show's presenter.
                 </small>
             </div>
@@ -138,10 +139,6 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                 Enter the date this show was first broadcast (or when it will be broadcast for the first time, as
                 appropriate).
             </small>
-        </div>
-
-        <div class="alert alert-warning" hidden role="alert" id="error-InitialFormInvalid">
-            Hang on! Make sure you've filled in all the fields above correctly.
         </div>
 
         <div class="alert alert-warning mt-2" hidden role="alert" id="error-ShowFileOversized">
@@ -203,7 +200,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                 <select class="form-select"
                         id="imageSource"
                         name="imageSource"
-                        aria-label="Choose how to proceed with the cover image">
+                        aria-label="Choose which cover image to use">
                     <option value="default">Use saved photo for this show</option>
                     <option value="upload" selected>Upload new photo</option>
                     <option value="none">Don't use a photo</option>
@@ -213,7 +210,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
         <div class="form-group" id="imageUploader">
             <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg"
-                   aria-describedby="imageHelp">
+                   aria-describedby="imageHelp" aria-label="Show cover image">
             <small id="imageHelp" class="form-text text-muted">
                 You can upload JPG or PNG files up to <?php echo $config["maxShowImageSizeFriendly"]; ?>.
             </small>
@@ -312,7 +309,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
                 above</strong>.</p>
 
         <!-- Submit button behaviour modified by the <form> tag -->
-        <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" disabled>
+        <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" aria-describedby="uploadingHelpText" disabled>
             <i class="spinner-border"></i> Uploading...
         </button>
 
@@ -326,7 +323,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
             integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
             crossorigin="anonymous"></script>
-    <script src="resources/script.js?version=12"></script>
+    <script src="resources/script.js?version=13"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-input-polyfill@2.14.0/date-input-polyfill.dist.js"
             integrity="sha256-FcR3bJqClBNWiJqgW1E9yEgSRoAqRNcjOfgRfaH0LVw="
             crossorigin="anonymous"></script>

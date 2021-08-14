@@ -15,8 +15,17 @@ class LocalStorage extends Storage {
      * @inheritDoc
      */
     public function offload(string $file) {
-        if (file_exists($this->config["waitingDirectory"] . "/" . $file)) {
-            if (!rename($this->config["waitingDirectory"] . "/" . $file, $this->config["localStorage"]["uploadsDirectory"] . "/" . $file)) {
+        if (empty($file)) throw new Exception("No file name provided.");
+
+        $waitingLocation = $this->config["waitingDirectory"] . "/" . $file;
+        $targetLocation  = $this->config["localStorage"]["uploadsDirectory"] . "/" . $file;
+
+        if (file_exists($waitingLocation)) {
+            if (!Storage::createParentDirectories($targetLocation)) {
+                throw new Exception("Couldn't make parent directories in target location.");
+            }
+
+            if (!rename($waitingLocation, $targetLocation)) {
                 throw new Exception("Couldn't move file from waiting to local storage.");
             }
         } else {
@@ -30,14 +39,21 @@ class LocalStorage extends Storage {
     public function retrieve(string $file): string {
         if (empty($file)) throw new Exception("No file name provided.");
 
-        if (file_exists($this->config["localStorage"]["uploadsDirectory"] . "/" . $file)) {
-            if (!copy($this->config["localStorage"]["uploadsDirectory"] . "/" . $file, $this->config["tempDirectory"] . "/" . $file)) {
-                throw new Exception("Couldn't move file from local to temporary storage.");
+        $uploadsLocation = $this->config["localStorage"]["uploadsDirectory"] . "/" . $file;
+        $targetLocation  = $this->config["tempDirectory"] . "/" . $file;
+
+        if (file_exists($uploadsLocation)) {
+            if (!Storage::createParentDirectories($targetLocation)) {
+                throw new Exception("Couldn't make parent directories in target location.");
             }
 
-            return $this->config["tempDirectory"] . "/" . $file;
+            if (!copy($uploadsLocation, $targetLocation)) {
+                throw new Exception("Couldn't move file from waiting to local storage.");
+            }
+
+            return $targetLocation;
         } else {
-            throw new Exception("Couldn't find specified file in uploads folder.");
+            throw new Exception("Couldn't find specified file in waiting folder.");
         }
     }
 
