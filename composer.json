@@ -2,13 +2,13 @@
   "name": "wlabarron/submit-show",
   "description": "Send a show to your radio station's scheduling team, and Mixcloud.",
     "require": {
-      "flowjs/flow-php-server": "^1.0",
-      "aws/aws-sdk-php": "^3.181",
+      "flowjs/flow-php-server": "^1.2",
+      "aws/aws-sdk-php": "^3.295",
       "ext-mysqli": "*",
       "ext-json": "*",
       "ext-gd": "*",
       "ext-curl": "*",
-      "phpmailer/phpmailer": "^6.4.1",
-      "onelogin/php-saml": "^4.0"
+      "phpmailer/phpmailer": "^6.9.1",
+      "onelogin/php-saml": "^4.1"
     }
 }
