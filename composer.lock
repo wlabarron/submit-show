@@ -98,26 +98,31 @@
         },
         {
             "name": "flowjs/flow-php-server",
-            "version": "v1.0.3",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/flowjs/flow-php-server.git",
-                "reference": "c6802bf7c68fe8d1e19b60e484bf08f838861728"
+                "reference": "fe8890c25e835d0b4f58d8bd91331326ab1808ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/c6802bf7c68fe8d1e19b60e484bf08f838861728",
-                "reference": "c6802bf7c68fe8d1e19b60e484bf08f838861728",
+                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/fe8890c25e835d0b4f58d8bd91331326ab1808ba",
+                "reference": "fe8890c25e835d0b4f58d8bd91331326ab1808ba",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3"
+                "php": ">=5.4"
             },
             "require-dev": {
-                "fabpot/php-cs-fixer": "dev-master",
+                "ext-mongodb": "*",
+                "fabpot/php-cs-fixer": "~2.2",
                 "league/phpunit-coverage-listener": "~1.1",
                 "mikey179/vfsstream": "v1.2.0",
+                "mongodb/mongodb": "^1.4.0",
                 "phpunit/phpunit": "4.*"
+            },
+            "suggest": {
+                "mongodb/mongodb": "Required to use this package with Mongo DB"
             },
             "type": "library",
             "autoload": {
@@ -148,9 +153,9 @@
             ],
             "support": {
                 "issues": "https://github.com/flowjs/flow-php-server/issues",
-                "source": "https://github.com/flowjs/flow-php-server/tree/master"
+                "source": "https://github.com/flowjs/flow-php-server/tree/v1.2.0"
             },
-            "time": "2017-04-22T08:41:31+00:00"
+            "time": "2022-08-26T15:50:37+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -863,5 +868,5 @@
         "ext-curl": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.6.0"
 }
