@@ -7,6 +7,7 @@ and can automatically publish them to Mixcloud at a specified time.
   team.
 * Can send an email notification to your scheduling team when a new show is submitted.
 * Can send an email notification to the person who submitted the show once it's published on Mixcloud.
+* Stores submitted show files in a local directory or in S3-compatible storage.
 * Mixcloud publication notification emails can contain shortened URLs ready for sharing via [YOURLS](https://yourls.org) 
   integration.
 * Can use SAML for authentication and getting addresses for email notifications. If SAML is enabled, it also takes a log
