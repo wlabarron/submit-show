@@ -127,7 +127,7 @@ return array(
         'password'    => '',
         'sendAddress' => '', // Email address to send as. Usually same as username,
         'sendName'    => '', // Name to send as.
-        'recipient'   => '', // Recipient of notifications whenever there's a show submitted.
+        'recipient'   => array(''), // Recipient address(es) of notifications whenever there's a show submitted.
     ),
 
     // Enable or disable SAML authentication.
