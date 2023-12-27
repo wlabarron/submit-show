@@ -324,6 +324,20 @@ class Database {
         while ($row = $query->fetch_assoc()) $result[] = $row;
         return $result;
     }
+    
+    /**
+     * Postpones the publication of a show to Mixcloud, for example to delay submission if we are hitting a rate limit.
+     * @param int $id ID of the show to postpone.
+     * @param int $postponeTime The number of seconds to delay publication by.
+     */
+    public function postponePublication(int $id, int $postponeTime) {
+        $query = $this->connection->prepare("UPDATE submissions SET `end-datetime` = `end-datetime` + INTERVAL ? SECOND WHERE id = ?;");
+        $query->bind_param("ii", $postponeTime, $id);
+        if (!$query->execute()) {
+            error_log($query->error);
+            throw new Exception("Couldn't postpone submission.");
+        }
+    }
 
     /**
      * Gets all tags associated with the given submission ID.

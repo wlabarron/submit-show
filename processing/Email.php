@@ -26,7 +26,13 @@ class Email {
 
             $mail->setFrom($config["smtp"]["sendAddress"], $config["smtp"]["sendName"]);
 
-            $mail->addAddress($recipient);
+            if (is_array($recipient)){
+                foreach ($recipient as &$address) {
+                    $mail->addAddress($address);
+                }
+            } else {
+                $mail->addAddress($recipient);
+            }
 
             if (!empty($cc)) {
                 $mail->addCC($cc);
