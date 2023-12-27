@@ -1,5 +1,6 @@
 ._
 .idea
+.nova
 processing/config.php
 .htaccess
 vendor
