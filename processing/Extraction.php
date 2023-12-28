@@ -25,7 +25,7 @@ class Extraction {
      * 
      * @param string $startTime Wall clock time to start getting blocks from, parseable by strtotime.
      * @param string $endTime Wall clock time to of the final block, parseable by strtotime.
-     * @return array  Array of file names for the recording blocks which cover this time.
+     * @return array  Array of file names for the recording blocks which cover this time (could be empty).
      */
     public function getBlocks(string $startTime, string $endTime): array {
         $allFiles      = scandir(Extraction::$recordingDirectory);
@@ -75,6 +75,7 @@ class Extraction {
             mkdir("../stitched");
             
             file_put_contents($blockListFilePath, $blockList);
+            // TODO Error handling
             shell_exec("ffmpeg -y -hide_banner -loglevel error -f concat -safe 0 -i \"$blockListFilePath\" -c copy \"$stitchedFilePath\"");
             unlink($blockListFilePath);
             
@@ -103,6 +104,7 @@ class Extraction {
         $fadeOutAt        = $duration - $fadeDuration;
         
         set_time_limit(120);
+        // TODO Error handling
         shell_exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration \"$outputFilePath\"");
         
         return $outputFileName;
