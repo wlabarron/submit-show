@@ -21,7 +21,8 @@ class Extraction {
         if (isset($this->config["extraction"]) &&
             $this->config["extraction"]["enabled"] && 
             !empty($this->config["extraction"]["blocksDirectory"]) &&
-            !is_numeric($this->config["extraction"]["blockLength"])) {
+            is_numeric($this->config["extraction"]["blockLength"]) &&
+            is_numeric($this->config["extraction"]["fadeDuration"])) {
             return true;  
         } else {
             return false;
@@ -138,16 +139,27 @@ class Extraction {
         $audioExtension   = end($explodedFileName);
         $outputFileName   = $id . "." . $audioExtension;
         $outputFilePath   = $this->config["holdingDirectory"] . "/" . $outputFileName;
-        $fadeDuration     = 2;
+        $fadeDuration     = $this->config["extraction"]["fadeDuration"];
         $fadeOutAt        = $duration - $fadeDuration;
         
-        set_time_limit(120);
-        if (exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration \"$outputFilePath\"", $output) === false) {
-            error_log("ffmpeg stitch failed: " . implode('\n', $output));
-            unset($output);
-            return "";
+        if ($fadeDuration == 0) {
+            if (exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -c copy \"$outputFilePath\"", $output) === false) {
+                error_log("ffmpeg stitch failed: " . implode('\n', $output));
+                unset($output);
+                return "";
+            }
+        } else {
+            set_time_limit(120);
+            if (exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration \"$outputFilePath\"", $output) === false) {
+                error_log("ffmpeg stitch with fade failed: " . implode('\n', $output));
+                unset($output);
+                return "";
+            }
         }
         
         return $outputFileName;
     }
 }
+
+$extraction = new Extraction();
+echo(json_encode($extraction->trim(0, 30, "658dc16a1064e.aac")));

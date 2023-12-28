@@ -82,6 +82,9 @@ return array(
          // It doesn't matter if some blocks are shorter than this (e.g. if you restart your recorder in the middle of a 
          // block.)
          'blockLength'     => 3600,
+         // Duration of fade in and out on the end of extracted audio files. Setting this value will increase the time taken
+         // to create the files.
+         'fadeDuration'    => 0,
      ),
 
     // The filename format to use for submitted shows. You can use the `/` character to organise the files into
