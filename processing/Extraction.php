@@ -1,9 +1,6 @@
 <?php
 
-
 namespace submitShow;
-
-use Error;
 
 /**
  * Tools to extract a show from linear output recordings by stitching together chunked recording files
@@ -12,7 +9,7 @@ use Error;
 class Extraction {
     private array $config;
     
-    public function __construct($id = null) {
+    public function __construct() {
         $this->config = require "config.php";
     }
     
@@ -67,9 +64,13 @@ class Extraction {
      * @param string $startTime Wall clock time to start stitching from, parseable by strtotime.
      * @param string $endTime Wall clock time to end stitching at, parseable by strtotime.
      *
-     * @return string  Path to the stitched file, or "" if no blocks existed.
+     * @return string  empty array if no blocks existed, or array(
+                            "startTime" => number, // wall clock start time of file
+                            "endTime"   => number, // wall clock end time of file
+                            "fileName"  => string, // name of stitched file produced in the `stitched` directory
+                        )
      */
-    public function stitch(string $startTime, string $endTime): string {
+    public function stitch(string $startTime, string $endTime): array {
         $blocks = $this->getBlocks($startTime, $endTime);
         
         if (sizeof($blocks) > 0) {
@@ -83,18 +84,40 @@ class Extraction {
             
             $id = uniqid();
             $blockListFilePath = $this->config["tempDirectory"] . "/" . $id . ".list";
-            $stitchedFilePath  = "../stitched/" . $id . "." . $audioExtension;
+            $stitchedFileName  = $id . "." . $audioExtension;
+            $stitchedFilePath  = "../stitched/" . $stitchedFileName;
             
-            mkdir("../stitched");
+            if (!is_dir("../stitched")) {
+                mkdir("../stitched");
+            }
             
             file_put_contents($blockListFilePath, $blockList);
-            // TODO Error handling
-            shell_exec("ffmpeg -y -hide_banner -loglevel error -f concat -safe 0 -i \"$blockListFilePath\" -c copy \"$stitchedFilePath\"");
+            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -i \"$blockListFilePath\" -c copy \"$stitchedFilePath\"", $output) === false) {
+                error_log("ffmpeg stitch failed: " . implode('\n', $output));
+                unset($output);
+                return array();
+            }
             unlink($blockListFilePath);
+
+            $firstBlockPathSplit = explode("/", $blocks[0]);
+            $firstBlockFileName  = end($firstBlockPathSplit);
+            $lastBlockPath       = end($blocks);
+            $lastBlockPathSplit  = explode("/", $lastBlockPath);
+            $lastBlockFileName   = end($lastBlockPathSplit);
+            $lastBlockDuration   = 0;
             
-            return $stitchedFilePath;
+            if (exec("ffprobe -i \"$lastBlockPath\" -show_entries format=duration -v quiet -of csv=\"p=0\"", $lastBlockDuration) === false) {
+                error_log("ffmpeg duration calculation failed: " . implode('\n', $output));
+                unset($output);
+            }
+            
+            return array(
+                "startTime" => strtotime($firstBlockFileName),
+                "endTime"   => strtotime($lastBlockFileName) + round($lastBlockDuration[0]),
+                "fileName"  => $stitchedFileName
+            );
         } else {
-            return "";
+            return array();
         }
     }
     
@@ -104,7 +127,7 @@ class Extraction {
      * @param int $duration The duration of the resultant file in seconds.
      * @param string $fileName The name of the file to trim, including extension. The file will be pulled out of the 
      *                         `../stitched` directory.
-     * @return string  The name of the trimmed file, which will be in the holding directory.
+     * @return string  The name of the trimmed file, which will be in the holding directory, or empty string on error.
      */
     public function trim(int $start, int $duration, string $fileName): string {
         $filePath         = "../stitched/" . $fileName;
@@ -117,8 +140,11 @@ class Extraction {
         $fadeOutAt        = $duration - $fadeDuration;
         
         set_time_limit(120);
-        // TODO Error handling
-        shell_exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration \"$outputFilePath\"");
+        if (exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration \"$outputFilePath\"", $output) === false) {
+            error_log("ffmpeg stitch failed: " . implode('\n', $output));
+            unset($output);
+            return "";
+        }
         
         return $outputFileName;
     }
