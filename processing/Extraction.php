@@ -91,6 +91,7 @@ class Extraction {
                 mkdir("../stitched");
             }
             
+            // Stitch audio together
             file_put_contents($blockListFilePath, $blockList);
             if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -i \"$blockListFilePath\" -c copy \"$stitchedFilePath\"", $output) === false) {
                 error_log("ffmpeg stitch failed: " . implode('\n', $output));
@@ -106,6 +107,7 @@ class Extraction {
             $lastBlockFileName   = end($lastBlockPathSplit);
             $lastBlockDuration   = 0;
             
+            // Get duration of final block, for calculating end wall clock time
             if (exec("ffprobe -i \"$lastBlockPath\" -show_entries format=duration -v quiet -of csv=\"p=0\"", $lastBlockDuration) === false) {
                 error_log("ffmpeg duration calculation failed: " . implode('\n', $output));
                 unset($output);
