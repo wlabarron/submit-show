@@ -10,18 +10,12 @@ namespace submitShow;
 class Extraction {
     // TODO Move this into config file
     private static $recordingUnit = 3600;
-    // with trailing slash
+    // without trailing slash
     private static $recordingDirectory = "";
     private array $config;
-    private string $id;
     
     public function __construct($id = null) {
         $this->config = require "config.php";
-        if (!is_null($id)) {
-            $this->id = $id;
-        } else {
-            $this->id = uniqid();
-        }
     }
     
     /**
@@ -44,7 +38,7 @@ class Extraction {
             if ($file !== "." && $file !== "..") {
                 $fileDate = strtotime($file);
                 if ($startTime <= $fileDate && $fileDate <= $endTime) {
-                    array_push($relevantFiles, Extraction::$recordingDirectory . $file);
+                    array_push($relevantFiles, Extraction::$recordingDirectory . "/" . $file);
                 }
             }
         }
@@ -74,13 +68,14 @@ class Extraction {
             $explodedFirstFileName = explode(".", $blocks[0]);
             $audioExtension        = end($explodedFirstFileName);
             
+            $id = uniqid();
+            $blockListFilePath = $this->config["tempDirectory"] . "/" . $id . ".list";
+            $stitchedFilePath  = "../stitched/" . $id . "." . $audioExtension;
+            
             mkdir("../stitched");
             
-            $blockListFilePath = $this->config["tempDirectory"] . "/" . $this->id . ".list";
-            $stitchedFilePath  = "../stitched/" . $this->id . "." . $audioExtension;
-            
             file_put_contents($blockListFilePath, $blockList);
-            echo(shell_exec("ffmpeg -f concat -safe 0 -i \"$blockListFilePath\" -c copy \"$stitchedFilePath\""));
+            shell_exec("ffmpeg -y -hide_banner -loglevel error -f concat -safe 0 -i \"$blockListFilePath\" -c copy \"$stitchedFilePath\"");
             unlink($blockListFilePath);
             
             return $stitchedFilePath;
@@ -88,7 +83,28 @@ class Extraction {
             return "";
         }
     }
+    
+    /**
+     * Trims a previously-stitched audio file to the given start time and duration, with a fade on each end.
+     * @param int $start The number of seconds into the file to start.
+     * @param int $duration The duration of the resultant file in seconds.
+     * @param string $fileName The name of the file to trim, including extension. The file will be pulled out of the 
+     *                         `../stitched` directory.
+     * @return string  The name of the trimmed file, which will be in the holding directory.
+     */
+    public function trim(int $start, int $duration, string $fileName): string {
+        $filePath         = "../stitched/" . $fileName;
+        $explodedFileName = explode(".", $fileName);
+        $id               = $explodedFileName[0];
+        $audioExtension   = end($explodedFileName);
+        $outputFileName   = $id . "." . $audioExtension;
+        $outputFilePath   = $this->config["holdingDirectory"] . "/" . $outputFileName;
+        $fadeDuration     = 2;
+        $fadeOutAt        = $duration - $fadeDuration;
+        
+        set_time_limit(120);
+        shell_exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration \"$outputFilePath\"");
+        
+        return $outputFileName;
+    }
 }
-
-$extraction = new Extraction();
-echo($extraction->stitch("20231227-054500", "20231227-071500"));
