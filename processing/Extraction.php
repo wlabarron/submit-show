@@ -3,19 +3,32 @@
 
 namespace submitShow;
 
+use Error;
+
 /**
  * Tools to extract a show from linear output recordings by stitching together chunked recording files
  * then trimming the file down to the show's start and end.
  */
 class Extraction {
-    // TODO Move this into config file
-    private static $recordingUnit = 3600;
-    // without trailing slash
-    private static $recordingDirectory = "";
     private array $config;
     
     public function __construct($id = null) {
         $this->config = require "config.php";
+    }
+    
+    /**
+     * Checks if Extraction features are enabled and configured.
+     * @return bool  true if enabled and configured, false otherwise.
+     */
+    public function isEnabled(): bool {
+        if (isset($this->config["extraction"]) &&
+            $this->config["extraction"]["enabled"] && 
+            !empty($this->config["extraction"]["blocksDirectory"]) &&
+            !is_numeric($this->config["extraction"]["blockLength"])) {
+            return true;  
+        } else {
+            return false;
+        }
     }
     
     /**
@@ -27,18 +40,18 @@ class Extraction {
      * @param string $endTime Wall clock time to of the final block, parseable by strtotime.
      * @return array  Array of file names for the recording blocks which cover this time (could be empty).
      */
-    public function getBlocks(string $startTime, string $endTime): array {
-        $allFiles      = scandir(Extraction::$recordingDirectory);
+    private function getBlocks(string $startTime, string $endTime): array {
+        $allFiles      = scandir($this->config["extraction"]["blocksDirectory"]);
         $relevantFiles = array();
         
-        $startTime = strtotime($startTime) - Extraction::$recordingUnit;
+        $startTime = strtotime($startTime) - $this->config["extraction"]["blockLength"];
         $endTime   = strtotime($endTime);
 
         foreach ($allFiles as &$file) {
             if ($file !== "." && $file !== "..") {
                 $fileDate = strtotime($file);
                 if ($startTime <= $fileDate && $fileDate <= $endTime) {
-                    array_push($relevantFiles, Extraction::$recordingDirectory . "/" . $file);
+                    array_push($relevantFiles, $this->config["extraction"]["blocksDirectory"] . "/" . $file);
                 }
             }
         }

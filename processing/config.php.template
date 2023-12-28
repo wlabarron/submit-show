@@ -70,6 +70,19 @@ return array(
         'accessKey' => '',
         'secret'    => '',
     ),
+    
+    'extraction' => array (
+         // Enable or disable the feature to submit shows extracted from linear stream recordings.
+         'enabled'         => false,
+         // The directory where your linear stream recording files are stored. They should be recorded by another tool
+         // (like your stream encoder) and split into 'blocks' of a given duration (e.g. a file for every broadcast hour).
+         // They must be named so that strtotime() can parse the name into a timestamp (like "YMd-Hi.aac").
+         'blocksDirectory' => "/path/to/files",
+         // The maximum duration a block can be, in seconds. If you start recording a new block every hour, this would be 3600.
+         // It doesn't matter if some blocks are shorter than this (e.g. if you restart your recorder in the middle of a 
+         // block.)
+         'blockLength'     => 3600,
+     ),
 
     // The filename format to use for submitted shows. You can use the `/` character to organise the files into
     // directories. The following variables are available:
