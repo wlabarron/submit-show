@@ -61,6 +61,7 @@ if (lock($config)) {
     try {
         Uploader::pruneChunks($config["tempDirectory"]);
         Uploader::pruneChunks($config["holdingDirectory"]);
+        Uploader::pruneChunks("../stitched");
     } catch (FileOpenException $e) {
         error_log("Failed to prune upload remnants. Details:\n" . $e->getMessage());
     }

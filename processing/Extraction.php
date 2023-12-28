@@ -74,11 +74,12 @@ class Extraction {
             $explodedFirstFileName = explode(".", $blocks[0]);
             $audioExtension        = end($explodedFirstFileName);
             
+            mkdir("../stitched");
+            
             $blockListFilePath = $this->config["tempDirectory"] . "/" . $this->id . ".list";
-            $stitchedFilePath  = $this->config["tempDirectory"] . "/" . $this->id . "." . $audioExtension;
+            $stitchedFilePath  = "../stitched/" . $this->id . "." . $audioExtension;
             
             file_put_contents($blockListFilePath, $blockList);
-            set_time_limit(120);
             echo(shell_exec("ffmpeg -f concat -safe 0 -i \"$blockListFilePath\" -c copy \"$stitchedFilePath\""));
             unlink($blockListFilePath);
             
