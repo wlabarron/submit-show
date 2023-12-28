@@ -18,7 +18,7 @@ $jsConfig = 'const showJSON                 = "' . $config["showData"]["url"] . 
              const maxShowImageSizeFriendly = "' .  $config["maxShowImageSizeFriendly"] . '";';
 $jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/ https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/ https://cdn.jsdelivr.net/npm/time-input-polyfill@1.0.10/ https://cdn.jsdelivr.net/npm/date-input-polyfill@2.14.0/ ajax.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css; img-src 'self' data:");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/ https://ajax.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css; img-src 'self' data:");
 
 ?>
 <!DOCTYPE html>
@@ -27,12 +27,11 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
     <meta charset="UTF-8">
     <title>Submit Show - <?php echo $config["organisationName"]; ?></title>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Submit a show for scheduling and automatic upload to Mixcloud.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
-          integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
-          crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" 
+        integrity="sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="resources/style.css?version=5">
     <noscript>
         <link rel="stylesheet" href="resources/noscript.css">
@@ -320,15 +319,9 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/flow.min.js"
             integrity="sha512-sl2wYWEDCu3bj5w4kyd6+bglKUxb6IPQbyflpIEJbftwtZYZp7GZQ2erVGsls9BveJIvIVW+hzM+rMQQT9Bn5w=="
             crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
-            integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
-            crossorigin="anonymous"></script>
-    <script src="resources/script.js?version=13"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-input-polyfill@2.14.0/date-input-polyfill.dist.js"
-            integrity="sha256-FcR3bJqClBNWiJqgW1E9yEgSRoAqRNcjOfgRfaH0LVw="
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/time-input-polyfill@1.0.10/dist/time-input-polyfill.auto.min.js"
-            integrity="sha256-pPvhG+ZBiZnOJYuw+caBxTfDQONb+EGX0agZ6Fmt0Ns="
-            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js" 
+        integrity="sha512-OjjaC+tijryqhyPqy7jWSPCRj7fcosu1zreTX1k+OWSwu6uSqLLQ2kxaqL9UpR7xFaPsCwhMf1bQABw2rCxMbg==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="resources/script.js?version=1.1"></script>
 </body>
 </html>
