@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["start"]) && !empty($_G
     $duration = Input::sanitise($_GET["duration"]);
     $file     = Input::sanitise($_GET["file"]);
     
-    if (preg_match("/[0-9a-fA-F]+\.[0-9a-zA-Z]+/", $file) !== 1 || !file_exists(dirname(__FILE__) . "/../stitched/" . $file)) {
+    if (preg_match("/[0-9a-fA-F]+\.[0-9a-zA-Z]+/", $file) !== 1 || !file_exists($config["tempDirectory"] . "/" . $file)) {
         // File name is not a single file name, contains invalid characters, or otherwise doesn't exist.
         http_response_code(406);
         exit();

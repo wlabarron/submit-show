@@ -63,7 +63,7 @@ class Extraction {
      * @param string $startTime Wall clock time to start stitching from, parseable by strtotime.
      * @param string $endTime Wall clock time to end stitching at, parseable by strtotime.
      *
-     * @return array Name of stitched file (in the `../stitched` directory) or empty string on error.
+     * @return array Name of stitched file in the config temp directory or empty string on error.
      */
     public function stitch(string $startTime, string $endTime): string {
         $blocks = $this->getBlocks($startTime, $endTime);
@@ -80,11 +80,7 @@ class Extraction {
             $id = uniqid();
             $blockListFilePath = $this->config["tempDirectory"] . "/" . $id . ".list";
             $stitchedFileName  = $id . "." . $audioExtension;
-            $stitchedFilePath  = dirname(__FILE__) . "/../stitched/" . $stitchedFileName;
-            
-            if (!is_dir("../stitched")) {
-                mkdir("../stitched");
-            }
+            $stitchedFilePath  = $this->config["tempDirectory"] . "/" . $stitchedFileName;
             
             // The blocks returned will probably span longer than the time requested. Calculate the difference between the start of the
             // first block and the start of the time range we want, then the duration of the time range we want.
@@ -116,11 +112,11 @@ class Extraction {
      * @param int $start The number of seconds into the file to start.
      * @param int $duration The duration of the resultant file in seconds.
      * @param string $fileName The name of the file to trim, including extension. The file will be pulled out of the 
-     *                         `../stitched` directory.
+     *                         config temp directory.
      * @return string  The name of the trimmed file, which will be in the holding directory, or empty string on error.
      */
     public function trim(int $start, int $duration, string $fileName): string {
-        $filePath         = dirname(__FILE__) . "/../stitched/" . $fileName;
+        $filePath         = $this->config["tempDirectory"] . "/" . $fileName;
         $explodedFileName = explode(".", $fileName);
         $id               = $explodedFileName[0];
         $audioExtension   = end($explodedFileName);
