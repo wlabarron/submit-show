@@ -58,20 +58,14 @@ class Extraction {
     }
 
     /**
-     * Stitches together recording blocks to give one audio file over the specified times. The file will probably be longer
-     * than the specified times: if you asked for 1:45pm-3:45pm and each block file was an hour long and starting on the hour, 
-     * you'd be given a file running from 1pm-3pm.
+     * Stitches together recording blocks to give one audio file over the specified times.
      *
      * @param string $startTime Wall clock time to start stitching from, parseable by strtotime.
      * @param string $endTime Wall clock time to end stitching at, parseable by strtotime.
      *
-     * @return string  empty array if no blocks existed, or array(
-                            "startTime" => number, // wall clock start time of file
-                            "endTime"   => number, // wall clock end time of file
-                            "fileName"  => string, // name of stitched file produced in the `stitched` directory
-                        )
+     * @return array Name of stitched file (in the `../stitched` directory) or empty string on error.
      */
-    public function stitch(string $startTime, string $endTime): array {
+    public function stitch(string $startTime, string $endTime): string {
         $blocks = $this->getBlocks($startTime, $endTime);
         
         if (sizeof($blocks) > 0) {
@@ -92,35 +86,28 @@ class Extraction {
                 mkdir("../stitched");
             }
             
-            // Stitch audio together
+            // The blocks returned will probably span longer than the time requested. Calculate the difference between the start of the
+            // first block and the start of the time range we want, then the duration of the time range we want.
+            $firstBlockPathSplit = explode("/", $blocks[0]);
+            $firstBlockFileName  = end($firstBlockPathSplit);
+            $firstBlockStartTime = strtotime($firstBlockFileName);
+            $wallClockStart      = strtotime($startTime);
+            $wallClockEnd        = strtotime($endTime);
+            $blockStartToRangeStart = $wallClockStart - $firstBlockStartTime;
+            $duration            = $wallClockEnd - $wallClockStart;
+            
+            // Stitch audio together, then trim down to the time range given.
             file_put_contents($blockListFilePath, $blockList);
-            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -i \"$blockListFilePath\" -c copy \"$stitchedFilePath\"", $output) === false) {
+            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -i \"$blockListFilePath\" -c copy -ss $blockStartToRangeStart -t $duration \"$stitchedFilePath\"", $output) === false) {
                 error_log("ffmpeg stitch failed: " . implode('\n', $output));
                 unset($output);
                 return array();
             }
             unlink($blockListFilePath);
-
-            $firstBlockPathSplit = explode("/", $blocks[0]);
-            $firstBlockFileName  = end($firstBlockPathSplit);
-            $lastBlockPath       = end($blocks);
-            $lastBlockPathSplit  = explode("/", $lastBlockPath);
-            $lastBlockFileName   = end($lastBlockPathSplit);
-            $lastBlockDuration   = 0;
             
-            // Get duration of final block, for calculating end wall clock time
-            if (exec("ffprobe -i \"$lastBlockPath\" -show_entries format=duration -v quiet -of csv=\"p=0\"", $lastBlockDuration) === false) {
-                error_log("ffmpeg duration calculation failed: " . implode('\n', $output));
-                unset($output);
-            }
-            
-            return array(
-                "startTime" => strtotime($firstBlockFileName),
-                "endTime"   => strtotime($lastBlockFileName) + round($lastBlockDuration[0]),
-                "fileName"  => $stitchedFileName
-            );
+            return $stitchedFileName;
         } else {
-            return array();
+            return "";
         }
     }
     
@@ -160,6 +147,3 @@ class Extraction {
         return $outputFileName;
     }
 }
-
-$extraction = new Extraction();
-echo(json_encode($extraction->trim(0, 30, "658dc16a1064e.aac")));
