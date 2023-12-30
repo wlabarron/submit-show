@@ -80,7 +80,7 @@ class Extraction {
             $id = uniqid();
             $blockListFilePath = $this->config["tempDirectory"] . "/" . $id . ".list";
             $stitchedFileName  = $id . "." . $audioExtension;
-            $stitchedFilePath  = "../stitched/" . $stitchedFileName;
+            $stitchedFilePath  = dirname(__FILE__) . "/../stitched/" . $stitchedFileName;
             
             if (!is_dir("../stitched")) {
                 mkdir("../stitched");
