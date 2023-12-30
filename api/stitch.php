@@ -2,8 +2,8 @@
 
 use submitShow\Extraction;
 
-require_once 'processing/Input.php';
-require_once 'processing/Extraction.php';
+require_once '../processing/Input.php';
+require_once '../processing/Extraction.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GET["to"])) {
     $from = Input::sanitise($_GET["from"]);

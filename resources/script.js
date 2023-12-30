@@ -105,7 +105,7 @@ form1.addEventListener("submit", function (event) {
     if (inputValid) {
         // Create a new uploader, with a query including the current form data
         const uploader = new Flow({
-            target: 'upload.php',
+            target: 'api/upload.php',
             uploadMethod: 'POST',
             singleFile: true,
             query: {
