@@ -120,7 +120,7 @@ class Extraction {
      * @return string  The name of the trimmed file, which will be in the holding directory, or empty string on error.
      */
     public function trim(int $start, int $duration, string $fileName): string {
-        $filePath         = "../stitched/" . $fileName;
+        $filePath         = dirname(__FILE__) . "/../stitched/" . $fileName;
         $explodedFileName = explode(".", $fileName);
         $id               = $explodedFileName[0];
         $audioExtension   = end($explodedFileName);
