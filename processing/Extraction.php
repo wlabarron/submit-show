@@ -119,40 +119,4 @@ class Extraction {
             return "";
         }
     }
-    
-    /**
-     * Trims a previously-stitched audio file to the given start time and duration, with a fade on each end.
-     * @param int $start The number of seconds into the file to start.
-     * @param int $duration The duration of the resultant file in seconds.
-     * @param string $fileName The name of the file to trim, including extension. The file will be pulled out of the 
-     *                         config temp directory.
-     * @return string  The name of the trimmed file, which will be in the holding directory, or empty string on error.
-     */
-    public function trim(int $start, int $duration, string $fileName): string {
-        $filePath         = $this->config["tempDirectory"] . "/" . $fileName;
-        $explodedFileName = explode(".", $fileName);
-        $id               = $explodedFileName[0];
-        $audioExtension   = end($explodedFileName);
-        $outputFileName   = $id . "." . $audioExtension;
-        $outputFilePath   = $this->config["holdingDirectory"] . "/" . $outputFileName;
-        $fadeDuration     = $this->config["extraction"]["fadeDuration"];
-        $fadeOutAt        = $duration - $fadeDuration;
-        
-        if ($fadeDuration == 0) {
-            if (exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -c copy \"$outputFilePath\"", $output) === false) {
-                error_log("ffmpeg stitch failed: " . implode('\n', $output));
-                unset($output);
-                return "";
-            }
-        } else {
-            set_time_limit(120);
-            if (exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration \"$outputFilePath\"", $output) === false) {
-                error_log("ffmpeg stitch with fade failed: " . implode('\n', $output));
-                unset($output);
-                return "";
-            }
-        }
-        
-        return $outputFileName;
-    }
 }
