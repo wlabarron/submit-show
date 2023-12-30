@@ -343,11 +343,11 @@ class Recording {
      * @return string The file name, relative to the storage location.
      * @throws Exception If prerequisite data is missing or invalid.
      */
-    public function getFileName(): string {
+    public function getFileName(bool $withExtension = true): string {
         if (empty($this->name))      throw new Exception("No show name stored before requesting file name.");
         if (empty($this->presenter)) throw new Exception("No presenter name stored before requesting file name.");
         if (empty($this->start))     throw new Exception("No start date stored before requesting file name.");
-        if (empty($this->extension)) throw new Exception("No file extension stored before requesting file name.");
+        if ($withExtension && empty($this->extension)) throw new Exception("No file extension stored before requesting file name.");
 
         // Decode any encoded special characters
         $name              = htmlspecialchars_decode($this->name, ENT_QUOTES);
@@ -376,7 +376,11 @@ class Recording {
             '{yy}' => date("Y", strtotime($this->start)),
         );
 
-        return strtr($this->config["uploadFileName"], $replacements) . "." . $this->extension;
+        if ($withExtension) {
+            return strtr($this->config["uploadFileName"], $replacements) . "." . $this->extension;
+        } else {
+            return strtr($this->config["uploadFileName"], $replacements);
+        }
     }
 
     /**

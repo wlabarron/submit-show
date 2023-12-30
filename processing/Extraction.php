@@ -44,7 +44,7 @@ class Extraction {
         
         $startTime = strtotime($startTime) - $this->config["extraction"]["blockLength"];
         $endTime   = strtotime($endTime);
-
+        
         foreach ($allFiles as &$file) {
             if ($file !== "." && $file !== "..") {
                 $fileDate = strtotime($file);
@@ -53,7 +53,8 @@ class Extraction {
                 }
             }
         }
-        
+        // TODO Sort
+        // TODO Missing blocks/time
         return $relevantFiles;
     }
 
@@ -62,11 +63,24 @@ class Extraction {
      *
      * @param string $startTime Wall clock time to start stitching from, parseable by strtotime.
      * @param string $endTime Wall clock time to end stitching at, parseable by strtotime.
-     *
-     * @return array Name of stitched file in the config temp directory or empty string on error.
+     * @param string $destination Where to write the stitched file to, including file name, but excluding extension which will be appended
+     *                            the block files.
+     * @param bool $fade Whether to put a fade on each end of the file or not.
+     * @return string File path written to, or empty string on failure.
      */
-    public function stitch(string $startTime, string $endTime): string {
+    public function stitch(string $startTime, string $endTime, string $destination, bool $fade): string {
         $blocks = $this->getBlocks($startTime, $endTime);
+        
+        $wallClockStart = strtotime($startTime);
+        $wallClockEnd   = strtotime($endTime);
+        
+        if ($fade) {
+            $fadeDuration     = $this->config["extraction"]["fadeDuration"];
+            $fadeOutAt        = $wallClockEnd - $wallClockStart - $fadeDuration;
+            $effect = "-af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration";
+        } else {
+            $effect = "";
+        }
         
         if (sizeof($blocks) > 0) {
             $blockList = ""; 
@@ -76,33 +90,32 @@ class Extraction {
             
             $explodedFirstFileName = explode(".", $blocks[0]);
             $audioExtension        = end($explodedFirstFileName);
+            $destination = $destination . "." . $audioExtension;
             
-            $id = uniqid();
-            $blockListFilePath = $this->config["tempDirectory"] . "/" . $id . ".list";
-            $stitchedFileName  = $id . "." . $audioExtension;
-            $stitchedFilePath  = $this->config["tempDirectory"] . "/" . $stitchedFileName;
+            $blockListFilePath = $this->config["tempDirectory"] . "/" . uniqid() . ".list";
             
             // The blocks returned will probably span longer than the time requested. Calculate the difference between the start of the
             // first block and the start of the time range we want, then the duration of the time range we want.
             $firstBlockPathSplit = explode("/", $blocks[0]);
             $firstBlockFileName  = end($firstBlockPathSplit);
             $firstBlockStartTime = strtotime($firstBlockFileName);
-            $wallClockStart      = strtotime($startTime);
-            $wallClockEnd        = strtotime($endTime);
             $blockStartToRangeStart = $wallClockStart - $firstBlockStartTime;
             $duration            = $wallClockEnd - $wallClockStart;
             
             // Stitch audio together, then trim down to the time range given.
             file_put_contents($blockListFilePath, $blockList);
-            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -i \"$blockListFilePath\" -c copy -ss $blockStartToRangeStart -t $duration \"$stitchedFilePath\"", $output) === false) {
+            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -i \"$blockListFilePath\" -ss $blockStartToRangeStart -t $duration $effect \"$destination\"", $output) === false) {
                 error_log("ffmpeg stitch failed: " . implode('\n', $output));
                 unset($output);
+                // TODO Exception
                 return array();
             }
             unlink($blockListFilePath);
             
-            return $stitchedFileName;
+            return $destination;
         } else {
+            error_log("No blocks");
+            // TODO Exceptions
             return "";
         }
     }

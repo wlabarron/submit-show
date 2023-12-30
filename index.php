@@ -18,7 +18,7 @@ $jsConfig = 'const showJSON                 = "' . $config["showData"]["url"] . 
              const maxShowImageSizeFriendly = "' .  $config["maxShowImageSizeFriendly"] . '";';
 $jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/ https://ajax.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css; img-src 'self' data:");
+// header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.6.0/wavesurfer.min.js https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.6.0/plugins/regions.min.js https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/ https://ajax.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css; img-src 'self' data:");
 
 ?>
 <!DOCTYPE html>
@@ -84,19 +84,86 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
 <div class="container" id="page-content">
     <h1>Submit Show</h1>
-    <p>Submit a show for scheduling and automatic upload to Mixcloud.</p>
+    <p id="pageIntro">Submit a show for scheduling and automatic upload to Mixcloud.</p>
 
-    <form id="form1" autocomplete="off">
+    <form id="formFileLocation" autocomplete="off">
+        <div class="form-group">
+            <label for="fileLocationInput">What would you like to do?</label>
+            <select class="form-select" id="fileLocationInput" aria-describedby="fileLocationInputHelp" name="fileLocationInput" required>
+                <option value="extract">Extract a recording from the livestream</option>
+                <option value="upload">Upload a file</option>
+            </select>
+            <small id="fileLocationInputHelp" class="form-text text-muted">
+                You can extract your show from station's 24/7 stream recording, or upload a file you prepared elsewhere.
+            </small>
+        </div>
+        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="submit">Continue</button>
+    </form>
+
+    <form id="formExtract" autocomplete="off" hidden>
+        <p>
+            We'll extract the time you specify from the station's 24/7 stream recording, then you can trim the start and end
+            points to the exact moments your show started and ended.
+        </p>
+        
+        <div class="form-group">
+            <label for="recordingStart">Recording start</label>
+            <input type="datetime-local" class="form-control" id="recordingStart" aria-describedby="recordingStartHelp"
+                name="end" placeholder="HH:MM">
+            <small id="recordingStartHelp" class="form-text text-muted">
+                Enter the time your show started. It's better to go a minute or so early here, and you can trim it in the next step.
+            </small>
+        </div>
+        
+        <div class="form-group">
+            <label for="recordingEnd">Recording end</label>
+            <input type="datetime-local" class="form-control" id="recordingEnd" aria-describedby="recordingEndHelp"
+                name="end" placeholder="HH:MM">
+            <small id="recordingEndHelp" class="form-text text-muted">
+                Enter the time your show ended. It's better to go a minute or so late here, and you can trim it in the next step.
+            </small>
+        </div>
+        
+        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="submit">Retrieve recording</button>
+    </form>
+    
+    <div id="preparing" hidden>
+        <p class="text-center">
+            <i class="spinner-border"></i> Retrieving your recording...
+        </p>
+    </div>
+    
+    <form id="formTrim" autocomplete="off" hidden>
+        <p>Here's the recording of the stream over the time you specified. Drag the edges of the highlighted area to exactly where you started and ended your show. Click anywhere on the waveform to play, or use the controls under the waveform. Use the zoom slider to see the waveform more clearly.</p>
+        
+        <div class="form-group w-25 mb-1">
+            <label for="customRange1" class="form-label d-inline">Zoom </label>
+            <input type="range" class="form-range d-inline" id="waveformZoom" value=0 max=50>
+        </div>
+        
+        <div id="waveform"></div>
+        
+        <button class="btn btn-lg btn-outline-dark w-100 mt-4" id="uploadAndContinueButton" type="submit">Trim and continue</button>
+    </form>
+    
+    <form id="formUpload" autocomplete="off" hidden>
+        <p>If you made your show file elsewhere, upload it here.</p>
         <div class="form-group" id="showFileInputGroup">
             <label for="showFileInput">Show file</label>
             <input type="file" class="form-control" id="showFileInput" aria-describedby="showFileHelp"
-                   name="showFile" accept="audio/mpeg,audio/MPA,audio/mpa-robust,.mp3,.m4a,.mp4,.aac,audio/aac,audio/aacp,audio/3gpp,audio/3gpp2,audio/mp4,audio/mp4a-latm,
-    audio/mpeg4-generic" required>
+                name="showFile" accept="audio/mpeg,audio/MPA,audio/mpa-robust,.mp3,.m4a,.mp4,.aac,audio/aac,audio/aacp,audio/3gpp,audio/3gpp2,audio/mp4,audio/mp4a-latm,
+        audio/mpeg4-generic">
             <small id="showFileHelp" class="form-text text-muted">
                 You can upload MP3 or M4A (AAC) files.
             </small>
         </div>
-
+        
+        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="submit">Upload and continue</button>
+    </form>
+    
+    <form id="formTitle" autocomplete="off" hidden>
+        <p>Which show is this?</p>
+        
         <div class="form-group">
             <label for="nameDropdown">Show</label>
             <select class="form-select" id="nameDropdown" aria-describedby="nameDropdownHelp" name="id" required>
@@ -147,23 +214,22 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             technical staff. Thank you.
         </div>
 
-        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="submit">Upload and Continue
-        </button>
+        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="submit">Continue</button>
     </form>
 
     <form action="index.php"
           method="POST"
           enctype="multipart/form-data"
-          id="form2"
+          id="formDetails"
           autocomplete="off"
           hidden>
-        <input type="hidden" name="fileName" id="form2FileName">
-        <input type="hidden" name="id" id="form2NameDropdown">
-        <input type="hidden" name="name" id="form2Name">
-        <input type="hidden" name="presenter" id="form2Presenter">
-        <input type="hidden" name="date" id="form2Date">
-
-        <hr>
+        <input type="hidden" name="fileName" id="formDetailsFileName">
+        <input type="hidden" name="id" id="formDetailsNameDropdown">
+        <input type="hidden" name="name" id="formDetailsName">
+        <input type="hidden" name="presenter" id="formDetailsPresenter">
+        <input type="hidden" name="date" id="formDetailsDate">
+        
+        <p>And a few more details about your show...</p>
 
         <div class="form-group">
             <label for="end">Original broadcast end time</label>
@@ -316,6 +382,12 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     </form>
 
     <script><?php echo $jsConfig; ?></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.6.0/wavesurfer.min.js" 
+        integrity="sha512-SoFKNULy/Ef0R/Ah5dKmFcOuHmw5G3XPyg39XO+QltpCDEhKrdBx6YozVuIymwG5UeehhY3U6pXh9CS1/YMu2g==" crossorigin="anonymous" 
+        referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.6.0/plugins/regions.min.js" 
+        integrity="sha512-EY0ou/YwlWyRVx2a6uYtztDcKyqkJc/ClyvtDNF+S3xPZy+lAShDwjZqbb5z/qCmToGulKGieC11PbgbZpPzhA==" crossorigin="anonymous" 
+        referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/flow.min.js"
             integrity="sha512-sl2wYWEDCu3bj5w4kyd6+bglKUxb6IPQbyflpIEJbftwtZYZp7GZQ2erVGsls9BveJIvIVW+hzM+rMQQT9Bn5w=="
             crossorigin="anonymous"></script>

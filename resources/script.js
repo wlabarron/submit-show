@@ -1,17 +1,28 @@
-const form1                        = document.getElementById("form1");
-const form2                        = document.getElementById("form2");
+const pageIntro                   = document.getElementById("pageIntro");
+const formFileLocation            = document.getElementById("formFileLocation");
+const formExtract                 = document.getElementById("formExtract");
+const formTrim                    = document.getElementById("formTrim");
+const formUpload                  = document.getElementById("formUpload");
+const formTitle                   = document.getElementById("formTitle");
+const formDetails                 = document.getElementById("formDetails");
+const preparing                   = document.getElementById("preparing");
+const fileLocationInput           = document.getElementById("fileLocationInput");
+const waveformZoom                = document.getElementById("waveformZoom");
+const recordingStartInput         = document.getElementById("recordingStart");
+const recordingEndInput           = document.getElementById("recordingEnd");
 const showFileInput               = document.getElementById("showFileInput");
 const nameDropdown                = document.getElementById("nameDropdown");
 const nameOptionGroup             = document.getElementById("nameOptionGroup");
 const nameAndPresenterEntryFields = document.getElementById("nameAndPresenterEntryFields");
 const name                        = document.getElementById("name");
 const presenter                   = document.getElementById("presenter");
-const nameDropdown2               = document.getElementById("form2NameDropdown");
-const name2                       = document.getElementById("form2Name");
-const presenter2                  = document.getElementById("form2Presenter");
-const date2                       = document.getElementById("form2Date");
-const fileName2                   = document.getElementById("form2FileName");
+const nameDropdown2               = document.getElementById("formDetailsNameDropdown");
+const name2                       = document.getElementById("formDetailsName");
+const presenter2                  = document.getElementById("formDetailsPresenter");
+const date2                       = document.getElementById("formDetailsDate");
+const fileName2                   = document.getElementById("formDetailsFileName");
 const dateInput                   = document.getElementById("date");
+const endInput                    = document.getElementById("end");
 const description                 = document.getElementById("description");
 const imageSource                 = document.getElementById("imageSource");
 const imageUploader               = document.getElementById("imageUploader");
@@ -19,6 +30,9 @@ const image                       = document.getElementById("image");
 const imageErrors                 = document.getElementsByClassName("error-imageOversized");
 const submitButton                = document.getElementById("submit");
 const uploadingHelpText           = document.getElementById("uploadingHelpText");
+
+let trimStart = null;
+let trimEnd   = null;
 
 function populateShowNameSelect() {
     fetch(showJSON)
@@ -87,7 +101,103 @@ nameDropdown.addEventListener("change", function () {
     }
 });
 
-form1.addEventListener("submit", function (event) {
+formFileLocation.addEventListener("submit", function (event) {
+    event.preventDefault();
+    
+    switch (fileLocationInput.value) {
+        case "upload":
+            formUpload.hidden = false;
+            break;
+        case "extract":
+            formExtract.hidden = false;
+            break;
+    }
+    
+    pageIntro.hidden = true;
+    formFileLocation.hidden = true;
+})
+
+recordingStartInput.addEventListener("change", function (event) {
+    recordingEndInput.min = recordingStartInput.value;
+})
+
+formExtract.addEventListener("submit", function (event) {
+    event.preventDefault();
+    
+    formExtract.hidden = true;
+    preparing.hidden = false;
+    
+    const ws = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: 'rgb(200, 0, 200)',
+        progressColor: 'rgb(100, 0, 100)',
+        url: 'api/stitch.php?from=' + recordingStartInput.value + "&to=" + recordingEndInput.value,
+        mediaControls: true,
+    })
+    
+    // TODO WebKit bug for the way we load audio if there is no type=""
+    // TODO Generate peaks on server size
+    // TODO Handling loading error
+    
+    const wsRegions = ws.registerPlugin(WaveSurfer.Regions.create({}))
+    
+    wsRegions.on('region-updated', (region) => {
+        trimStart = region.start;
+        trimEnd   = region.end;
+    })
+    
+    wsRegions.on('region-double-clicked', (region) => {
+      region.play()
+      setTimeout(() => { region.play() }, 100);
+    })
+    
+    wsRegions.on('region-out', (region) => {
+      ws.pause()
+    })
+        
+    ws.on('click', () => {
+      ws.play()
+    })
+    
+    ws.once('decode', () => {
+        trimStart = ws.media.duration / 8;
+        trimEnd   = ws.media.duration - (ws.media.duration / 8);
+        
+        wsRegions.addRegion({
+            start: trimStart,
+            end: trimEnd,
+            color: 'rgba(255, 0, 0, 0.1)',
+            drag: false,
+            resize: true,
+          })
+        
+        waveformZoom.oninput = (e) => {
+            const minPxPerSec = Number(e.target.value)
+            ws.zoom(minPxPerSec)
+        }
+      
+        preparing.hidden = true;
+        formTrim.hidden = false;
+    })
+})
+
+formTrim.addEventListener("submit", function (event) {
+    event.preventDefault();
+    
+    formTrim.hidden = true;
+    formTitle.hidden = false;
+    
+    dateInput.value = recordingStartInput.value.split("T")[0];
+    end.value = recordingEndInput.value.split("T")[1];
+});
+
+formUpload.addEventListener("submit", function (event) {
+    event.preventDefault();
+    formUpload.hidden = true;
+    formTitle.hidden = false;
+})
+
+formTitle.addEventListener("submit", function (event) {
     event.preventDefault();
 
     // validate the input
@@ -103,54 +213,64 @@ form1.addEventListener("submit", function (event) {
     }
 
     if (inputValid) {
-        // Create a new uploader, with a query including the current form data
-        const uploader = new Flow({
-            target: 'api/upload.php',
-            uploadMethod: 'POST',
-            singleFile: true,
-            query: {
-                name: name.value,
-                presenter: presenter.value,
-                date: dateInput.value
-            },
-            permanentErrors: [404, 406, 415, 500, 501]
-        });
-
-        // Add the files from our temporary uploader
-        uploader.addFile(showFileInput.files[0]);
-
-        // Display error if something goes wrong in the file upload
-        uploader.on('fileError', function () {
-            document.getElementById("page-content").hidden = true;
-            document.getElementById("error-UploadFail").hidden = false;
-            document.getElementById("error-UploadFail").focus();
-            // Remove warning when navigating away
-            window.onbeforeunload = null;
-        });
-
-        // Activate the submit button when the upload succeeds
-        uploader.on('fileSuccess', function () {
-            submitButton.disabled = false;
-            submitButton.innerText = "Submit Show";
-            submitButton.classList.add("btn-outline-success");
-            submitButton.classList.remove("btn-outline-dark");
-            submitButton.style.marginBottom = "1.5rem"; // reduce page reflow from removing uploading help text
-            uploadingHelpText.remove();
-        });
-
-        // start upload
-        uploader.upload();
-
-        // disable the inputs we've used so far, hide the file uploader, show the rest of the form
-        document.getElementById("showFileInputGroup").hidden = true;
-        document.getElementById("uploadAndContinueButton").hidden = true;
-        nameDropdown.disabled = true;
-        name.disabled         = true;
-        presenter.disabled    = true;
-        dateInput.disabled    = true
+        if (showFileInput.value) {
+            // Create a new uploader, with a query including the current form data
+            const uploader = new Flow({
+                target: 'api/upload.php',
+                uploadMethod: 'POST',
+                singleFile: true,
+                query: {
+                    name: name.value,
+                    presenter: presenter.value,
+                    date: dateInput.value
+                },
+                permanentErrors: [404, 406, 415, 500, 501]
+            });
+    
+            // Add the files from our temporary uploader
+            uploader.addFile(showFileInput.files[0]);
+    
+            // Display error if something goes wrong in the file upload
+            uploader.on('fileError', function () {
+                totalFail();
+            });
+    
+            // Activate the submit button when the upload succeeds
+            uploader.on('fileSuccess', function () {
+                readyToSubmit();
+            });
+    
+            // start upload
+            uploader.upload();
+            
+            fileName2.value     = showFileInput.files[0].name;
+        } else if (trimStart !== null && trimEnd !== null) {
+            const trimStartTimestamp = new Date(recordingStartInput.valueAsNumber + (trimStart * 1000));
+            const trimEndTimestamp   = new Date(recordingStartInput.valueAsNumber + (trimEnd   * 1000));
+            
+            fetch("api/stitch.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application.json"
+                },
+                body: JSON.stringify({
+                    from:      trimStartTimestamp,
+                    to:        trimEndTimestamp,
+                    name:      name.value,
+                    presenter: presenter.value,
+                    date:      dateInput.value
+                })
+            }).then(function (response) {
+                return response.text();
+            }).then(function (name) {
+                fileName2.value = name;
+                readyToSubmit();
+            }).catch(function () {
+                totalFail();
+            })
+        }
 
         // Copy the values of form 1 into hidden fields of form 2, so they're submitted with the rest of the details
-        fileName2.value     = showFileInput.files[0].name;
         nameDropdown2.value = nameDropdown.value;
         name2.value         = name.value;
         presenter2.value    = presenter.value;
@@ -186,13 +306,10 @@ form1.addEventListener("submit", function (event) {
                     }
                 })
 
-            fetch("resources/default/image.php?show=" + nameDropdown.value,
-                {
+            fetch("resources/default/image.php?show=" + nameDropdown.value, {
                     // Only get headers, since we just need the HTTP status for now to see if an image exists.
                     method: "HEAD"
-                }
-            )
-                .then(function(data) {
+            }).then(function(data) {
                     if (data.ok) { // Default image exists
                         document.getElementById("defaultImageSection").hidden = false;
                         document.getElementById("defaultImage").src = "resources/default/image.php?show=" + nameDropdown.value;
@@ -203,7 +320,8 @@ form1.addEventListener("submit", function (event) {
         }
 
         // Display the rest of the form.
-        form2.hidden = false;
+        formTitle.hidden = true;
+        formDetails.hidden = false;
         document.getElementById("end").focus();
     }
 });
@@ -225,7 +343,7 @@ image.addEventListener("change", function () {
     }
 })
 
-form2.addEventListener("submit", function () {
+formDetails.addEventListener("submit", function () {
     // Remove warning for navigating away
     window.onbeforeunload = null;
 
@@ -235,3 +353,20 @@ form2.addEventListener("submit", function () {
     submitButton.classList.remove("btn-outline-success");
     submitButton.classList.add("btn-outline-dark");
 })
+
+function readyToSubmit() {
+    submitButton.disabled = false;
+    submitButton.innerText = "Submit Show";
+    submitButton.classList.add("btn-outline-success");
+    submitButton.classList.remove("btn-outline-dark");
+    submitButton.style.marginBottom = "1.5rem"; // reduce page reflow from removing uploading help text
+    uploadingHelpText.remove();
+}
+
+function totalFail() {
+    document.getElementById("page-content").hidden = true;
+    document.getElementById("error-UploadFail").hidden = false;
+    document.getElementById("error-UploadFail").focus();
+    // Remove warning when navigating away
+    window.onbeforeunload = null;
+}
