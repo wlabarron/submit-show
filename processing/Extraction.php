@@ -109,6 +109,9 @@ class Extraction {
                 $effect = "-c copy";
             }
             
+            // TODO Fade times inaccurate
+            // TODO End time inaccurate when doing whole show
+            
             // Stitch audio together, then trim down to the time range given.
             file_put_contents($blockListFilePath, $blockList);
             if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -accurate_seek -i \"$blockListFilePath\" -ss $blockStartToRangeStart -t $duration $effect \"$destination\"", $output) === false) {
