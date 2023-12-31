@@ -179,7 +179,6 @@ function createEditor(datetimeInput, markerLabel) {
     })
     
     // TODO WebKit bug for the way we load audio if there is no type=""
-    // TODO Generate peaks on server size
     // TODO Handling loading error
     
     const wsRegions = ws.registerPlugin(WaveSurfer.Regions.create({}))
