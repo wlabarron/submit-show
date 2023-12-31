@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GE
         header('Cache-Control: max-age=0, private, no-cache');
         header('Content-Type: ' . mime_content_type($stitchedFile));
         readfile($stitchedFile);
+        unlink($stitchedFile);
     }
     exit();
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {

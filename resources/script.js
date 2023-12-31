@@ -5,11 +5,15 @@ const formTrim                    = document.getElementById("formTrim");
 const formUpload                  = document.getElementById("formUpload");
 const formTitle                   = document.getElementById("formTitle");
 const formDetails                 = document.getElementById("formDetails");
+const formEditor                  = document.getElementById("formEditor");
 const preparing                   = document.getElementById("preparing");
 const fileLocationInput           = document.getElementById("fileLocationInput");
+const waveform                    = document.getElementById("waveform");
 const waveformZoom                = document.getElementById("waveformZoom");
 const recordingStartInput         = document.getElementById("recordingStart");
 const recordingEndInput           = document.getElementById("recordingEnd");
+const recordingStartGroup         = document.getElementById("recordingStartGroup");
+const recordingEndGroup           = document.getElementById("recordingEndGroup");
 const showFileInput               = document.getElementById("showFileInput");
 const nameDropdown                = document.getElementById("nameDropdown");
 const nameOptionGroup             = document.getElementById("nameOptionGroup");
@@ -30,9 +34,7 @@ const image                       = document.getElementById("image");
 const imageErrors                 = document.getElementsByClassName("error-imageOversized");
 const submitButton                = document.getElementById("submit");
 const uploadingHelpText           = document.getElementById("uploadingHelpText");
-
-let trimStart = null;
-let trimEnd   = null;
+let ws;
 
 function populateShowNameSelect() {
     fetch(showJSON)
@@ -124,14 +126,53 @@ recordingStartInput.addEventListener("change", function (event) {
 formExtract.addEventListener("submit", function (event) {
     event.preventDefault();
     
-    formExtract.hidden = true;
-    preparing.hidden = false;
+    if (!recordingEndInput.value) {
+        createEditor(recordingStartInput, "Start");
+    } else {
+        createEditor(recordingEndInput, "End");
+    }
+})
+
+formEditor.addEventListener("submit", function (event) {
+    event.preventDefault();
     
-    const ws = WaveSurfer.create({
+    if (!recordingEndInput.value) {
+        // We have edited the start, now need to edit the end
+        recordingStartGroup.hidden = true;
+        recordingEndGroup.hidden = false;
+        formEditor.hidden = true;
+    } else {
+        // We have edited both the start and the end times
+        
+        const timeSplit = recordingEndInput.value.split("T")[1].split(":");
+        dateInput.value = recordingStartInput.value.split("T")[0];
+        end.value = timeSplit[0] + ":" + timeSplit[1];
+        
+        formExtract.hidden = true;
+        formEditor.hidden = true;
+        formTitle.hidden = false;
+    }
+})
+
+function createEditor(datetimeInput, markerLabel) {
+    preparing.hidden = false;
+    formEditor.hidden = true;
+    
+    const margin = 150000; // 150000ms = 2.5 min
+    
+    const datetime   = datetimeInput.valueAsNumber;
+    const startRange = new Date(datetime - margin);
+    const endRange   = new Date(datetime + margin);
+    
+    if (ws) {
+        ws.destroy();
+    }
+    
+    ws = WaveSurfer.create({
         container: '#waveform',
         waveColor: 'rgb(200, 0, 200)',
         progressColor: 'rgb(100, 0, 100)',
-        url: 'api/stitch.php?from=' + recordingStartInput.value + "&to=" + recordingEndInput.value,
+        url: 'api/stitch.php?from=' + encodeURIComponent(startRange.toUTCString()) + "&to=" + encodeURIComponent(endRange.toUTCString()),
         mediaControls: true,
     })
     
@@ -142,34 +183,22 @@ formExtract.addEventListener("submit", function (event) {
     const wsRegions = ws.registerPlugin(WaveSurfer.Regions.create({}))
     
     wsRegions.on('region-updated', (region) => {
-        trimStart = region.start;
-        trimEnd   = region.end;
+        datetimeInput.step  = 0.001
+        datetimeInput.value = new Date(datetime + ((region.start * 1000) - margin)).toISOString().slice(0, -1);
     })
-    
-    wsRegions.on('region-double-clicked', (region) => {
-      region.play()
-      setTimeout(() => { region.play() }, 100);
-    })
-    
-    wsRegions.on('region-out', (region) => {
-      ws.pause()
-    })
-        
+            
     ws.on('click', () => {
       ws.play()
     })
     
     ws.once('decode', () => {
-        trimStart = ws.media.duration / 8;
-        trimEnd   = ws.media.duration - (ws.media.duration / 8);
-        
         wsRegions.addRegion({
-            start: trimStart,
-            end: trimEnd,
-            color: 'rgba(255, 0, 0, 0.1)',
-            drag: false,
-            resize: true,
+            start: margin / 1000, // ms to s
+            color: 'rgba(0, 0, 0, 1)',
+            content: markerLabel,
           })
+        
+        waveformZoom.value = 0;
         
         waveformZoom.oninput = (e) => {
             const minPxPerSec = Number(e.target.value)
@@ -177,19 +206,9 @@ formExtract.addEventListener("submit", function (event) {
         }
       
         preparing.hidden = true;
-        formTrim.hidden = false;
+        formEditor.hidden = false;
     })
-})
-
-formTrim.addEventListener("submit", function (event) {
-    event.preventDefault();
-    
-    formTrim.hidden = true;
-    formTitle.hidden = false;
-    
-    dateInput.value = recordingStartInput.value.split("T")[0];
-    end.value = recordingEndInput.value.split("T")[1];
-});
+}
 
 formUpload.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -244,9 +263,9 @@ formTitle.addEventListener("submit", function (event) {
             uploader.upload();
             
             fileName2.value     = showFileInput.files[0].name;
-        } else if (trimStart !== null && trimEnd !== null) {
-            const trimStartTimestamp = new Date(recordingStartInput.valueAsNumber + (trimStart * 1000));
-            const trimEndTimestamp   = new Date(recordingStartInput.valueAsNumber + (trimEnd   * 1000));
+        } else if (recordingStartInput.valueAsNumber !== null && recordingEndInput.valueAsNumber !== null) {
+            const trimStartTimestamp = new Date(recordingStartInput.valueAsNumber);
+            const trimEndTimestamp   = new Date(recordingEndInput.valueAsNumber);
             
             fetch("api/stitch.php", {
                 method: "POST",
@@ -254,8 +273,8 @@ formTitle.addEventListener("submit", function (event) {
                     "Content-Type": "application.json"
                 },
                 body: JSON.stringify({
-                    from:      trimStartTimestamp,
-                    to:        trimEndTimestamp,
+                    from:      trimStartTimestamp.toUTCString(),
+                    to:        trimEndTimestamp.toUTCString(),
                     name:      name.value,
                     presenter: presenter.value,
                     date:      dateInput.value

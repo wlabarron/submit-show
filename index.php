@@ -104,43 +104,46 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 
     <form id="formExtract" autocomplete="off" hidden>
         <p>
-            We'll extract the time you specify from the station's 24/7 stream recording, then you can trim the start and end
-            points to the exact moments your show started and ended.
+            Enter an approximate time, then we'll get you the recording from a few minutes either side of that time. You can listen and refine
+            the point to exactly where it should be.
         </p>
         
-        <div class="form-group">
+        <div class="form-group" id="recordingStartGroup">
             <label for="recordingStart">Recording start</label>
             <input type="datetime-local" class="form-control" id="recordingStart" aria-describedby="recordingStartHelp"
-                name="end" placeholder="HH:MM">
+                name="start" placeholder="HH:MM" step=1>
             <small id="recordingStartHelp" class="form-text text-muted">
-                Enter the time your show started. It's better to go a minute or so early here, and you can trim it in the next step.
+                Enter the approximate time you started your show. We'll refine it in the next step.
             </small>
         </div>
         
-        <div class="form-group">
+        <div class="form-group" id="recordingEndGroup" hidden>
             <label for="recordingEnd">Recording end</label>
             <input type="datetime-local" class="form-control" id="recordingEnd" aria-describedby="recordingEndHelp"
-                name="end" placeholder="HH:MM">
+                name="end" placeholder="HH:MM" step=1>
             <small id="recordingEndHelp" class="form-text text-muted">
-                Enter the time your show ended. It's better to go a minute or so late here, and you can trim it in the next step.
+                Enter the approximate time you ended your show. We'll refine it in the next step.
             </small>
         </div>
         
         <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="submit">Retrieve recording</button>
     </form>
-    
-    <div id="preparing" hidden>
+        
+    <div id="preparing" class="mt-4" hidden>
         <p class="text-center">
             <i class="spinner-border"></i> Retrieving your recording...
         </p>
     </div>
     
-    <form id="formTrim" autocomplete="off" hidden>
-        <p>Here's the recording of the stream over the time you specified. Drag the edges of the highlighted area to exactly where you started and ended your show. Click anywhere on the waveform to play, or use the controls under the waveform. Use the zoom slider to see the waveform more clearly.</p>
+    <form id="formEditor" class="mt-4" hidden>
+        <p>
+            Drag the marker to adjust, then press "Trim and continue". You can change the time above and retrieve a
+            new recording if you can't find the point you need.
+        </p>
         
         <div class="form-group w-25 mb-1">
-            <label for="customRange1" class="form-label d-inline">Zoom </label>
-            <input type="range" class="form-range d-inline" id="waveformZoom" value=0 max=50>
+            <label for="customRange1" class="form-label d-inline">Zoom</label>
+            <input type="range" class="form-range d-inline" id="waveformZoom" value=0 max=40>
         </div>
         
         <div id="waveform"></div>

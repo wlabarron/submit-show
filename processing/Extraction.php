@@ -77,14 +77,9 @@ class Extraction {
         
         $wallClockStart = strtotime($startTime);
         $wallClockEnd   = strtotime($endTime);
+        $duration       = $wallClockEnd - $wallClockStart;
         
-        if ($fade) {
-            $fadeDuration     = $this->config["extraction"]["fadeDuration"];
-            $fadeOutAt        = $wallClockEnd - $wallClockStart - $fadeDuration;
-            $effect = "-af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration";
-        } else {
-            $effect = "";
-        }
+        error_log($duration);
         
         if (sizeof($blocks) > 0) {
             $blockList = ""; 
@@ -105,11 +100,18 @@ class Extraction {
             $firstBlockFileName  = end($firstBlockPathSplit);
             $firstBlockStartTime = strtotime($firstBlockFileName);
             $blockStartToRangeStart = $wallClockStart - $firstBlockStartTime;
-            $duration            = $wallClockEnd - $wallClockStart;
+            
+            $fadeDuration     = $this->config["extraction"]["fadeDuration"];
+            if ($fade && $fadeDuration > 0) {
+                $fadeOutAt = $blockStartToRangeStart + $duration - $fadeDuration;
+                $effect    = "-af afade=in:$blockStartToRangeStart:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration";
+            } else {
+                $effect = "-c copy";
+            }
             
             // Stitch audio together, then trim down to the time range given.
             file_put_contents($blockListFilePath, $blockList);
-            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -i \"$blockListFilePath\" -ss $blockStartToRangeStart -t $duration $effect \"$destination\"", $output) === false) {
+            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -accurate_seek -i \"$blockListFilePath\" -ss $blockStartToRangeStart -t $duration $effect \"$destination\"", $output) === false) {
                 error_log("ffmpeg stitch failed: " . implode('\n', $output));
                 unset($output);
                 // TODO Exception
