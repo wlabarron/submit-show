@@ -104,7 +104,7 @@ class Extraction {
             $fadeDuration     = $this->config["extraction"]["fadeDuration"];
             if ($fade && $fadeDuration > 0) {
                 $fadeOutAt = $blockStartToRangeStart + $duration - $fadeDuration;
-                $effect    = "-af afade=in:$blockStartToRangeStart:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration";
+                $effect    = "-af afade=in:st=$blockStartToRangeStart:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration";
             } else {
                 $effect = "-c copy";
             }
