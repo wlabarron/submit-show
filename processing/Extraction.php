@@ -2,6 +2,10 @@
 
 namespace submitShow;
 
+require __DIR__ . "/Storage.php";
+
+use Storage;
+
 /**
  * Tools to extract a show from linear output recordings by stitching together chunked recording files
  * then trimming the file down to the show's start and end.
@@ -91,6 +95,7 @@ class Extraction {
             $explodedFirstFileName = explode(".", $blocks[0]);
             $audioExtension        = end($explodedFirstFileName);
             $destination = $destination . "." . $audioExtension;
+            Storage::createParentDirectories($destination);
             
             $blockListFilePath = $this->config["tempDirectory"] . "/" . uniqid() . ".list";
             

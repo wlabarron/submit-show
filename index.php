@@ -86,6 +86,8 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     <h1>Submit Show</h1>
     <p id="pageIntro">Submit a show for scheduling and automatic upload to Mixcloud.</p>
 
+    <!-- TODO Select default -->
+
     <form id="formFileLocation" autocomplete="off">
         <div class="form-group">
             <label for="fileLocationInput">What would you like to do?</label>
