@@ -142,6 +142,7 @@ formEditor.addEventListener("submit", function (event) {
         // We have edited the start, now need to edit the end
         recordingStartGroup.hidden = true;
         recordingEndGroup.hidden = false;
+        recordingEndGroup.required = true;
         formEditor.hidden = true;
     } else {
         // We have edited both the start and the end times

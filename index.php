@@ -86,6 +86,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
     <h1>Submit Show</h1>
     <p id="pageIntro">Submit a show for scheduling and automatic upload to Mixcloud.</p>
 
+    <!-- TODO Back from each step -->
     <!-- TODO Select default -->
 
     <form id="formFileLocation" autocomplete="off">
@@ -111,7 +112,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         <div class="form-group" id="recordingStartGroup">
             <label for="recordingStart">Recording start</label>
             <input type="datetime-local" class="form-control" id="recordingStart" aria-describedby="recordingStartHelp"
-                name="start" placeholder="HH:MM" step=1>
+                name="start" step=1 required>
             <small id="recordingStartHelp" class="form-text text-muted">
                 Enter the approximate time you started your show. We'll refine it in the next step.
             </small>
@@ -120,7 +121,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         <div class="form-group" id="recordingEndGroup" hidden>
             <label for="recordingEnd">Recording end</label>
             <input type="datetime-local" class="form-control" id="recordingEnd" aria-describedby="recordingEndHelp"
-                name="end" placeholder="HH:MM" step=1>
+                name="end" step=1>
             <small id="recordingEndHelp" class="form-text text-muted">
                 Enter the approximate time you ended your show. We'll refine it in the next step.
             </small>
@@ -155,7 +156,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         <p>If you made your show file elsewhere, upload it here.</p>
         <div class="form-group" id="showFileInputGroup">
             <label for="showFileInput">Show file</label>
-            <input type="file" class="form-control" id="showFileInput" aria-describedby="showFileHelp"
+            <input type="file" class="form-control" id="showFileInput" aria-describedby="showFileHelp" required
                 name="showFile" accept="audio/mpeg,audio/MPA,audio/mpa-robust,.mp3,.m4a,.mp4,.aac,audio/aac,audio/aacp,audio/3gpp,audio/3gpp2,audio/mp4,audio/mp4a-latm,
         audio/mpeg4-generic">
             <small id="showFileHelp" class="form-text text-muted">
@@ -378,6 +379,7 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             This show will published to Mixcloud <strong>as soon as possible after the "end" date and time specified
                 above</strong>.</p>
 
+        // TODO Change wording when extracting show
         <!-- Submit button behaviour modified by the <form> tag -->
         <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" aria-describedby="uploadingHelpText" disabled>
             <i class="spinner-border"></i> Uploading...
