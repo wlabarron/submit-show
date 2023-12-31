@@ -18,7 +18,7 @@ $jsConfig = 'const showJSON                 = "' . $config["showData"]["url"] . 
              const maxShowImageSizeFriendly = "' .  $config["maxShowImageSizeFriendly"] . '";';
 $jsConfigHash = "sha256-" . base64_encode(hash("sha256", $jsConfig, true));
 
-// header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.6.0/wavesurfer.min.js https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.6.0/plugins/regions.min.js https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/ https://ajax.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css; img-src 'self' data:");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfigHash' https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.6.0/wavesurfer.min.js https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.6.0/plugins/regions.min.js https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js https://cdnjs.cloudflare.com/ajax/libs/flow.js/2.14.1/ https://ajax.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css; img-src 'self' data:; media-src 'self' blob:");
 
 ?>
 <!DOCTYPE html>
