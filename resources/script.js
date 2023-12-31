@@ -136,6 +136,8 @@ formExtract.addEventListener("submit", function (event) {
 formEditor.addEventListener("submit", function (event) {
     event.preventDefault();
     
+    ws.stop();
+    
     if (!recordingEndInput.value) {
         // We have edited the start, now need to edit the end
         recordingStartGroup.hidden = true;
