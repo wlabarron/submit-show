@@ -35,6 +35,7 @@ const image                       = document.getElementById("image");
 const imageErrors                 = document.getElementsByClassName("error-imageOversized");
 const submitButton                = document.getElementById("submit");
 const uploadingHelpText           = document.getElementById("uploadingHelpText");
+const uploadingActionLabel        = document.getElementById("uploadingActionLabel");
 let ws;
 
 function populateShowNameSelect() {
@@ -110,9 +111,11 @@ formFileLocation.addEventListener("submit", function (event) {
     switch (fileLocationInput.value) {
         case "upload":
             formUpload.hidden = false;
+            uploadingActionLabel.innerText = "Uploading...";
             break;
         case "extract":
             formExtract.hidden = false;
+            uploadingActionLabel.innerText = "Processing recording...";
             break;
     }
     

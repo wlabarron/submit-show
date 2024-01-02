@@ -385,10 +385,9 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             This show will published to Mixcloud <strong>as soon as possible after the "end" date and time specified
                 above</strong>.</p>
 
-        // TODO Change wording when extracting show
         <!-- Submit button behaviour modified by the <form> tag -->
         <button type="submit" id="submit" class="btn btn-lg btn-outline-dark w-100" aria-describedby="uploadingHelpText" disabled>
-            <i class="spinner-border"></i> Uploading...
+            <i class="spinner-border"></i> <span id="uploadingActionLabel">Uploading...</span>
         </button>
 
         <p id="uploadingHelpText" class="text-center">You can submit your show once it has uploaded.</p>
