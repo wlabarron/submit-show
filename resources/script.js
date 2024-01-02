@@ -1,4 +1,5 @@
 const pageIntro                   = document.getElementById("pageIntro");
+const cancel                      = document.getElementById("cancel");
 const formFileLocation            = document.getElementById("formFileLocation");
 const formExtract                 = document.getElementById("formExtract");
 const formTrim                    = document.getElementById("formTrim");
@@ -117,6 +118,7 @@ formFileLocation.addEventListener("submit", function (event) {
     
     pageIntro.hidden = true;
     formFileLocation.hidden = true;
+    cancel.hidden = false;
 })
 
 recordingStartInput.addEventListener("change", function (event) {
