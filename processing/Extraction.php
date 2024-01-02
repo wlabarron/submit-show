@@ -37,13 +37,13 @@ class Extraction {
      * 
      * @param string $startTime Wall clock time to start getting blocks from, parseable by strtotime.
      * @param string $endTime Wall clock time to of the final block, parseable by strtotime.
-     * @return array  Array of file names for the recording blocks which cover this time (could be empty).
+     * @return array  Array of file names for the recording blocks which cover this time (could be empty), sorted by start timestamp.
      */
     private static function getBlocks(string $startTime, string $endTime): array {
         $config = require "config.php";
         
         $allFiles      = scandir($config["extraction"]["blocksDirectory"]);
-        $relevantFiles = array();
+        $relevantFiles = array(); // key = UNIX timestamp, value = filename
         
         $startTime = strtotime($startTime) - $config["extraction"]["blockLength"];
         $endTime   = strtotime($endTime);
@@ -52,13 +52,16 @@ class Extraction {
             if ($file !== "." && $file !== "..") {
                 $fileDate = strtotime($file);
                 if ($startTime <= $fileDate && $fileDate <= $endTime) {
-                    array_push($relevantFiles, $config["extraction"]["blocksDirectory"] . "/" . $file);
+                    $relevantFiles[$fileDate] = $config["extraction"]["blocksDirectory"] . "/" . $file;
                 }
             }
         }
-        // TODO Sort
+        
+        // Sort array of files by key, so they are in time order
+        ksort($relevantFiles, SORT_NUMERIC);
+        
         // TODO Missing blocks/time
-        return $relevantFiles;
+        return array_values($relevantFiles);
     }
 
     /**
