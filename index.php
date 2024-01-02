@@ -1,11 +1,13 @@
 <?php
 
+use submitShow\Extraction;
 use submitShow\Recording;
 
 $config     = require './processing/config.php';
 require       './processing/promptLogin.php';
 require_once  'processing/formHandler.php';
 require_once  'processing/Recording.php';
+require_once  'processing/Extraction.php';
 
 // There's some config values which need to be available in JS. They're put in at the end of this file, but we'll
 // prepare it here so we can make a hash and add it to the CSP.
@@ -83,25 +85,27 @@ if (isset($uploadInvalid) && $uploadInvalid) {
 ?>
 
 <div class="container" id="page-content">
+    <p class="mb-0" id="cancel" hidden><a href="/">&#8592; Cancel and restart</a></p>
     <h1>Submit Show</h1>
     <p id="pageIntro">Submit a show for scheduling and automatic upload to Mixcloud.</p>
 
-    <!-- TODO Back from each step -->
-    <!-- TODO Select default -->
-
-    <form id="formFileLocation" autocomplete="off">
-        <div class="form-group">
-            <label for="fileLocationInput">What would you like to do?</label>
-            <select class="form-select" id="fileLocationInput" aria-describedby="fileLocationInputHelp" name="fileLocationInput" required>
-                <option value="extract">Extract a recording from the livestream</option>
-                <option value="upload">Upload a file</option>
-            </select>
-            <small id="fileLocationInputHelp" class="form-text text-muted">
-                You can extract your show from station's 24/7 stream recording, or upload a file you prepared elsewhere.
-            </small>
-        </div>
-        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="submit">Continue</button>
-    </form>
+    <?php
+        if (Extraction::isEnabled()) { 
+            echo '<form id="formFileLocation" autocomplete="off">
+                        <div class="form-group">
+                            <label for="fileLocationInput">What would you like to do?</label>
+                            <select class="form-select" id="fileLocationInput" aria-describedby="fileLocationInputHelp" name="fileLocationInput" required>
+                                <option value="extract">Extract a recording from the livestream</option>
+                                <option value="upload">Upload a file</option>
+                            </select>
+                            <small id="fileLocationInputHelp" class="form-text text-muted">
+                                You can extract your show from station\'s 24/7 stream recording, or upload a file you prepared elsewhere.
+                            </small>
+                        </div>
+                        <button class="btn btn-lg btn-outline-dark w-100" id="uploadAndContinueButton" type="submit">Continue</button>
+                    </form>';
+        }
+    ?>
 
     <form id="formExtract" autocomplete="off" hidden>
         <p>
@@ -152,8 +156,10 @@ if (isset($uploadInvalid) && $uploadInvalid) {
         <button class="btn btn-lg btn-outline-dark w-100 mt-4" id="uploadAndContinueButton" type="submit">Trim and continue</button>
     </form>
     
-    <form id="formUpload" autocomplete="off" hidden>
-        <p>If you made your show file elsewhere, upload it here.</p>
+    <form id="formUpload" autocomplete="off" <?php if (Extraction::isEnabled()) { echo "hidden"; } ?>>
+        <?php if (Extraction::isEnabled()) { 
+            echo "<p>If you made your show file elsewhere, upload it here.</p>"; 
+        } ?>
         <div class="form-group" id="showFileInputGroup">
             <label for="showFileInput">Show file</label>
             <input type="file" class="form-control" id="showFileInput" aria-describedby="showFileHelp" required

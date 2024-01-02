@@ -218,6 +218,7 @@ formUpload.addEventListener("submit", function (event) {
     event.preventDefault();
     formUpload.hidden = true;
     formTitle.hidden = false;
+    pageIntro.hidden = true;
 })
 
 formTitle.addEventListener("submit", function (event) {

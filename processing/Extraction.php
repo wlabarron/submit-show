@@ -2,7 +2,7 @@
 
 namespace submitShow;
 
-require __DIR__ . "/Storage.php";
+require_once __DIR__ . "/Storage.php";
 
 use Storage;
 
