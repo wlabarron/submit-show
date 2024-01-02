@@ -10,23 +10,19 @@ use Storage;
  * Tools to extract a show from linear output recordings by stitching together chunked recording files
  * then trimming the file down to the show's start and end.
  */
-class Extraction {
-    private array $config;
-    
-    public function __construct() {
-        $this->config = require "config.php";
-    }
-    
+class Extraction {    
     /**
      * Checks if Extraction features are enabled and configured.
      * @return bool  true if enabled and configured, false otherwise.
      */
-    public function isEnabled(): bool {
-        if (isset($this->config["extraction"]) &&
-            $this->config["extraction"]["enabled"] && 
-            !empty($this->config["extraction"]["blocksDirectory"]) &&
-            is_numeric($this->config["extraction"]["blockLength"]) &&
-            is_numeric($this->config["extraction"]["fadeDuration"])) {
+    public static function isEnabled(): bool {
+        $config = require "config.php";
+        
+        if (isset($config["extraction"]) &&
+            $config["extraction"]["enabled"] && 
+            !empty($config["extraction"]["blocksDirectory"]) &&
+            is_numeric($config["extraction"]["blockLength"]) &&
+            is_numeric($config["extraction"]["fadeDuration"])) {
             return true;  
         } else {
             return false;
@@ -42,18 +38,20 @@ class Extraction {
      * @param string $endTime Wall clock time to of the final block, parseable by strtotime.
      * @return array  Array of file names for the recording blocks which cover this time (could be empty).
      */
-    private function getBlocks(string $startTime, string $endTime): array {
-        $allFiles      = scandir($this->config["extraction"]["blocksDirectory"]);
+    private static function getBlocks(string $startTime, string $endTime): array {
+        $config = require "config.php";
+        
+        $allFiles      = scandir($config["extraction"]["blocksDirectory"]);
         $relevantFiles = array();
         
-        $startTime = strtotime($startTime) - $this->config["extraction"]["blockLength"];
+        $startTime = strtotime($startTime) - $config["extraction"]["blockLength"];
         $endTime   = strtotime($endTime);
         
         foreach ($allFiles as &$file) {
             if ($file !== "." && $file !== "..") {
                 $fileDate = strtotime($file);
                 if ($startTime <= $fileDate && $fileDate <= $endTime) {
-                    array_push($relevantFiles, $this->config["extraction"]["blocksDirectory"] . "/" . $file);
+                    array_push($relevantFiles, $config["extraction"]["blocksDirectory"] . "/" . $file);
                 }
             }
         }
@@ -72,8 +70,10 @@ class Extraction {
      * @param bool $fade Whether to put a fade on each end of the file or not.
      * @return string File path written to, or empty string on failure.
      */
-    public function stitch(string $startTime, string $endTime, string $destination, bool $fade): string {
-        $blocks = $this->getBlocks($startTime, $endTime);
+    public static function stitch(string $startTime, string $endTime, string $destination, bool $fade): string {
+        $config = require "config.php";
+        
+        $blocks = Extraction::getBlocks($startTime, $endTime);
         
         $wallClockStart = strtotime($startTime);
         $wallClockEnd   = strtotime($endTime);
@@ -92,7 +92,7 @@ class Extraction {
             $destination = $destination . "." . $audioExtension;
             Storage::createParentDirectories($destination);
             
-            $blockListFilePath = $this->config["tempDirectory"] . "/" . uniqid() . ".list";
+            $blockListFilePath = $config["tempDirectory"] . "/" . uniqid() . ".list";
             
             // The blocks returned will probably span longer than the time requested. Calculate the difference between the start of the
             // first block and the start of the time range we want, then the duration of the time range we want.
@@ -101,7 +101,7 @@ class Extraction {
             $firstBlockStartTime = strtotime($firstBlockFileName);
             $blockStartToRangeStart = $wallClockStart - $firstBlockStartTime;
             
-            $fadeDuration     = $this->config["extraction"]["fadeDuration"];
+            $fadeDuration     = $config["extraction"]["fadeDuration"];
             if ($fade && $fadeDuration > 0) {
                 $fadeOutAt = $blockStartToRangeStart + $duration - $fadeDuration;
                 $effect    = "-af afade=in:st=$blockStartToRangeStart:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration";

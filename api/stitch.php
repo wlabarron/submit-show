@@ -10,13 +10,11 @@ require_once '../processing/Extraction.php';
 require_once '../processing/Recording.php';
 $config = require '../processing/config.php';
 
-$extraction = new Extraction();
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GET["to"])) {
     $from = Input::sanitise($_GET["from"]);
     $to   = Input::sanitise($_GET["to"]);
     
-    $stitchedFile = $extraction->stitch($from, $to, $config["tempDirectory"] . "/" . uniqid(), false);
+    $stitchedFile = Extraction::stitch($from, $to, $config["tempDirectory"] . "/" . uniqid(), false);
     
     if (empty($stitchedFile)) {
         http_response_code(500);
@@ -42,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GE
         $recording->setPresenter($presenter);
         $recording->setStart($date);
         
-        $stitchedFile = $extraction->stitch($from, $to, $config["holdingDirectory"] . "/" . $recording->getFileName(false), true);
+        $stitchedFile = Extraction::stitch($from, $to, $config["holdingDirectory"] . "/" . $recording->getFileName(false), true);
         
         if (empty($stitchedFile)) {
             http_response_code(500);
