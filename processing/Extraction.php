@@ -4,6 +4,7 @@ namespace submitShow;
 
 require_once __DIR__ . "/Storage.php";
 
+use Exception;
 use Storage;
 
 /**
@@ -68,7 +69,7 @@ class Extraction {
      * @param string $destination Where to write the stitched file to, including file name, but excluding extension which will be appended
      *                            the block files.
      * @param bool $fade Whether to put a fade on each end of the file or not.
-     * @return string File path written to, or empty string on failure.
+     * @return string File path written to.
      */
     public static function stitch(string $startTime, string $endTime, string $destination, bool $fade): string {
         $config = require "config.php";
@@ -112,18 +113,14 @@ class Extraction {
             // Stitch audio together, then trim down to the time range given.
             file_put_contents($blockListFilePath, $blockList);
             if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -accurate_seek -i \"$blockListFilePath\" -ss $blockStartToRangeStart -t $duration $effect \"$destination\"", $output) === false) {
-                error_log("ffmpeg stitch failed: " . implode('\n', $output));
                 unset($output);
-                // TODO Exception
-                return array();
+                throw new Exception("ffmpeg stitch failed: " . implode('\n', $output));
             }
             unlink($blockListFilePath);
             
             return $destination;
         } else {
-            error_log("No blocks");
-            // TODO Exceptions
-            return "";
+            throw new Exception("No blocks");
         }
     }
 }

@@ -14,17 +14,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GE
     $from = Input::sanitise($_GET["from"]);
     $to   = Input::sanitise($_GET["to"]);
     
-    $stitchedFile = Extraction::stitch($from, $to, $config["tempDirectory"] . "/" . uniqid(), false);
-    
-    if (empty($stitchedFile)) {
-        http_response_code(500);
-    } else {
+    try {
+        $stitchedFile = Extraction::stitch($from, $to, $config["tempDirectory"] . "/" . uniqid(), false);
         header('Cache-Control: max-age=0, private, no-cache');
         header('Content-Type: ' . mime_content_type($stitchedFile));
         readfile($stitchedFile);
         unlink($stitchedFile);
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        http_response_code(500);
     }
-    exit();
+    
+    exit;
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     if (!empty($data["from"]) && !empty($data["to"]) && !empty($data["name"]) && !empty($data["presenter"]) && !empty($data["date"])) {
@@ -40,17 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GE
         $recording->setPresenter($presenter);
         $recording->setStart($date);
         
-        $stitchedFile = Extraction::stitch($from, $to, $config["holdingDirectory"] . "/" . $recording->getFileName(false), true);
-        
-        if (empty($stitchedFile)) {
-            http_response_code(500);
-        } else {
+        try {
+            $stitchedFile = Extraction::stitch($from, $to, $config["holdingDirectory"] . "/" . $recording->getFileName(false), true);
             header('Cache-Control: max-age=0, private, no-cache');
             $recording->setFileExtension($stitchedFile);
             echo($recording->getFileName());
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            http_response_code(500);
         }
-        
-        exit();   
+
+        exit;
     }
 }
 
