@@ -180,12 +180,17 @@ function createEditor(datetimeInput, markerLabel) {
         container: '#waveform',
         waveColor: 'rgb(200, 0, 200)',
         progressColor: 'rgb(100, 0, 100)',
-        url: 'api/stitch.php?from=' + encodeURIComponent(startRange.toUTCString()) + "&to=" + encodeURIComponent(endRange.toUTCString()),
+        url: undefined, // load audio separately so we can catch errors: https://github.com/katspaugh/wavesurfer.js/discussions/3055
         mediaControls: true,
     })
     
+    ws.load('api/stitch.php?from=' + encodeURIComponent(startRange.toUTCString()) + "&to=" + encodeURIComponent(endRange.toUTCString()))
+        .catch(function (error) {
+            totalFail();
+            console.error(error);
+        })
+    
     // TODO WebKit bug for the way we load audio if there is no type=""
-    // TODO Handling loading error
     
     const wsRegions = ws.registerPlugin(WaveSurfer.Regions.create({}))
     

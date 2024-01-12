@@ -60,7 +60,7 @@ class Extraction {
         // Sort array of files by key, so they are in time order
         ksort($relevantFiles, SORT_NUMERIC);
         
-        // TODO Missing blocks/time
+        // TODO Missing blocks in the middle of the requested range
         return array_values($relevantFiles);
     }
 

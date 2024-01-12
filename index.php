@@ -51,7 +51,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' '$jsConfi
 
 <div class="container" hidden id="error-UploadFail">
     <div class="alert alert-danger mt-2" role="alert">
-        Something went wrong uploading your show file. Sorry about that. Please
+        Something went wrong working with your show file. Sorry about that. Please
         <a href="index.php" class="alert-link">try again</a>.
     </div>
 </div>
@@ -112,6 +112,8 @@ if (isset($uploadInvalid) && $uploadInvalid) {
             Enter an approximate time, then we'll get you the recording from a few minutes either side of that time. You can listen and refine
             the point to exactly where it should be.
         </p>
+        
+        <!-- TODO Time can't be too close to now or in the future -->
         
         <div class="form-group" id="recordingStartGroup">
             <label for="recordingStart">Recording start</label>
