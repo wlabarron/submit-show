@@ -55,13 +55,13 @@
         <fieldset>
             <legend class="fs-6">What would you like to do?</legend>
             <div class="form-check">
-                <input class="form-check-input action" type="radio" name="action" value="select.php" id="trim" checked>
+                <input class="form-check-input action" type="radio" name="action" value="select" id="trim" checked>
                 <label class="form-check-label" for="trim">
                     Trim a recording of a broadcasted show
                 </label>
             </div>
             <div class="form-check">
-                <input class="form-check-input action" type="radio" name="action" value="upload-data.php" id="upload">
+                <input class="form-check-input action" type="radio" name="action" value="upload" id="upload">
                 <label class="form-check-label" for="upload">
                     Upload a file
                 </label>
@@ -93,17 +93,28 @@
             }
         });
         
+        function actionValueToUrl(value) {
+            switch (value) {
+                case "select":
+                    return "select.php";
+                case "upload":
+                    return "upload-data.php";
+                default:
+                    return "";
+            }
+        }
+        
         // Change form action depending on selected next step
         const form = document.getElementById("form");
         const actionInput = Array.from(document.getElementsByClassName("action"));
         actionInput.forEach(input => {
             input.addEventListener("change", e => {
-                form.action = e.target.value;
+                form.action = actionValueToUrl(e.target.value);
             })
         })
         
         // Set default form action to match default radio button
-        form.action = document.querySelector(".action:checked").value;
+        form.action = actionValueToUrl(document.querySelector(".action:checked").value);
     </script>
 </body>
 </html>
