@@ -33,7 +33,7 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
 
 <div class="container">
     <h1 class="h3">About your show</h1>
-    <form id="form" method="POST" action="/">
+    <form id="form" method="POST" action="/" enctype="multipart/form-data">
         <?php require './components/return-to-sender.php'; ?>
         
         <p>Show cover image</p>
@@ -58,6 +58,8 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
             </div>
         </div>
         
+        <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $config["maxShowImageSize"]; ?>" />
+
         <div class="form-group" id="imageUploader" <?php if ($defaultImage) { echo "hidden"; }; ?>>
             <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg"
                    aria-describedby="imageHelp" aria-label="Show cover image">
