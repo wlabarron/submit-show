@@ -20,7 +20,7 @@
                     <?php
                         $shows = json_decode(file_get_contents("shows.json"), true);
                         foreach ($shows as $show) {
-                            echo "<option value='" . $show["id"] . "'>" . $show["name"] . "</option>";
+                            echo "<option value='" . $show["id"] . "' data-presenter='" . $show["presenter"] . "'>" . $show["name"] . "</option>";
                         }
                     ?>
                 </optgroup>
@@ -36,7 +36,7 @@
         <div hidden id="nameAndPresenterEntryFields">
             <div class="form-group">
                 <label for="name">Show name</label>
-                <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" maxlength="50">
+                <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" maxlength="50" required>
                 <small id="nameHelp" class="form-text text-muted">
                     Enter the name of the show.
                 </small>
@@ -45,7 +45,7 @@
             <div class="form-group">
                 <label for="presenter">Show presenter</label>
                 <input type="text" class="form-control" id="presenter" aria-describedby="presenterHelp" name="presenter"
-                       maxlength="50">
+                       maxlength="50" required>
                 <small id="presenterHelp" class="form-text text-muted">
                     Enter the show's presenter.
                 </small>
@@ -61,7 +61,7 @@
                 </label>
             </div>
             <div class="form-check">
-                <input class="form-check-input action" type="radio" name="action" value="upload-file.php" id="upload">
+                <input class="form-check-input action" type="radio" name="action" value="upload-data.php" id="upload">
                 <label class="form-check-label" for="upload">
                     Upload a file
                 </label>
@@ -73,17 +73,23 @@
     
     <script>
         const nameDropdown = document.getElementById("nameDropdown");
-        const customName = document.getElementById("name");
-        const customPresenter = document.getElementById("presenter");
+        const nameInput = document.getElementById("name");
+        const presenterInput = document.getElementById("presenter");
+        
         nameDropdown.addEventListener("change", function () {
             if (nameDropdown.value === "special") {
-                customName.required = true;
-                customPresenter.required = true;
+                // For special shows, we'll clear out any values lingering in the form                
+                nameInput.value = "";
+                presenterInput.value = "";
+              
                 nameAndPresenterEntryFields.hidden = false;
             } else {
-                customName.required = false;
-                customPresenter.required = false;
+                // For shows selected from the dropdown, we'll populate the hidden 'custom' name and presenter
+                // inputs so we can get those values more easily in future
                 nameAndPresenterEntryFields.hidden = true;
+                
+                nameInput.value      = nameDropdown.selectedOptions[0].innerText;
+                presenterInput.value = nameDropdown.selectedOptions[0].dataset.presenter;
             }
         });
         
