@@ -19,7 +19,7 @@ $config = require './processing/config.php';
         <div class="form-group" id="showFileInputGroup">
             <label for="showFileInput">Show file</label>
             <!-- No name for this input, so it won't be sent with the general form submission - the file is uploaded separately and just the name is left in the
-                 next hidden field -->
+                 next hidden field. This form also isn't enctype="multipart/form-data", so it wouldn't go anyway. -->
             <input type="file" class="form-control" id="showFileInput" aria-describedby="showFileHelp"
                    accept="audio/mpeg,audio/MPA,audio/mpa-robust,.mp3,.m4a,.mp4,.aac,audio/aac,audio/aacp,audio/3gpp,audio/3gpp2,audio/mp4,audio/mp4a-latm,audio/mpeg4-generic" required>
             <small id="showFileHelp" class="form-text text-muted">
@@ -27,6 +27,8 @@ $config = require './processing/config.php';
             </small>
         </div>
         
+        <!-- Avoid potentially-variable behaviour across browsers by sending file name as a separate form field filled by JS, instead of relying on not using
+             <form enctype="multipart/form-data"> which can have similar effect.  -->
         <input type="hidden" id="fileName" name="fileName" />
         
         <div id="upload-error-container" class="alert alert-danger" hidden>
