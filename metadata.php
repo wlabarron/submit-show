@@ -1,9 +1,27 @@
-<?php 
+<?php
+
+use submitShow\Database;
 use submitShow\Recording;
 
+require './components/post-only.php';
 require './processing/promptLogin.php'; 
+require_once  'processing/Database.php';
 require_once  'processing/Recording.php';
+require_once  'processing/Input.php';
+
 $config = require './processing/config.php';
+$database = new Database();
+
+if (isset($_POST["id"])) {
+    $id = Input::sanitise($_POST["id"]);
+    $defaultData = $database->getDefaults($id);
+    $defaultImage = $database->getDefaultImage($id);
+} else {
+    $defaultData = [];
+    $defaultData["description"] = "";
+    $defaultData["tags"] = ["", "", "", "", ""];
+    $defaultImage = false;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,33 +33,37 @@ $config = require './processing/config.php';
 
 <div class="container">
     <h1 class="h3">About your show</h1>
-    <form>
-        <div class="form-group">
-            <!-- TODO Show the right bits based on selected show type -->
-            <label for="showImageInput">Show cover image</label>
+    <form action>
+        <?php require './components/return-to-sender.php'; ?>
         
-            <div id="defaultImageSection" hidden>
-                <div class="ps-5">
-                    Saved photo:
-                    <div class="col-md-5">
-                        <img src="" alt="Previously uploaded cover image." width="100" id="defaultImage"/>
+        <p>Show cover image</p>
+        
+        <?php if ($defaultImage) { ?>
+            <div class="form-group">
+                <div id="defaultImageSection">
+                    <div class="ps-5">
+                        Saved photo:
+                        <div class="col-md-5">
+                            <img src="/resources/default/image.php?show=<?php echo Input::sanitise($_POST["id"]); ?>" 
+                                alt="Previously uploaded cover image." width="100" id="defaultImage"/>
+                        </div>
                     </div>
+                    <select class="form-select"
+                            id="imageSource"
+                            name="imageSource"
+                            aria-label="Choose which cover image to use">
+                        <option value="default" selected>Use saved photo for this show</option>
+                        <option value="upload">Upload new photo</option>
+                        <option value="none">Don't use a photo</option>
+                    </select>
                 </div>
-                <select class="form-select"
-                        id="imageSource"
-                        name="imageSource"
-                        aria-label="Choose which cover image to use">
-                    <option value="default">Use saved photo for this show</option>
-                    <option value="upload" selected>Upload new photo</option>
-                    <option value="none">Don't use a photo</option>
-                </select>
             </div>
-        </div>
-        <div class="form-group" id="imageUploader">
+        <?php } ?>
+        
+        <div class="form-group" id="imageUploader" <?php if ($defaultImage) { echo "hidden"; }; ?>>
             <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg"
                    aria-describedby="imageHelp" aria-label="Show cover image">
             <small id="imageHelp" class="form-text text-muted">
-                <!-- Validate this -->
                 You can upload JPG or PNG files up to <?php echo $config["maxShowImageSizeFriendly"]; ?>. Square-shaped is best.
             </small>
         </div>
@@ -51,8 +73,10 @@ $config = require './processing/config.php';
             <textarea class="form-control joint-input-top" id="description" rows="3"
                       maxlength="<?php echo 995 - strlen($config["fixedDescription"]); ?>"
                       name="description"
-                      aria-describedby="descriptionHelp"></textarea>
-            <textarea class="form-control joint-input-bottom" disabled readonly aria-label="Fixed description text"><?php
+                      aria-describedby="descriptionHelp"><?php 
+                      echo $defaultData["description"]; 
+                  ?></textarea>
+            <textarea class="form-control joint-input-bottom" disabled readonly id="description-fixed" aria-label="Fixed description text"><?php
                  echo str_replace("{n}", "&#13;", $config["fixedDescription"]);
                 ?></textarea>
             <small id="descriptionHelp" class="form-text text-muted">
@@ -67,18 +91,22 @@ $config = require './processing/config.php';
                 <option value="" disabled selected>Choose primary tag...</option>
                 <?php
                     foreach (Recording::$PRIMARY_TAG_OPTIONS as $tag) {
-                        echo '<option value="' . $tag . '">' . $tag. '</option>';
+                        $selected = "";
+                        if (isset($defaultData["tags"][0]) && $tag == $defaultData["tags"][0]) {
+                            $selected = "selected";
+                        }
+                        echo '<option value="' . $tag . '" ' . $selected . '>' . $tag. '</option>';
                     }
                 ?>
             </select>
             <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
-                   id="tag2" name="tag2" maxlength="20">
+                   id="tag2" name="tag2" maxlength="20" value="<?php echo $defaultData["tags"][1] ?? ""; ?>">
             <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
-                   id="tag3" name="tag3" maxlength="20">
+                   id="tag3" name="tag3" maxlength="20" value="<?php echo $defaultData["tags"][2] ?? ""; ?>">
             <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
-                   id="tag4" name="tag4" maxlength="20">
+                   id="tag4" name="tag4" maxlength="20" value="<?php echo $defaultData["tags"][3] ?? ""; ?>">
             <input type="text" class="form-control joint-input-bottom" aria-label="Tag" aria-describedby="tagsHelp"
-                   id="tag5" name="tag5" maxlength="20">
+                   id="tag5" name="tag5" maxlength="20" value="<?php echo $defaultData["tags"][4] ?? ""; ?>">
             <small id="tagsHelp" class="form-text text-muted">
                 Good tags are things like the genres of music in the show. Pick the first from the dropdown, and
                 type up to four more into the boxes.
@@ -110,8 +138,7 @@ $config = require './processing/config.php';
         }
         ?>
         
-        <div id="saveFormDefaultsSection">
-            <!-- TODO Hide if custom show -->
+        <div id="saveFormDefaultsSection" <?php if (!isset($id)) { echo "hidden"; } ?>>
             <div class="form-group form-check">
                 <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults"
                        name="saveAsDefaults"
@@ -126,10 +153,11 @@ $config = require './processing/config.php';
             </div>
         </div>
         
-        <!-- TODO Action description based on submission type -->
-        <!-- <p class="text-center">Once you submit this show, it'll be available for broadcast and posted to Mixcloud.</p> -->
-        
-        <button type="submit" class="btn btn-success mt-2">Submit show</button>
+        <div class="text-center">
+            <hr>
+            <p class="text-center">This show will be sent to the station programming team for playout or archival, and published to Mixcloud.</p>
+            <button type="submit" class="btn btn-lg btn-outline-success">Submit show</button>
+        </div>
     </form>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js" integrity="sha512-OjjaC+tijryqhyPqy7jWSPCRj7fcosu1zreTX1k+OWSwu6uSqLLQ2kxaqL9UpR7xFaPsCwhMf1bQABw2rCxMbg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -140,6 +168,7 @@ $config = require './processing/config.php';
         // Resize text areas as they're filled with content
         autosize(document.querySelectorAll('textarea'));
         
+        // Validate selected image size
         const imageInput = document.getElementById("image");
         imageInput.addEventListener('change', function () {
             const file = imageInput.files[0];
@@ -151,6 +180,12 @@ $config = require './processing/config.php';
             
             imageInput.reportValidity();
         });
+        
+        // Show uploader if image source selection is "upload new image"
+        const imageSource = document.getElementById("imageSource")
+        imageSource?.addEventListener("change", function () {
+            imageUploader.hidden = imageSource.value !== "upload";
+        })
     </script>
 </body>
 </html>
