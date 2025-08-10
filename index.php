@@ -119,7 +119,7 @@ require_once 'processing/formHandler.php';
         function actionValueToUrl(value) {
             switch (value) {
                 case "select":
-                    return "select.php";
+                    return "select-file.php";
                 case "upload":
                     return "upload-data.php";
                 default:
