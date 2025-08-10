@@ -88,7 +88,7 @@ if (Basic::save($uploadPath, $flowConfig, $request)) {
     try {
         // Write metadata about the show into the file
         $removingMetadataLocation = $uploadPath . "-meta." . $extension;
-        shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -metadata title=\"" . $recording->getName() . " " . $recording->get6DigitStartDate() . "\" -metadata artist=\"" . $recording->getPresenter() . "\" -c:v copy -c:a copy \"$removingMetadataLocation\"");
+        shell_exec("ffmpeg -i \"$uploadPath\" -map_metadata -1 -metadata title=\"" . $recording->getName() . " " . $recording->get6DigitStartDate() . "\" -metadata artist=\"" . $recording->getPresenter() . "\" -c copy \"$removingMetadataLocation\"");
         // move metadata-removed file back to the upload path
         rename($removingMetadataLocation, $uploadPath);
     } catch (Exception $e) {
