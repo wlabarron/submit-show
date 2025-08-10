@@ -1,4 +1,5 @@
 <?php 
+require './components/post-only.php';
 require './processing/promptLogin.php'; 
 $config = require './processing/config.php';
 ?>
@@ -11,6 +12,7 @@ $config = require './processing/config.php';
 <?php require "./components/noscript.html"; ?>
 
 <div class="container">
+    <?php echo json_encode($_POST); ?>
     <h1 class="h3">Upload file</h1>
     <form>
         <div class="form-group" id="showFileInputGroup">
