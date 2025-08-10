@@ -12,7 +12,7 @@ require_once  'processing/Input.php';
 $config = require './processing/config.php';
 $database = new Database();
 
-if (isset($_POST["id"])) {
+if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
     $id = Input::sanitise($_POST["id"]);
     $defaultData = $database->getDefaults($id);
     $defaultImage = $database->getDefaultImage($id);
@@ -33,32 +33,30 @@ if (isset($_POST["id"])) {
 
 <div class="container">
     <h1 class="h3">About your show</h1>
-    <form action>
+    <form id="form" method="POST" action="/">
         <?php require './components/return-to-sender.php'; ?>
         
         <p>Show cover image</p>
         
-        <?php if ($defaultImage) { ?>
-            <div class="form-group">
-                <div id="defaultImageSection">
-                    <div class="ps-5">
-                        Saved photo:
-                        <div class="col-md-5">
-                            <img src="/resources/default/image.php?show=<?php echo Input::sanitise($_POST["id"]); ?>" 
-                                alt="Previously uploaded cover image." width="100" id="defaultImage"/>
-                        </div>
+        <div class="form-group" <?php if (!$defaultImage) { echo "hidden"; }; ?>>
+            <div id="defaultImageSection">
+                <div class="ps-5">
+                    Saved photo:
+                    <div class="col-md-5">
+                        <img src="/resources/default/image.php?show=<?php echo Input::sanitise($_POST["id"]); ?>" 
+                            alt="Previously uploaded cover image." width="100" id="defaultImage"/>
                     </div>
-                    <select class="form-select"
-                            id="imageSource"
-                            name="imageSource"
-                            aria-label="Choose which cover image to use">
-                        <option value="default" selected>Use saved photo for this show</option>
-                        <option value="upload">Upload new photo</option>
-                        <option value="none">Don't use a photo</option>
-                    </select>
                 </div>
+                <select class="form-select"
+                        id="imageSource"
+                        name="imageSource"
+                        aria-label="Choose which cover image to use">
+                    <option value="default" <?php if ( $defaultImage) { echo "selected"; }; ?>>Use saved photo for this show</option>
+                    <option value="upload"  <?php if (!$defaultImage) { echo "selected"; }; ?>>Upload new photo</option>
+                    <option value="none">Don't use a photo</option>
+                </select>
             </div>
-        <?php } ?>
+        </div>
         
         <div class="form-group" id="imageUploader" <?php if ($defaultImage) { echo "hidden"; }; ?>>
             <input type="file" class="form-control" id="image" name="image" accept="image/png,image/jpeg"
@@ -162,8 +160,11 @@ if (isset($_POST["id"])) {
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js" integrity="sha512-OjjaC+tijryqhyPqy7jWSPCRj7fcosu1zreTX1k+OWSwu6uSqLLQ2kxaqL9UpR7xFaPsCwhMf1bQABw2rCxMbg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        // Warn the user before they navigate away
+        // Warn the user before they navigate away, unless they're submitting the form
         window.onbeforeunload = function () { return true;};
+        document.getElementById("form").addEventListener("submit", e => {
+            window.onbeforeunload = null;
+        })
         
         // Resize text areas as they're filled with content
         autosize(document.querySelectorAll('textarea'));

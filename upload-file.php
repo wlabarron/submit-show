@@ -27,7 +27,7 @@ $config = require './processing/config.php';
             </small>
         </div>
         
-        <input type="hidden" id="showFileName" name="showFileName" />
+        <input type="hidden" id="fileName" name="fileName" />
         
         <div id="upload-error-container" class="alert alert-danger" hidden>
             <span id="upload-error-body"></span>
@@ -50,7 +50,7 @@ $config = require './processing/config.php';
         
         const form = document.getElementById("form");
         const showFileInput = document.getElementById("showFileInput");
-        const showFileNameInput = document.getElementById("showFileName");
+        const showFileNameInput = document.getElementById("fileName");
         const uploadErrorContainer = document.getElementById("upload-error-container");
         const uploadErrorBody = document.getElementById("upload-error-body");
         const progressContainer = document.getElementById("progress-container");

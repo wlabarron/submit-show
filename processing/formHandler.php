@@ -1,6 +1,5 @@
 <?php
 
-
 use submitShow\Database;
 use submitShow\Recording;
 
@@ -30,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $recording->setName($_POST["name"]);
         $recording->setPresenter($_POST["presenter"]);
         $recording->setStart($_POST["date"]);
-        $recording->setEnd($_POST["end"]);
+        $recording->setEnd($_POST["end"], $_POST["endNextDay"]);
         $recording->setFileExtension($_POST["fileName"]);
 
         if (!empty($_POST["imageSource"])) {
