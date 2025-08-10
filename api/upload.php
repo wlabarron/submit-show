@@ -5,13 +5,13 @@ use Flow\Request;
 use submitShow\Database;
 use submitShow\Recording;
 
-require_once 'processing/requireAuth.php';
-require_once 'vendor/autoload.php';
-require_once 'processing/Database.php';
-require_once 'processing/Recording.php';
-require_once 'processing/Input.php';
-require_once 'processing/Storage.php';
-$config = require 'processing/config.php';
+require_once '../processing/requireAuth.php';
+require_once '../vendor/autoload.php';
+require_once '../processing/Database.php';
+require_once '../processing/Recording.php';
+require_once '../processing/Input.php';
+require_once '../processing/Storage.php';
+$config = require '../processing/config.php';
 
 $database  = new Database();
 $recording = new Recording();
