@@ -10,7 +10,8 @@
 <div class="container">
     <h1>Submit Show</h1>
     <p>Submit a show for scheduling and automatic upload to Mixcloud.</p>
-    <form>
+    <!-- Action dynamically updated by JavaScript depending on what the user picks in the form  -->
+    <form id="form" method="POST">
         <div class="form-group">
             <label for="nameDropdown">Show</label>
             <select class="form-select" id="nameDropdown" aria-describedby="nameDropdownHelp" name="id" required>
@@ -54,13 +55,13 @@
         <fieldset>
             <legend class="fs-6">What would you like to do?</legend>
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="action" value="trim" id="trim" checked>
+                <input class="form-check-input action" type="radio" name="action" value="select.php" id="trim" checked>
                 <label class="form-check-label" for="trim">
                     Trim a recording of a broadcasted show
                 </label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="action" value="upload" id="upload">
+                <input class="form-check-input action" type="radio" name="action" value="upload-file.php" id="upload">
                 <label class="form-check-label" for="upload">
                     Upload a file
                 </label>
@@ -85,6 +86,18 @@
                 nameAndPresenterEntryFields.hidden = true;
             }
         });
+        
+        // Change form action depending on selected next step
+        const form = document.getElementById("form");
+        const actionInput = Array.from(document.getElementsByClassName("action"));
+        actionInput.forEach(input => {
+            input.addEventListener("change", e => {
+                form.action = e.target.value;
+            })
+        })
+        
+        // Set default form action to match default radio button
+        form.action = document.querySelector(".action:checked").value;
     </script>
 </body>
 </html>
