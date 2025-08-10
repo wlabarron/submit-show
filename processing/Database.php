@@ -104,7 +104,7 @@ class Database {
 
         $insertSubmissionQuery = $this->connection->prepare("INSERT INTO submissions (`file-location`, file, title, description, image, `end-datetime`, `notification-email`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?)");
         $insertSubmissionQuery->bind_param("isssbis", $location, $file, $publicationName, $description, $null, $end, $publicationAlertEmail);
-        if (!is_null($image)) $insertSubmissionQuery->send_long_data(4, $image);
+        $insertSubmissionQuery->send_long_data(4, $image ?? "");
 
         if (!$insertSubmissionQuery->execute()) {
             error_log($insertSubmissionQuery->error);
@@ -237,7 +237,7 @@ class Database {
 
         $infoQuery = $this->connection->prepare("INSERT INTO saved_info (description, image, `show`) VALUES (?, ?, ?)");
         $infoQuery->bind_param("sbi", $description, $null, $showID);
-        $infoQuery->send_long_data(1, $image);
+        $infoQuery->send_long_data(1, $image ?? "");
         if (!$infoQuery->execute()) {
             error_log($infoQuery->error);
             throw new Exception("Failed to save default details.");
