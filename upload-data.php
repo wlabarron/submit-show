@@ -1,4 +1,5 @@
 <?php 
+require './components/post-only.php';
 require './processing/promptLogin.php'; 
 $config = require './processing/config.php';
 ?>
@@ -12,7 +13,9 @@ $config = require './processing/config.php';
 
 <div class="container">
     <h1 class="h3">About your upload</h1>
-    <form>
+    <form id="form" method="POST" action="upload-file.php">
+        <?php require './components/return-to-sender.php'; ?>
+        
         <div class="form-group">
             <label for="date">Show date</label>
             <input type="date" class="form-control" id="date" aria-describedby="dateHelp" name="date" required
@@ -50,8 +53,11 @@ $config = require './processing/config.php';
     </form>
     
     <script>
-        // Warn the user before they navigate away
+        // Warn the user before they navigate away, unless they're submitting the form
         window.onbeforeunload = function () { return true;};
+        document.getElementById("form").addEventListener("submit", e => {
+            window.onbeforeunload = null;
+        })
     </script>
 </body>
 </html>
