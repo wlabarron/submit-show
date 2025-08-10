@@ -277,7 +277,7 @@ class Database {
             error_log($tagsQuery->error);
             throw new Exception("Failed query for default show tags.");
         }
-        $tags    = mysqli_fetch_all(mysqli_stmt_get_result($tagsQuery));
+        $tags    = array_column(mysqli_fetch_all(mysqli_stmt_get_result($tagsQuery), MYSQLI_ASSOC), "tag");
 
         if (!empty($details["description"])) {
             $description = $details["description"];
