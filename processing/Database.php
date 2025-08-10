@@ -104,7 +104,7 @@ class Database {
 
         $insertSubmissionQuery = $this->connection->prepare("INSERT INTO submissions (`file-location`, file, title, description, image, `end-datetime`, `notification-email`) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?), ?)");
         $insertSubmissionQuery->bind_param("isssbis", $location, $file, $publicationName, $description, $null, $end, $publicationAlertEmail);
-        $insertSubmissionQuery->send_long_data(4, $image);
+        if (!is_null($image)) $insertSubmissionQuery->send_long_data(4, $image);
 
         if (!$insertSubmissionQuery->execute()) {
             error_log($insertSubmissionQuery->error);
