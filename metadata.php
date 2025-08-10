@@ -136,20 +136,22 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
         }
         ?>
         
-        <div id="saveFormDefaultsSection" <?php if (!isset($id)) { echo "hidden"; } ?>>
-            <div class="form-group form-check">
-                <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults"
-                       name="saveAsDefaults"
-                       checked>
-                <label class="form-check-label" for="saveAsDefaults" aria-describedby="saveAsDefaultsHelp">
-                    Save these values as the defaults for this show
-                </label>
-                <small id="saveAsDefaultsHelp" class="form-text text-muted d-block">
-                    If this box is ticked, next time you choose this show from the "Show name" list in the first step, 
-                    the image, description, and tags you've chosen here will appear automatically.
-                </small>
+        <?php if (isset($id)) { ?>
+            <div id="saveFormDefaultsSection">
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="saveAsDefaults"
+                        name="saveAsDefaults"
+                        checked>
+                    <label class="form-check-label" for="saveAsDefaults" aria-describedby="saveAsDefaultsHelp">
+                        Save these values as the defaults for this show
+                    </label>
+                    <small id="saveAsDefaultsHelp" class="form-text text-muted d-block">
+                        If this box is ticked, next time you choose this show from the "Show name" list in the first step, 
+                        the image, description, and tags you've chosen here will appear automatically.
+                    </small>
+                </div>
             </div>
-        </div>
+        <?php } ?>
         
         <div class="text-center">
             <hr>
