@@ -1,6 +1,6 @@
 <?php
 
-@ini_set('memory_limit','256M');
+@ini_set('memory_limit','512M');
 
 use submitShow\Extraction;
 use submitShow\Recording;
@@ -10,7 +10,7 @@ require_once '../processing/Extraction.php';
 require_once '../processing/Recording.php';
 $config = require '../processing/config.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GET["to"])) {
+if ($_SERVER['REQUEST_METHOD'] === "GET" && !empty($_GET["from"]) && !empty($_GET["to"])) {
     $from = Input::sanitise($_GET["from"]);
     $to   = Input::sanitise($_GET["to"]);
     
@@ -26,8 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GE
     }
     
     exit;
-} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+} else if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $data = json_decode(file_get_contents('php://input'), true);
+
     if (!empty($data["from"]) && !empty($data["to"]) && !empty($data["name"]) && !empty($data["presenter"]) && !empty($data["date"])) {
         $from      = Input::sanitise($data["from"]);
         $to        = Input::sanitise($data["to"]);
@@ -43,12 +44,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET["from"]) && !empty($_GE
         
         try {
             $stitchedFile = Extraction::stitch($from, $to, $config["holdingDirectory"] . "/" . $recording->getFileName(false), true);
+            
+            if (!empty($data["start"]) && !empty($data["end"])) {
+                $start = Input::sanitise($data["start"]);
+                $end   = Input::sanitise($data["end"]);
+                
+                $stitchedFile = Extraction::trim($start, $end, $stitchedFile);
+            }
+            
             header('Cache-Control: max-age=0, private, no-cache');
             $recording->setFileExtension($stitchedFile);
             echo($recording->getFileName());
         } catch (Exception $e) {
             error_log($e->getMessage());
             http_response_code(500);
+            exit;
         }
 
         exit;

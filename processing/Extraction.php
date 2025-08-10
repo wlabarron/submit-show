@@ -71,10 +71,9 @@ class Extraction {
      * @param string $endTime Wall clock time to end stitching at, parseable by strtotime.
      * @param string $destination Where to write the stitched file to, including file name, but excluding extension which will be appended
      *                            the block files.
-     * @param bool $fade Whether to put a fade on each end of the file or not.
      * @return string File path written to.
      */
-    public static function stitch(string $startTime, string $endTime, string $destination, bool $fade): string {
+    public static function stitch(string $startTime, string $endTime, string $destination): string {
         $config = require "config.php";
         
         $blocks = Extraction::getBlocks($startTime, $endTime);
@@ -105,17 +104,9 @@ class Extraction {
             $firstBlockStartTime = strtotime($firstBlockFileName);
             $blockStartToRangeStart = $wallClockStart - $firstBlockStartTime;
             
-            $fadeDuration     = $config["extraction"]["fadeDuration"];
-            if ($fade && $fadeDuration > 0) {
-                $fadeOutAt = $blockStartToRangeStart + $duration - $fadeDuration;
-                $effect    = "-af afade=in:st=$blockStartToRangeStart:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration";
-            } else {
-                $effect = "-c copy";
-            }
-            
             // Stitch audio together, then trim down to the time range given.
             file_put_contents($blockListFilePath, $blockList);
-            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -accurate_seek -i \"$blockListFilePath\" -ss $blockStartToRangeStart -t $duration $effect \"$destination\"", $output) === false) {
+            if (exec("ffmpeg -y -loglevel error -hide_banner -f concat -safe 0 -accurate_seek -i \"$blockListFilePath\" -ss $blockStartToRangeStart -t $duration -c copy \"$destination\"", $output) === false) {
                 unset($output);
                 throw new Exception("ffmpeg stitch failed: " . implode('\n', $output));
             }
@@ -125,5 +116,43 @@ class Extraction {
         } else {
             throw new Exception("No blocks");
         }
+    }
+    
+    /**
+     * Trims a previously-stitched audio file to the given start time and duration, with a fade on each end.
+     * @param int $start The number of seconds into the file to start.
+     * @param int $duration The duration of the resultant file in seconds.
+     * @param string $fileName The name of the file to trim, including extension. The file will be pulled out of the 
+     *                         config temp directory.
+     * @return string  The name of the trimmed file, which will be in the holding directory, or empty string on error.
+     */
+    public static function trim(int $start, int $duration, string $fileName): string {
+        $config = require "config.php";
+        
+        $filePath         = $config["tempDirectory"] . "/" . $fileName;
+        $explodedFileName = explode(".", $fileName);
+        $id               = $explodedFileName[0];
+        $audioExtension   = end($explodedFileName);
+        $outputFileName   = $id . "." . $audioExtension;
+        $outputFilePath   = $config["holdingDirectory"] . "/" . $outputFileName;
+        $fadeDuration     = $config["extraction"]["fadeDuration"];
+        $fadeOutAt        = $duration - $fadeDuration;
+        
+        if ($fadeDuration == 0) {
+            if (exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -c copy \"$outputFilePath\"", $output) === false) {
+                throw new Exception("ffmpeg stitch failed: " . implode('\n', $output));
+                unset($output);
+                return "";
+            }
+        } else {
+            set_time_limit(120);
+            if (exec("ffmpeg -y -hide_banner -loglevel error -ss \"$start\" -i \"$filePath\" -t \"$duration\" -af afade=in:0:d=$fadeDuration,afade=out:st=$fadeOutAt:d=$fadeDuration \"$outputFilePath\"", $output) === false) {
+                throw new Exception("ffmpeg stitch with fade failed: " . implode('\n', $output));
+                unset($output);
+                return "";
+            }
+        }
+        
+        return $outputFileName;
     }
 }
