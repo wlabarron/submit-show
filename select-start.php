@@ -70,6 +70,7 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         const ws = WaveSurfer.create({
             container: '#waveform',
             waveColor: 'rgb(33, 37, 41)',
+            height: 256,
             url: undefined, // load audio separately so we can catch errors: https://github.com/katspaugh/wavesurfer.js/discussions/3055
         })
         
@@ -105,7 +106,7 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
             startTimestamp.value = region.start;
         })
         
-        ws.once('decode', () => {
+        ws.once('decode', () => {    
             const regionStart = ws.getDuration() / 3;
             
             wsRegions.addRegion({
