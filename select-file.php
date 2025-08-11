@@ -13,7 +13,7 @@ $config = require './processing/config.php';
 
 <div class="container">
     <h1 class="h3">Select your show</h1>
-    <form id="form" method="POST" action="select-start.php">
+    <form id="form" method="POST" action="select-marker.php">
         <?php require './components/return-to-sender.php'; ?>
         
         <p>Which recording would you like to trim and submit?</p>
