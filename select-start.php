@@ -34,8 +34,13 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
             </div>
         </div>
         
-        <div id="waveform"></div>
         
+        <div id="waveform">
+            <div id="loading" class="waveform-loading">
+                    <div class="spinner-border mb-2" aria-hidden="true"></div>
+                    <strong role="status">Loading excerpt</strong>
+            </div>
+        </div>
         <button type="submit" id="submit-button" class="btn btn-primary mt-2">Continue</button>
     </form>
     
@@ -52,6 +57,7 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         })
         
         const startTimestamp = document.getElementById("startTimestamp");
+        const loading = document.getElementById("loading");
         
         const ws = WaveSurfer.create({
             container: '#waveform',
@@ -105,6 +111,8 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
                 const minPxPerSec = Number(e.target.value)
                 ws.zoom(minPxPerSec)
             }
+            
+            loading.hidden = true;
         })
 
     </script>
