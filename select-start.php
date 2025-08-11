@@ -22,26 +22,32 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         <p>This is an excerpt of the first <?php echo floor($config["serverRecordings"]["auditionTime"] / 60) ?> min of the recording you selected. Drag the red marker to the exact moment the show started.</p>
         <p>Use the play and pause buttons to listen to the excerpt, and the Test button to start playing from where you dropped the marker. The Zoom slider lets you look closer.</p>
         
-        <input type="hidden" id="startTimestamp" name="startTimestamp" />
-        
-        <div class="playback-controls">
-            <button id="play" type="button" class="btn btn-symbol-only btn-outline-dark" title="Play">&#x23F5;&#xFE0E;</button>
-            <button id="pause" type="button" class="btn btn-symbol-only btn-outline-dark" title="Pause">&#x23F8;&#xFE0E;</button>
-            <button id="test" type="button" class="btn btn-outline-dark" title="Test">Test</button>
-            <div class="form-group w-25 mb-1">
-                <label for="customRange1" class="form-label d-inline">Zoom</label>
-                <input type="range" class="form-range d-inline" id="waveformZoom" value=0 max=40>
-            </div>
+        <div id="error" class="alert alert-danger" hidden>
+            <span><strong>Couldn't load excerpt.</strong> Please go back or refresh the page and try again.</span>
         </div>
         
-        
-        <div id="waveform">
-            <div id="loading" class="waveform-loading">
-                    <div class="spinner-border mb-2" aria-hidden="true"></div>
-                    <strong role="status">Loading excerpt</strong>
+        <div id="markerUI">
+            <input type="hidden" id="startTimestamp" name="startTimestamp" />
+            
+            <div id="playback-controls" class="playback-controls">
+                <button id="play" type="button" class="btn btn-symbol-only btn-outline-dark" title="Play">&#x23F5;&#xFE0E;</button>
+                <button id="pause" type="button" class="btn btn-symbol-only btn-outline-dark" title="Pause">&#x23F8;&#xFE0E;</button>
+                <button id="test" type="button" class="btn btn-outline-dark" title="Test">Test</button>
+                <div class="form-group w-25 mb-1">
+                    <label for="customRange1" class="form-label d-inline">Zoom</label>
+                    <input type="range" class="form-range d-inline" id="waveformZoom" value=0 max=40>
+                </div>
             </div>
+            
+            <div id="waveform">
+                <div id="loading" class="waveform-loading">
+                        <div class="spinner-border mb-2" aria-hidden="true"></div>
+                        <strong role="status">Loading excerpt</strong>
+                </div>
+            </div>
+            
+            <button type="submit" id="submit-button" class="btn btn-primary mt-2">Continue</button>
         </div>
-        <button type="submit" id="submit-button" class="btn btn-primary mt-2">Continue</button>
     </form>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.10.1/wavesurfer.min.js" integrity="sha512-m656G613DjhTIQ13jStfPSGeOLVbW0S3JoqDP9Zr3GY5TRUQjWI+wqmX+CGQe4226EH0vfVmMJ3Gc9moPwnPSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -58,6 +64,8 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         
         const startTimestamp = document.getElementById("startTimestamp");
         const loading = document.getElementById("loading");
+        const error = document.getElementById("error");
+        const markerUI = document.getElementById("markerUI");
         
         const ws = WaveSurfer.create({
             container: '#waveform',
@@ -67,7 +75,8 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         
         ws.load(fileUrl)
             .catch(function (error) {
-                // TODO Sensible solution
+                error.hidden = false;
+                markerUI.hidden = true;
                 console.error(error);
             })
         
