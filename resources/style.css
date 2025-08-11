@@ -39,3 +39,12 @@ hr {
   margin-bottom: 4px;
   vertical-align: middle;
 }
+
+.playback-controls {
+  display: flex;
+  gap: 1rem; 
+}
+
+.playback-controls .btn-symbol-only {
+  font-size: 2rem;
+}
