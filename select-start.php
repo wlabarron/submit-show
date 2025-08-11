@@ -91,7 +91,7 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         })
         
         ws.once('decode', () => {
-            const regionStart = ws.getDuration() / 2;
+            const regionStart = ws.getDuration() / 3;
             
             wsRegions.addRegion({
                 start: regionStart,
