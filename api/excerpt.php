@@ -15,6 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === "GET" && !empty($_GET["file"]) && !empty($_GE
     // form of the path, again removing any funny-business.
     $filePath  = realpath($config["serverRecordings"]["recordingsDirectory"] . "/" . basename($file));
     
+    if (!file_exists($filePath)) {
+        http_response_code(404);
+        exit;
+    }
+    
     // Before loading the file, double-check we're in the directory we expect (or deeper)
     if (strpos($filePath, $config["serverRecordings"]["recordingsDirectory"]) === 0) {
         header("Content-Disposition: inline");
