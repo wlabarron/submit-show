@@ -15,11 +15,12 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
 <?php require "./components/noscript.html"; ?>
 
 <div class="container">
-    <h1 class="h3">Select your show</h1>
+    <h1 class="h3">Mark the start</h1>
     <form id="form" method="POST" action="select-start.php">
         <?php require './components/return-to-sender.php'; ?>
         
-        <p>Drag the red marker to the exact moment your show starts.</p>
+        <p>This is an excerpt of the first <?php echo floor($config["serverRecordings"]["auditionTime"] / 60) ?> min of the recording you selected. Drag the red marker to the exact moment the show started.</p>
+        <p>Use the play and pause buttons to listen to the excerpt, and the Test button to start playing from where you dropped the marker. The Zoom slider lets you look closer.</p>
         
         <input type="hidden" id="startTimestamp" name="startTimestamp" />
         
