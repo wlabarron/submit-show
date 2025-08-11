@@ -20,7 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === "GET" && !empty($_GET["file"]) && !empty($_GE
         header("Content-Disposition: inline");
         header("Content-Transfer-Encoding: binary"); 
         header("Content-Type: audio/*"); 
-        passthru("ffmpeg -y -hide_banner -loglevel error  -i \"$filePath\" -ss 0 -t \"{$config["serverRecordings"]["auditionTime"]}\" -c copy -f mp3 -");
+        if ($_GET["part"] === "start") {
+            passthru("ffmpeg -y -hide_banner -loglevel error -accurate_seek  -ss 0 -i \"$filePath\" -t \"{$config["serverRecordings"]["auditionTime"]}\" -c copy -f mp3 -");
+        } else if ($_GET["part"] === "end") {
+            passthru("ffmpeg -y -hide_banner -loglevel error -accurate_seek  -sseof \"-{$config["serverRecordings"]["auditionTime"]}\" -i \"$filePath\" -t \"{$config["serverRecordings"]["auditionTime"]}\" -c copy -f mp3 -");
+        } else {
+            http_response_code(400);
+        }
         exit;
     } else {
         http_response_code(403);
