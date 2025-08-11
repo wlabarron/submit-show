@@ -1,4 +1,5 @@
 <?php
+// TODO Create trimmed file for selected show
 
 use submitShow\Database;
 use submitShow\Recording;

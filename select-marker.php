@@ -21,7 +21,7 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         
         <?php if (isset($_GET["end"])) {
             echo "<p>Now, do the same for the moment your show ended. Here's the last " . $config["serverRecordings"]["auditionTime"] / 60 . " min of the recording you selected.</p>
-            <p>Use the play and pause buttons to listen to the excerpt, and the Test button to start playing from where you dropped the marker. The Zoom slider lets you look closer.</p>";
+            <p>Use the play and pause buttons to listen to the excerpt, and the Test button to hear the 3 seconds running up to your marker. The Zoom slider lets you look closer.</p>";
         } else {
             echo "<p>This is an excerpt of the first " . $config["serverRecordings"]["auditionTime"] / 60 . " min of the recording you selected. Drag the red marker to the exact moment the show started.</p>
             <p>Use the play and pause buttons to listen to the excerpt, and the Test button to start playing from where you dropped the marker. The Zoom slider lets you look closer.</p>";
@@ -110,6 +110,15 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
             loading.hidden = true;
         })
         
+        <?php if (isset($_GET["end"])) { ?>
+            // If setting the end marker, stop playing when we run into marker
+            ws.on("audioprocess", time => {
+                if (time >= wsRegions.getRegions()[0].start) {
+                    ws.pause();
+                }
+            })
+        <?php } ?>
+        
         ////////////////////
         // Button Actions //
         ////////////////////
@@ -126,8 +135,9 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         })
         
         document.getElementById("test").addEventListener("click", e => {
-            ws.setTime(wsRegions.getRegions()[0].start);
-            ws.play();
+            // Start playing from the marker if testing the start, or 3 seconds before the marker if testing the end
+            ws.setTime(wsRegions.getRegions()[0].start <?php echo isset($_GET["end"]) ? " - 3" : "" ?>);
+            ws.play()
         })
     </script>
 </body>
