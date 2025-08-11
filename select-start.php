@@ -80,8 +80,6 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
                 markerUI.hidden = true;
                 console.error(error);
             })
-        
-        // TODO WebKit bug for the way we load audio if there is no type=""
 
         const wsRegions = ws.registerPlugin(WaveSurfer.Regions.create({}))
                 

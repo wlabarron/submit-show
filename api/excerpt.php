@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === "GET" && !empty($_GET["file"]) && !empty($_GE
     if (strpos($filePath, $config["serverRecordings"]["recordingsDirectory"]) === 0) {
         header("Content-Disposition: inline");
         header("Content-Transfer-Encoding: binary"); 
-        header("Content-Type: audio/*"); 
+        header("Content-Type: " . mime_content_type($filePath));
         if ($_GET["part"] === "start") {
             passthru("ffmpeg -y -hide_banner -loglevel error -accurate_seek  -ss 0 -i \"$filePath\" -t \"{$config["serverRecordings"]["auditionTime"]}\" -c copy -f mp3 -");
         } else if ($_GET["part"] === "end") {
