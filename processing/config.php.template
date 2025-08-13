@@ -55,6 +55,16 @@ return array(
     //            "local": A local directory.
     //            "s3"   : An S3-compatible storage location.
     'storageProvider' => "",
+    
+    'serverRecordings' => array (
+         // Enable or disable the feature to submit shows trimmed from recordings stored on the server.
+         'enabled'         => false,
+         // The directory where your stream recording files are stored. The file names must start with a date in YYYY-MM-DD format, but
+         // any other useful descriptive text can follow. File names will be visible to users.
+         'recordingsDirectory' => "",
+         // How many seconds of the start/end of a selected recording the user can listen to in order to mark the start and end of the show.
+         'auditionTime'     => 900, // = 15 min
+     ),
 
     'localStorage' => array (
         // Path to a directory where recording files can be permanently stored. No trailing slash.
