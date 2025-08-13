@@ -57,8 +57,7 @@ if (isset($_GET["end"])) {
                     <input type="range" class="form-range d-inline disabled-until-loaded" disabled id="waveformZoom" value=0 max=40>
                 </div>
             </div>
-            
-            <!-- TODO Marker touch target awfy wee -->
+
             <div id="waveform">
                 <div id="loading" class="waveform-loading">
                         <div class="spinner-border mb-2" aria-hidden="true"></div>

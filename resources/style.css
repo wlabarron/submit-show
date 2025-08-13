@@ -56,3 +56,12 @@ hr {
   justify-content: center;
   flex-direction: column;
 }
+
+#waveform ::part(marker) {
+  padding: 0 5px;
+  border-width: 3px;
+}
+
+#waveform ::part(cursor) {
+  border-width: 2px;
+}
