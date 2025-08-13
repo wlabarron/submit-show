@@ -28,7 +28,7 @@ if (isset($_GET["end"])) {
         <?php require './components/return-to-sender.php'; ?>
         
         <?php if (isset($_GET["end"])) {
-            echo "<p>Now, do the same for the moment your show ended. Here's the last " . $config["serverRecordings"]["auditionTime"] / 60 . " min of the recording you selected.</p>
+            echo "<p>Now, do the same for the moment the show ended. Here's the last " . $config["serverRecordings"]["auditionTime"] / 60 . " min of the recording you selected - drag the red marker to exactly where the show finished.</p>
             <p>Use the play and pause buttons to listen to the excerpt, and the Test button to hear the 3 seconds running up to your marker. The Zoom slider lets you look closer.</p>";
         } else {
             echo "<p>This is an excerpt of the first " . $config["serverRecordings"]["auditionTime"] / 60 . " min of the recording you selected. Drag the red marker to the exact moment the show started.</p>
