@@ -128,12 +128,53 @@ if (isset($_GET["end"])) {
         })
         
         <?php if (isset($_GET["end"])) { ?>
-            // If setting the end marker, stop playing when we run into marker
-            // TODO This means you can't play if you start listening after the marker
-            ws.on("audioprocess", time => {
-                if (time >= wsRegions.getRegions()[0].start) {
-                    ws.pause();
+            // The Stopper pauses playback when you run into the end marker.
+            let stopper;
+            
+            function createStopper() {
+                if (!stopper) { // only create a stopper if one doesn't already exist, otherwise we lose track and can't stop the stoppers
+                    stopper = ws.on("timeupdate", time => {
+                        if (time >= wsRegions.getRegions()[0].start) {
+                            ws.pause();
+                            deleteStopper();
+                        }
+                    })
                 }
+            }
+            
+            function deleteStopper() {
+                if (stopper) { // only delete a stopper if it exists
+                    stopper(); // calling the stopper as a function deletes it
+                    stopper = undefined; // without a trace
+                }
+            }
+            
+            // When audio playback starts, if we're starting playing before the marker, create a Stopper.
+            ws.on("play", () => {
+                if (ws.getCurrentTime() < wsRegions.getRegions()[0].start) {
+                    createStopper();
+                }
+            })
+            
+            // If the user seeks while playing and goes beyond the marker, get rid of the stopper so playback doesn't suddenly end.
+            // Otherwise, they must've seeked to before the marker, so create a stopper.
+            ws.on("seeking", (timeSeekedTo) => {
+                if (timeSeekedTo >= wsRegions.getRegions()[0].start){
+                    console.log("Seeked after marker, deleting stopper")
+                    deleteStopper();
+                } else {
+                    console.log("Seeked before marker, making a stopper")
+                    console.log("stopper: ", stopper)
+                    createStopper();
+                }
+            })
+            
+            ws.on("pause", () => {
+                deleteStopper();
+            })
+            
+            ws.on("finish", () => {
+                deleteStopper();
             })
         <?php } ?>
         
