@@ -4,7 +4,7 @@ require './processing/promptLogin.php';
 require_once  'processing/Input.php';
 $config = require './processing/config.php';
 
-$selectedFile = Input::sanitise($_POST["selectedFile"]);
+$fileName = Input::sanitise($_POST["fileName"]);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,6 +32,13 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
         </div>
         
         <div id="markerUI">
+            <!-- In order to supply the final step of the form with the necessary show metadata for submission, we're adding a date field here with the
+                 show date extracted from the file name. We're also going to add a dummy end time, because we don't care what time it ended, because it has already aired,
+                 so will be posted to Mixcloud immediately anyway. -->
+            <input type="hidden" name="date" value="<?php echo substr(basename($fileName), 0, 10); // this should work because file names should start with YYYY-MM-DD. Should. ?>" />
+            <input type="hidden" name="end" value="00:00" />
+            <input type="hidden" name="endNextDay" value="false" />
+            
             <input type="hidden" id="timestamp" name="<?php echo isset($_GET["end"]) ? "endTimestamp" : "startTimestamp" ?>" />
             
             <div id="playback-controls" class="playback-controls">
@@ -76,7 +83,7 @@ $selectedFile = Input::sanitise($_POST["selectedFile"]);
             url: undefined, // load audio separately so we can catch errors: https://github.com/katspaugh/wavesurfer.js/discussions/3055
         })
 
-        ws.load('/api/excerpt.php?file=<?php echo $selectedFile; ?>&part=<?php echo isset($_GET["end"]) ? "end" : "start" ?>')
+        ws.load('/api/excerpt.php?file=<?php echo $fileName; ?>&part=<?php echo isset($_GET["end"]) ? "end" : "start" ?>')
             .catch(function (error) {
                 error.hidden = false;
                 markerUI.hidden = true;

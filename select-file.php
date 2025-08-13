@@ -21,7 +21,7 @@ $config = require './processing/config.php';
         <?php
             $recordings = array_diff(scandir($config["serverRecordings"]["recordingsDirectory"]), array('..', '.'));
             foreach ($recordings as $recording) {
-                echo '<button type="submit" class="list-group-item list-group-item-action" name="selectedFile" value="' . $recording . '">
+                echo '<button type="submit" class="list-group-item list-group-item-action" name="fileName" value="' . $recording . '">
                         ' . $recording . '
                     </button>';
             }
