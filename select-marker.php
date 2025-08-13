@@ -50,8 +50,7 @@ if (isset($_GET["end"])) {
             <input type="hidden" id="timestamp" name="<?php echo isset($_GET["end"]) ? "endTimestamp" : "startTimestamp" ?>" />
             
             <div id="playback-controls" class="playback-controls">
-                <button id="play" type="button" class="btn btn-symbol-only btn-outline-dark disabled-until-loaded" disabled title="Play">&#x23F5;&#xFE0E;</button>
-                <button id="pause" type="button" class="btn btn-symbol-only btn-outline-dark disabled-until-loaded" disabled title="Pause">&#x23F8;&#xFE0E;</button>
+                <button id="playpause" type="button" class="btn btn-symbol-only btn-outline-dark disabled-until-loaded" disabled title="Play/Pause">&#x23EF;&#xFE0E;</button>
                 <button id="test" type="button" class="btn btn-outline-dark disabled-until-loaded" disabled title="Test">Test</button>
                 <div class="form-group w-25 mb-1">
                     <label for="customRange1" class="form-label d-inline">Zoom</label>
@@ -186,12 +185,8 @@ if (isset($_GET["end"])) {
           ws.play()
         })
         
-        document.getElementById("play").addEventListener("click", e => {
-            ws.play();
-        })
-        
-        document.getElementById("pause").addEventListener("click", e => {
-            ws.pause();
+        document.getElementById("playpause").addEventListener("click", e => {
+            ws.playPause();
         })
         
         document.getElementById("test").addEventListener("click", e => {
