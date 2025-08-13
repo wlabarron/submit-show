@@ -63,5 +63,6 @@ if (!Storage::createParentDirectories($holdingPath)) {
     exit;
 }
 
+// TODO ffmpeg crashing and holding up everything
 // Trim the file and add metadata, moving it to the holding path in the process
-shell_exec("ffmpeg -accurate_seek -ss \"$startTimestamp\" -to \"$endTimestamp\" -i \"$filePath\" -map_metadata -1 -metadata title=\"" . $recording->getName() . " " . $recording->get6DigitStartDate() . "\" -metadata artist=\"" . $recording->getPresenter() . "\" -c copy \"$holdingPath\"");
+shell_exec("ffmpeg -y -accurate_seek -ss \"$startTimestamp\" -to \"$endTimestamp\" -i \"$filePath\" -map_metadata -1 -metadata title=\"" . $recording->getName() . " " . $recording->get6DigitStartDate() . "\" -metadata artist=\"" . $recording->getPresenter() . "\" -c copy \"$holdingPath\"");

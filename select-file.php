@@ -19,7 +19,7 @@ $config = require './processing/config.php';
         <p>Which recording would you like to trim and submit?</p>
         <div class="list-group">
         <?php
-            $recordings = array_diff(scandir($config["serverRecordings"]["recordingsDirectory"]), array('..', '.'));
+            $recordings = array_diff(scandir($config["serverRecordings"]["recordingsDirectory"], SCANDIR_SORT_DESCENDING), array('..', '.'));
             foreach ($recordings as $recording) {
                 echo '<button type="submit" class="list-group-item list-group-item-action" name="fileName" value="' . $recording . '">
                         ' . $recording . '

@@ -59,6 +59,7 @@ if (isset($_GET["end"])) {
                 </div>
             </div>
             
+            <!-- TODO Marker touch target awfy wee -->
             <div id="waveform">
                 <div id="loading" class="waveform-loading">
                         <div class="spinner-border mb-2" aria-hidden="true"></div>
@@ -66,6 +67,7 @@ if (isset($_GET["end"])) {
                 </div>
             </div>
             
+            <!-- TODO Loading indicator needed, especially while creating file -->
             <button type="submit" id="submit-button" class="btn btn-primary mt-2">Continue</button>
         </div>
     </form>
@@ -127,6 +129,7 @@ if (isset($_GET["end"])) {
         
         <?php if (isset($_GET["end"])) { ?>
             // If setting the end marker, stop playing when we run into marker
+            // TODO This means you can't play if you start listening after the marker
             ws.on("audioprocess", time => {
                 if (time >= wsRegions.getRegions()[0].start) {
                     ws.pause();
