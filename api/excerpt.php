@@ -7,18 +7,16 @@ require_once '../processing/Input.php';
 $config = require '../processing/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === "GET" && !empty($_GET["file"]) && !empty($_GET["part"])) {
-    $file = Input::sanitise($_GET["file"]);
     $part = Input::sanitise($_GET["part"]);
     
-    // Using `basename` should remove any attempts at path traversal from the user input by only taking
-    // the file name from the end of the provided string. We then use `realpath` to get the canonical
-    // form of the path, again removing any funny-business.
-    $filePath  = realpath($config["serverRecordings"]["recordingsDirectory"] . "/" . basename($file));
-    
-    if (!file_exists($filePath)) {
+    try {
+        $filePath  = Input::fileNameToPath($_GET["file"]);
+    } catch (Exception $exception) {
+        error_log("Couldn't create sanitised file path for selected show: " . $exception->getMessage());
         http_response_code(404);
         exit;
     }
+    
     
     // Before loading the file, double-check we're in the directory we expect (or deeper)
     if (strpos($filePath, $config["serverRecordings"]["recordingsDirectory"]) === 0) {
