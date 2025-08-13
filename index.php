@@ -75,16 +75,16 @@ require_once 'processing/formHandler.php';
             </div>
         </div>
         
-        <fieldset>
+        <fieldset <?php if (!$config["serverRecordings"]["enabled"]) { echo "hidden"; } ?>>
             <legend class="fs-6">What would you like to do?</legend>
             <div class="form-check">
-                <input class="form-check-input action" type="radio" name="action" value="select" id="trim" checked>
+                <input class="form-check-input action" type="radio" name="action" value="select" id="trim" <?php if ($config["serverRecordings"]["enabled"]) { echo "checked"; } ?>>
                 <label class="form-check-label" for="trim">
                     Trim a recording of a broadcasted show
                 </label>
             </div>
             <div class="form-check">
-                <input class="form-check-input action" type="radio" name="action" value="upload" id="upload">
+                <input class="form-check-input action" type="radio" name="action" value="upload" id="upload" <?php if (!$config["serverRecordings"]["enabled"]) { echo "checked"; } ?>>
                 <label class="form-check-label" for="upload">
                     Upload a file
                 </label>
