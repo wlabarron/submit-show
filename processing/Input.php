@@ -29,7 +29,10 @@ class Input {
         // form of the path, again removing any funny-business.
         $filePath  = realpath($config["serverRecordings"]["recordingsDirectory"] . "/" . basename(Input::sanitise($name)));
         
-        if (!file_exists($filePath)) {
+        // Before loading the file, double-check we're in the directory we expect (or deeper)        
+        if (strpos($filePath, $config["serverRecordings"]["recordingsDirectory"]) !== 0) {
+            throw new Error("Path doesn't end up where we expect.");
+        } else if (!file_exists($filePath)) { // and check the file exists
             throw new Error("File does not exist.");
         } else {
             return $filePath;
