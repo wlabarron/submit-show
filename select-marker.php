@@ -5,6 +5,14 @@ require_once  'processing/Input.php';
 $config = require './processing/config.php';
 
 $fileName = Input::sanitise($_POST["fileName"]);
+
+if (isset($_GET["end"])) {
+    $filePath = Input::fileNameToPath($fileName);
+    $fileDuration = intval(shell_exec("mediainfo --Output='General;%Duration%'  \"$filePath\"")) / 1000; // ms to sec
+    $excerptStartTime = $fileDuration - $config["serverRecordings"]["auditionTime"];
+} else {
+    $excerptStartTime = 0;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +101,7 @@ $fileName = Input::sanitise($_POST["fileName"]);
         // Create marker and record marker location in hidden input as it changes
         const wsRegions = ws.registerPlugin(WaveSurfer.Regions.create({}))
         wsRegions.on('region-updated', (region) => {
-            timestamp.value = region.start;
+            timestamp.value = <?php echo $excerptStartTime; ?> + region.start;
         })
         
         ws.once('decode', () => {
@@ -104,7 +112,7 @@ $fileName = Input::sanitise($_POST["fileName"]);
                 start: markerInitialLocation,
                 color: "rgb(255,0,0)"
             })
-            timestamp.value = markerInitialLocation;
+            timestamp.value = <?php echo $excerptStartTime; ?> + markerInitialLocation;
             
             // Make the zoom slider work
             waveformZoom.value = 0;
