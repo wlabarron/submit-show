@@ -58,8 +58,15 @@ hr {
 }
 
 #waveform ::part(marker) {
-  padding: 0 5px;
-  border-width: 3px;
+  border-width: 2px;
+}
+
+#waveform ::part(marker)::after {
+  content: "";
+  position: absolute;
+  left: -.8rem;
+  width: 1.2rem;
+  height: 100%;
 }
 
 #waveform ::part(cursor) {
