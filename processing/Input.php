@@ -22,12 +22,12 @@ class Input {
      * @return string  Sanitised path to the file.
      */
     public static function fileNameToPath(string $name): string {
-        $config = require '../processing/config.php';
+        $config = require 'config.php';
         
         // Using `basename` should remove any attempts at path traversal from the user input by only taking
         // the file name from the end of the provided string. We then use `realpath` to get the canonical
         // form of the path, again removing any funny-business.
-        $filePath  = realpath($config["serverRecordings"]["recordingsDirectory"] . "/" . basename(Input::sanitise($file)));
+        $filePath  = realpath($config["serverRecordings"]["recordingsDirectory"] . "/" . basename(Input::sanitise($name)));
         
         if (!file_exists($filePath)) {
             throw new Error("File does not exist.");
