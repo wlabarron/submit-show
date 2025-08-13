@@ -13,6 +13,10 @@ require_once  'processing/Input.php';
 $config = require './processing/config.php';
 $database = new Database();
 
+if ($_POST["action"] === "select") {
+    require './processing/trimRecording.php'; 
+}
+
 if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
     $id = Input::sanitise($_POST["id"]);
     $defaultData = $database->getDefaults($id);
