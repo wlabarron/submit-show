@@ -50,12 +50,12 @@ if (isset($_GET["end"])) {
             <input type="hidden" id="timestamp" name="<?php echo isset($_GET["end"]) ? "endTimestamp" : "startTimestamp" ?>" />
             
             <div id="playback-controls" class="playback-controls">
-                <button id="play" type="button" class="btn btn-symbol-only btn-outline-dark" title="Play">&#x23F5;&#xFE0E;</button>
-                <button id="pause" type="button" class="btn btn-symbol-only btn-outline-dark" title="Pause">&#x23F8;&#xFE0E;</button>
-                <button id="test" type="button" class="btn btn-outline-dark" title="Test">Test</button>
+                <button id="play" type="button" class="btn btn-symbol-only btn-outline-dark disabled-until-loaded" disabled title="Play">&#x23F5;&#xFE0E;</button>
+                <button id="pause" type="button" class="btn btn-symbol-only btn-outline-dark disabled-until-loaded" disabled title="Pause">&#x23F8;&#xFE0E;</button>
+                <button id="test" type="button" class="btn btn-outline-dark disabled-until-loaded" disabled title="Test">Test</button>
                 <div class="form-group w-25 mb-1">
                     <label for="customRange1" class="form-label d-inline">Zoom</label>
-                    <input type="range" class="form-range d-inline" id="waveformZoom" value=0 max=40>
+                    <input type="range" class="form-range d-inline disabled-until-loaded" disabled id="waveformZoom" value=0 max=40>
                 </div>
             </div>
             
@@ -67,8 +67,7 @@ if (isset($_GET["end"])) {
                 </div>
             </div>
             
-            <!-- TODO Loading indicator needed, especially while creating file -->
-            <button type="submit" id="submit-button" class="btn btn-primary mt-2">Continue</button>
+            <button type="submit" id="submit-button" class="btn btn-primary mt-2 disabled-until-loaded" disabled>Continue</button>
         </div>
     </form>
     
@@ -125,6 +124,7 @@ if (isset($_GET["end"])) {
             
             // Not loading any more
             loading.hidden = true;
+            Array.from(document.querySelectorAll(".disabled-until-loaded")).forEach(el => el.disabled = false);
         })
         
         <?php if (isset($_GET["end"])) { ?>
