@@ -148,6 +148,8 @@ function publishShow(array $show, array $config, Storage $storage, Database $dat
                 "Thank you!\n\n" .
                 "If you'd prefer not to receive these emails in future, leave the notification box unticked when you submit your show.");
         }
+    } else if (isset($response["error"]["type"]) && $response["error"]["type"] === "RateLimitException") { 
+        $database->postponePublication($show["id"], $response["error"]["retry_after"]);
     } else {
         error_log("Failed to publish submission " . $show["id"] . " to Mixcloud. Response:\n" . json_encode($response));
     }
