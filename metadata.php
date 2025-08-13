@@ -163,7 +163,7 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
         <div class="text-center">
             <hr>
             <p class="text-center">This show will be sent to the station programming team for playout or archival, and published to Mixcloud.</p>
-            <button type="submit" class="btn btn-lg btn-outline-success">Submit show</button>
+            <button type="submit" id="submit-button" class="btn btn-lg btn-outline-success">Submit show</button>
         </div>
     </form>
     
@@ -173,6 +173,7 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
         window.onbeforeunload = function () { return true;};
         document.getElementById("form").addEventListener("submit", e => {
             window.onbeforeunload = null;
+            document.getElementById("submit-button").disabled = true; // prevent double submission
         })
         
         // Resize text areas as they're filled with content

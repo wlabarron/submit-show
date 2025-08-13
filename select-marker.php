@@ -78,6 +78,7 @@ if (isset($_GET["end"])) {
         window.onbeforeunload = function () { return true;};
         document.getElementById("form").addEventListener("submit", e => {
             window.onbeforeunload = null;
+            document.getElementById("submit-button").disabled = true; // prevent double submission
         })
         
         const timestamp = document.getElementById("timestamp");

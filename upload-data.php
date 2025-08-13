@@ -49,7 +49,7 @@ $config = require './processing/config.php';
             </label>
         </div>
         
-        <button type="submit" class="btn btn-primary mt-3">Continue</button>
+        <button type="submit" id="submit-button" class="btn btn-primary mt-3">Continue</button>
     </form>
     
     <script>
@@ -57,6 +57,7 @@ $config = require './processing/config.php';
         window.onbeforeunload = function () { return true;};
         document.getElementById("form").addEventListener("submit", e => {
             window.onbeforeunload = null;
+            document.getElementById("submit-button").disabled = true; // prevent double submission
         })
     </script>
 </body>
