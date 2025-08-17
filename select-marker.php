@@ -8,8 +8,16 @@ $fileName = Input::sanitise($_POST["fileName"]);
 
 if (isset($_GET["end"])) {
     $filePath = Input::fileNameToPath($fileName);
-    $fileDuration = intval(shell_exec("mediainfo --Output='General;%Duration%'  \"$filePath\"")) / 1000; // ms to sec
-    $excerptStartTime = $fileDuration - $config["serverRecordings"]["auditionTime"];
+    
+    $msDuration = shell_exec("mediainfo --Output='General;%Duration%'  \"$filePath\"");
+    if ($msDuration) {
+        $fileDuration = intval($msDuration) / 1000; // ms to sec
+        $excerptStartTime = $fileDuration - $config["serverRecordings"]["auditionTime"];
+    } else {
+        error_log("Couldn't get duration of input file");
+        http_response_code(500);
+        exit;
+    }
 } else {
     $excerptStartTime = 0;
 }

@@ -22,8 +22,15 @@ if ($_SERVER['REQUEST_METHOD'] === "GET" && !empty($_GET["file"]) && !empty($_GE
     header("Content-Type: " . mime_content_type($filePath));
     
     if ($_GET["part"] === "end") {
-        $fileDuration = intval(shell_exec("mediainfo --Output='General;%Duration%'  \"$filePath\"")) / 1000; // ms to sec
-        $excerptStartTime = $fileDuration - $config["serverRecordings"]["auditionTime"];
+        $msDuration = shell_exec("mediainfo --Output='General;%Duration%'  \"$filePath\"");
+        if ($msDuration) {
+            $fileDuration = intval($msDuration) / 1000; // ms to sec
+            $excerptStartTime = $fileDuration - $config["serverRecordings"]["auditionTime"];
+        } else {
+            error_log("Couldn't get duration of input file");
+            http_response_code(500);
+            exit;
+        }
     } else if ($_GET["part"] === "start") {
         $excerptStartTime = 0;
     } else {
