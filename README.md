@@ -2,7 +2,11 @@
 This tool allows a radio station to accept show recordings from presenters or producers, ready for playout or replay, 
 and can automatically publish them to Mixcloud at a specified time.
 
-* Allows people to send in radio shows without having to try and email large files.
+* Allows people to upload files to send in radio shows without having to try and email large files.
+* Allows users to "top-and-tail" recordings of live radio shows made using a tool like [PlayIt Recorder](https://www.playitsoftware.com/Products/Recorder)
+  and submit those entirely from their web browser.
+* Sorts submitted shows into a folder hierarchy of your choice, including consistent file naming and metadata-writing
+  into the audio files themselves, to simplify integration with your playout system.
 * Automatically publishes shows to Mixcloud at the specified time, without sharing the Mixcloud password with the whole
   team.
 * Can send an email notification to your scheduling team when a new show is submitted.
