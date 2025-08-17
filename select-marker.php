@@ -4,6 +4,12 @@ require './processing/promptLogin.php';
 require_once  'processing/Input.php';
 $config = require './processing/config.php';
 
+if (!$config["serverRecordings"]["enabled"]) { 
+    error_log("Server recording not enabled");
+    http_response_code(403);
+    exit;
+}
+
 $fileName = Input::sanitise($_POST["fileName"]);
 
 if (isset($_GET["end"])) {

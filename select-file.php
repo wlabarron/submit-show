@@ -2,6 +2,12 @@
 require './components/post-only.php';
 require './processing/promptLogin.php'; 
 $config = require './processing/config.php';
+
+if (!$config["serverRecordings"]["enabled"]) { 
+    error_log("Server recording not enabled");
+    http_response_code(403);
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

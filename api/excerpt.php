@@ -6,6 +6,12 @@ require_once '../processing/Input.php';
 
 $config = require '../processing/config.php';
 
+if (!$config["serverRecordings"]["enabled"]) { 
+    error_log("Server recording not enabled");
+    http_response_code(403);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === "GET" && !empty($_GET["file"]) && !empty($_GET["part"])) {
     $part = Input::sanitise($_GET["part"]);
     
