@@ -47,7 +47,7 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
                     Saved photo:
                     <div class="col-md-5">
                         <img src="/resources/default/image.php?show=<?php echo Input::sanitise($_POST["id"]); ?>" 
-                            alt="Previously uploaded cover image." width="100" id="defaultImage"/>
+                            alt="Previously uploaded cover image." width="100" height="100" id="defaultImage"/>
                     </div>
                 </div>
                 <select class="form-select"
