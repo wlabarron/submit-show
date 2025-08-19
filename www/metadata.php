@@ -2,7 +2,7 @@
 use submitShow\Database;
 use submitShow\Recording;
 
-require __DIR__ . '/../scripts/post-only.php';
+require __DIR__ . '/../scripts/postOnly.php';
 require __DIR__ . '/../scripts/promptLogin.php';
 require_once __DIR__ . '/../classes/Database.php';
 require_once __DIR__ . '/../classes/Recording.php';

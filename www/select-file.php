@@ -1,5 +1,5 @@
 <?php 
-require __DIR__ . '/../scripts/post-only.php';
+require __DIR__ . '/../scripts/postOnly.php';
 require __DIR__ . '/../scripts/promptLogin.php';
 $config = require __DIR__ . '/../config.php';
 
