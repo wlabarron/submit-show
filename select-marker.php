@@ -59,7 +59,7 @@ if (isset($_GET["end"])) {
                  so will be posted to Mixcloud immediately anyway. -->
             <input type="hidden" name="date" value="<?php echo substr(basename($fileName), 0, 10); // this should work because file names should start with YYYY-MM-DD. Should. ?>" />
             <input type="hidden" name="end" value="00:00" />
-            <input type="hidden" name="endNextDay" value="false" />
+            <input type="hidden" name="endNextDay" value="0" />
             
             <input type="hidden" id="timestamp" name="<?php echo isset($_GET["end"]) ? "endTimestamp" : "startTimestamp" ?>" />
             

@@ -37,13 +37,13 @@ $config = require './processing/config.php';
         </div>
         
         <div class="form-check">
-            <input class="form-check-input" type="radio" name="endNextDay" value="false" id="endSameDay" checked>
+            <input class="form-check-input" type="radio" name="endNextDay" value="0" id="endSameDay" checked>
             <label class="form-check-label" for="endSameDay">
                 My show finished on the same day it started
             </label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" name="endNextDay" value="true" id="endNextDay">
+            <input class="form-check-input" type="radio" name="endNextDay" value="1" id="endNextDay">
             <label class="form-check-label" for="endNextDay">
                 My show runs over midnight, finishing the day after it started
             </label>
