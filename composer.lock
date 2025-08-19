@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "83daf7488ede7eae2781e972e855b2d7",
+    "content-hash": "2e5ab5f39cdbc090e967893bfdc5154f",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.353.0",
+            "version": "3.355.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "73a28b9be8b465af1dd02b6a1b23fca4b145c36b"
+                "reference": "17e7dd50a31164d18f4767636fd5d1c123f714e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/73a28b9be8b465af1dd02b6a1b23fca4b145c36b",
-                "reference": "73a28b9be8b465af1dd02b6a1b23fca4b145c36b",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/17e7dd50a31164d18f4767636fd5d1c123f714e0",
+                "reference": "17e7dd50a31164d18f4767636fd5d1c123f714e0",
                 "shasum": ""
             },
             "require": {
@@ -153,34 +153,34 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.353.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.355.0"
             },
-            "time": "2025-08-13T18:05:58+00:00"
+            "time": "2025-08-18T18:15:09+00:00"
         },
         {
             "name": "flowjs/flow-php-server",
-            "version": "v1.2.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/flowjs/flow-php-server.git",
-                "reference": "fe8890c25e835d0b4f58d8bd91331326ab1808ba"
+                "reference": "24ba9aca022410095f781532b38a8e52adc1b22e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/fe8890c25e835d0b4f58d8bd91331326ab1808ba",
-                "reference": "fe8890c25e835d0b4f58d8bd91331326ab1808ba",
+                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/24ba9aca022410095f781532b38a8e52adc1b22e",
+                "reference": "24ba9aca022410095f781532b38a8e52adc1b22e",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4"
+                "php": ">=8.0"
             },
             "require-dev": {
                 "ext-mongodb": "*",
-                "fabpot/php-cs-fixer": "~2.2",
-                "league/phpunit-coverage-listener": "~1.1",
-                "mikey179/vfsstream": "v1.2.0",
+                "friendsofphp/php-cs-fixer": "^3.65",
+                "mikey179/vfsstream": "^1.2",
                 "mongodb/mongodb": "^1.4.0",
-                "phpunit/phpunit": "4.*"
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": ">=9.0"
             },
             "suggest": {
                 "mongodb/mongodb": "Required to use this package with Mongo DB"
@@ -214,9 +214,9 @@
             ],
             "support": {
                 "issues": "https://github.com/flowjs/flow-php-server/issues",
-                "source": "https://github.com/flowjs/flow-php-server/tree/v1.2.0"
+                "source": "https://github.com/flowjs/flow-php-server/tree/v2.0.0"
             },
-            "time": "2022-08-26T15:50:37+00:00"
+            "time": "2024-12-09T12:14:15+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
