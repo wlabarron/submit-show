@@ -145,7 +145,7 @@ function publishShow(array $show, array $config, Storage $storage, Database $dat
                 $show["title"] . " published",
                 "Hello!\n\n" .
                 "\"" . $show["title"] . "\" was just published to Mixcloud. Here's the link: " . Link::shorten("https://www.mixcloud.com" . $response["result"]["key"]) . "\n\n" .
-                "Thank you!\n\n" .
+                "The link will start working as soon as Mixcloud finishes processing the upload. So, if it's not working now, check back in a few minutes.\n\n" .
                 "If you'd prefer not to receive these emails in future, leave the notification box unticked when you submit your show.");
         }
     } else if (isset($response["error"]["type"]) && $response["error"]["type"] === "RateLimitException") { 
