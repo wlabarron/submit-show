@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f367ab620d580730fccd171a461c11f5",
+    "content-hash": "4d5ac9d669fd7f39a47ceb12b010b2de",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -98,26 +98,31 @@
         },
         {
             "name": "flowjs/flow-php-server",
-            "version": "v1.0.3",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/flowjs/flow-php-server.git",
-                "reference": "c6802bf7c68fe8d1e19b60e484bf08f838861728"
+                "reference": "24ba9aca022410095f781532b38a8e52adc1b22e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/c6802bf7c68fe8d1e19b60e484bf08f838861728",
-                "reference": "c6802bf7c68fe8d1e19b60e484bf08f838861728",
+                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/24ba9aca022410095f781532b38a8e52adc1b22e",
+                "reference": "24ba9aca022410095f781532b38a8e52adc1b22e",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3"
+                "php": ">=8.0"
             },
             "require-dev": {
-                "fabpot/php-cs-fixer": "dev-master",
-                "league/phpunit-coverage-listener": "~1.1",
-                "mikey179/vfsstream": "v1.2.0",
-                "phpunit/phpunit": "4.*"
+                "ext-mongodb": "*",
+                "friendsofphp/php-cs-fixer": "^3.65",
+                "mikey179/vfsstream": "^1.2",
+                "mongodb/mongodb": "^1.4.0",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": ">=9.0"
+            },
+            "suggest": {
+                "mongodb/mongodb": "Required to use this package with Mongo DB"
             },
             "type": "library",
             "autoload": {
@@ -148,9 +153,9 @@
             ],
             "support": {
                 "issues": "https://github.com/flowjs/flow-php-server/issues",
-                "source": "https://github.com/flowjs/flow-php-server/tree/master"
+                "source": "https://github.com/flowjs/flow-php-server/tree/v2.0.0"
             },
-            "time": "2017-04-22T08:41:31+00:00"
+            "time": "2024-12-09T12:14:15+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -853,7 +858,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -862,6 +867,6 @@
         "ext-gd": "*",
         "ext-curl": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }
