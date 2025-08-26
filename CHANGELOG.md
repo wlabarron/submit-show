@@ -8,7 +8,7 @@
 
 ## v2.0
 In this release:
-* Show recorded on the server with a tool like [PlayIt Recorder](https://www.playitsoftware.com/Products/Recorder) can be topped-and-tailed and submitted, entirely in the web browser.
+* Shows recorded on the server with a tool like [PlayIt Recorder](https://www.playitsoftware.com/Products/Recorder) can be topped-and-tailed and submitted, entirely in the web browser.
 * The UI has been improved, simplifying its appearance, showing an upload progress meter, and making it more modular and easier to upgrade in future.
 * Upload notification emails can be sent to multiple addresses (#130).
 * Mixcloud's upload rate limits are handled properly (#7).
