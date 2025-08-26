@@ -1,0 +1,74 @@
+body {
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.joint-input-top {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-top: 0 !important;
+}
+
+.joint-input-middle {
+  border-radius: 0;
+  margin-top: 0 !important;
+}
+
+.joint-input-bottom {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  margin-top: 0 !important;
+}
+
+hr {
+  margin: 3rem 0;
+}
+
+.form-control, .form-select {
+  margin-top: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+.playback-controls {
+  display: flex;
+  gap: 1rem; 
+}
+
+.playback-controls .btn-symbol-only {
+  font-size: 2rem;
+}
+
+.waveform-loading {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  min-height: 256px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#waveform ::part(marker) {
+  border-width: 2px;
+}
+
+#waveform ::part(marker)::after {
+  content: "";
+  position: absolute;
+  left: -.8rem;
+  width: 1.2rem;
+  height: 100%;
+}
+
+#waveform ::part(cursor) {
+  border-width: 2px;
+}
