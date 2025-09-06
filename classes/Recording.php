@@ -126,12 +126,7 @@ class Recording {
 
         if (!empty($tag)) {
             if (strlen($tag) > 20) throw new Exception("Tag was too long.");
-
-            // If this is the first tag being added and it's not a default tag, throw exception
-            if (sizeof($this->tags) == 0 && !in_array($tag, Recording::$PRIMARY_TAG_OPTIONS)) {
-                throw new Exception("First tag isn't a default tag, but it should be.");
-            }
-
+            
             $this->tags[] = $tag;
         }
     }
