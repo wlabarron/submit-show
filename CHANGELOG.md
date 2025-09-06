@@ -6,6 +6,11 @@
 4. Complete any additional steps specific to the version you're upgrading to *and all versions in between* (see below).
 5. Re-enable your cron job.
 
+## v2.1
+In this release:
+* Tag suggestions appear as you type in all five tag entry fields, rather than mandating a selection for the first tag and getting no help for the other four.
+* This first tag can be anything, not just a Mixcloud default option.
+
 ## v2.0
 In this release:
 * Shows recorded on the server with a tool like [PlayIt Recorder](https://www.playitsoftware.com/Products/Recorder) can be topped-and-tailed and submitted, entirely in the web browser.
