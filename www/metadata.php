@@ -89,31 +89,30 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"])) {
         </div>
         
         <div class="form-group">
-            <label class="mb-2">Tags</label>
-            <select class="form-select joint-input-top" id="tag1" aria-label="Tag" aria-describedby="tagsHelp" name="tag1">
-                <option value="" disabled selected>Choose primary tag...</option>
-                <?php
-                    foreach (Recording::$PRIMARY_TAG_OPTIONS as $tag) {
-                        $selected = "";
-                        if (isset($defaultData["tags"][0]) && $tag == $defaultData["tags"][0]) {
-                            $selected = "selected";
+            <fieldset>
+                <legend class="fs-6 mb-2">Tags</legend>
+                <input type="text" class="form-control joint-input-top" aria-label="Tag" aria-describedby="tagsHelp"
+                    id="tag1" name="tag1" maxlength="20" list="tagSuggestions" value="<?php echo $defaultData["tags"][0] ?? ""; ?>">
+                <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
+                    id="tag2" name="tag2" maxlength="20" list="tagSuggestions" value="<?php echo $defaultData["tags"][1] ?? ""; ?>">
+                <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
+                    id="tag3" name="tag3" maxlength="20" list="tagSuggestions" value="<?php echo $defaultData["tags"][2] ?? ""; ?>">
+                <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
+                    id="tag4" name="tag4" maxlength="20" list="tagSuggestions" value="<?php echo $defaultData["tags"][3] ?? ""; ?>">
+                <input type="text" class="form-control joint-input-bottom" aria-label="Tag" aria-describedby="tagsHelp"
+                    id="tag5" name="tag5" maxlength="20" list="tagSuggestions" value="<?php echo $defaultData["tags"][4] ?? ""; ?>">
+                <small id="tagsHelp" class="form-text text-muted">
+                    Good tags are things like the genres of music in the show. Click into the box to see popular tags, or type your 
+                    own. More popular tags will suggest your show to more people.
+                </small>
+                <datalist id="tagSuggestions">
+                    <?php
+                        foreach (Recording::$PRIMARY_TAG_OPTIONS as $tag) {
+                            echo '<option value="' . $tag . '"></option>';
                         }
-                        echo '<option value="' . $tag . '" ' . $selected . '>' . $tag. '</option>';
-                    }
-                ?>
-            </select>
-            <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
-                   id="tag2" name="tag2" maxlength="20" value="<?php echo $defaultData["tags"][1] ?? ""; ?>">
-            <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
-                   id="tag3" name="tag3" maxlength="20" value="<?php echo $defaultData["tags"][2] ?? ""; ?>">
-            <input type="text" class="form-control joint-input-middle" aria-label="Tag" aria-describedby="tagsHelp"
-                   id="tag4" name="tag4" maxlength="20" value="<?php echo $defaultData["tags"][3] ?? ""; ?>">
-            <input type="text" class="form-control joint-input-bottom" aria-label="Tag" aria-describedby="tagsHelp"
-                   id="tag5" name="tag5" maxlength="20" value="<?php echo $defaultData["tags"][4] ?? ""; ?>">
-            <small id="tagsHelp" class="form-text text-muted">
-                Good tags are things like the genres of music in the show. Pick the first from the dropdown, and
-                type up to four more into the boxes.
-            </small>
+                    ?>
+                </datalist>
+            </fieldset>
         </div>
 
         <?php
