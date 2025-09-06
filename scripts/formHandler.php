@@ -66,8 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         $recording->setDescription($_POST["description"]);
-        if (isset($_POST["tag1"])) // suppress warning since this isn't sent at all if no tag selected
-            $recording->addTag($_POST["tag1"]);
+        $recording->addTag($_POST["tag1"]);
         $recording->addTag($_POST["tag2"]);
         $recording->addTag($_POST["tag3"]);
         $recording->addTag($_POST["tag4"]);
