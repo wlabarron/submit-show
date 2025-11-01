@@ -8,7 +8,7 @@
       "ext-json": "*",
       "ext-gd": "*",
       "ext-curl": "*",
-      "phpmailer/phpmailer": "^6.10.0",
+      "phpmailer/phpmailer": "^7.0.0",
       "onelogin/php-saml": "^4.3"
     }
 }
