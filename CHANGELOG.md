@@ -6,6 +6,10 @@
 4. Complete any additional steps specific to the version you're upgrading to *and all versions in between* (see below).
 5. Re-enable your cron job.
 
+## v2.1.1
+In this release:
+* Various dependencies have been updated, including `php-saml` to resolve security vulnerability CVE-2025-66475.
+
 ## v2.1
 In this release:
 * Tag suggestions appear as you type in all five tag entry fields, rather than mandating a selection for the first tag and getting no help for the other four.
